@@ -15,15 +15,15 @@ const connectDatabase = async (): Promise<void> => {
       socketTimeoutMS: 45000,
     });
 
-    console.log('✅ MongoDB connected successfully');
+    console.log('MongoDB connected successfully');
 
     // Handle connection events
     mongoose.connection.on('error', (error) => {
-      console.error('❌ MongoDB connection error:', error);
+      console.error('MongoDB connection error:', error);
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️  MongoDB disconnected');
+      console.warn('MongoDB disconnected');
     });
 
     // Graceful shutdown
@@ -33,7 +33,7 @@ const connectDatabase = async (): Promise<void> => {
       process.exit(0);
     });
   } catch (error) {
-    console.error('❌ Failed to connect to MongoDB:', error);
+    console.error('Failed to connect to MongoDB:', error);
     process.exit(1);
   }
 };
