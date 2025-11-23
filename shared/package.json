@@ -1,0 +1,11 @@
+{
+  "name": "@vietnamese-food-platform/shared",
+  "version": "1.0.0",
+  "description": "Shared types for Vietnamese Food Discovery Platform",
+  "main": "types/index.ts",
+  "types": "types/index.ts",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
