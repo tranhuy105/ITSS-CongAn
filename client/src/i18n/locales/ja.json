@@ -1,0 +1,105 @@
+{
+  "common": {
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "search": "検索",
+    "previous": "前へ",
+    "next": "次へ",
+    "page": "ページ",
+    "of": "/",
+    "back": "戻る"
+  },
+  "restaurants": {
+    "title": "レストラン",
+    "found": "件のレストランが見つかりました",
+    "viewList": "リスト",
+    "viewMap": "地図",
+    "noRestaurants": {
+      "title": "レストランが見つかりません",
+      "subtitle": "フィルターや検索条件を調整してください"
+    },
+    "nearby": "近くのレストラン",
+    "viewAll": "すべて表示",
+    "viewDetails": "詳細を見る",
+    "noRestaurantsForDish": "この料理を提供しているレストランはありません",
+    "website": "ウェブサイト",
+    "visitWebsite": "ウェブサイトを訪問",
+    "location": "場所",
+    "dishesServed": "提供料理"
+  },
+  "home": {
+    "hero": {
+      "title": "本格的なベトナム料理を発見",
+      "subtitle": "北から南まで、ベトナムの伝統料理を詳しいレシピとレストラン情報とともに探索しましょう"
+    },
+    "search": {
+      "placeholder": "料理名で検索..."
+    },
+    "filters": {
+      "title": "フィルター",
+      "category": "カテゴリー",
+      "region": "地域",
+      "clear": "クリア",
+      "categories": {
+        "all": "すべて",
+        "pho": "フォー",
+        "banh": "バイン",
+        "com": "コム",
+        "bun": "ブン",
+        "goi": "ゴイ",
+        "che": "チェー"
+      },
+      "regions": {
+        "all": "すべて",
+        "north": "北部",
+        "central": "中部",
+        "south": "南部"
+      }
+    },
+    "error": {
+      "loadFailed": "料理の読み込みに失敗しました。もう一度お試しください。"
+    },
+    "noDishes": {
+      "title": "料理が見つかりません",
+      "subtitle": "別のカテゴリーを選択してください。"
+    },
+    "showing": "表示中",
+    "of": "/",
+    "dishes": "料理"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "登録",
+    "logout": "ログアウト",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "name": "名前",
+    "forgotPassword": "パスワードをお忘れですか",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "hasAccount": "アカウントをお持ちですか？",
+    "loginButton": "ログイン",
+    "registerButton": "登録",
+    "sendResetLink": "リセットリンクを送信",
+    "backToLogin": "ログインに戻る",
+    "resetPassword": "パスワードをリセット",
+    "resetDescription": "パスワードをリセットするためのリンクをメールでお送りします"
+  },
+  "validation": {
+    "emailRequired": "メールアドレスを入力してください",
+    "passwordRequired": "パスワードを入力してください",
+    "nameRequired": "名前を入力してください",
+    "invalidEmail": "メールアドレスの形式が正しくありません",
+    "passwordWeak": "パスワードは文字、数字、記号のうち2種類以上を含む必要があります",
+    "passwordMinLength": "パスワードは6文字以上である必要があります"
+  },
+  "messages": {
+    "resetLinkSent": "メールアドレスが登録されている場合、パスワードリセットリンクが送信されました",
+    "welcome": "ようこそ"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy Policy"
+  }
+}

@@ -1,0 +1,75 @@
+import { Router } from 'express';
+import {
+    createDish,
+    deleteDish,
+    getDishById,
+    getDishes,
+    getDishHistory,
+    revertDish,
+    updateDish,
+    uploadDishImages,
+} from '../controllers/dish';
+import { authenticate, authorize } from '../middleware/auth';
+import { uploadMultiple } from '../middleware/upload';
+import { validate } from '../middleware/validate';
+import { createDishSchema, updateDishSchema } from '../validators/dish';
+
+const router = Router();
+
+/**
+ * @route   GET /api/dishes
+ * @desc    Get all dishes with pagination and filters
+ * @access  Public
+ */
+router.get('/', getDishes);
+
+/**
+ * @route   GET /api/dishes/:id
+ * @desc    Get dish by ID
+ * @access  Public
+ */
+router.get('/:id', getDishById);
+
+/**
+ * @route   POST /api/dishes
+ * @desc    Create a new dish
+ * @access  Private (Admin only)
+ */
+router.post('/', authenticate, authorize('admin'), validate(createDishSchema), createDish);
+
+/**
+ * @route   PUT /api/dishes/:id
+ * @desc    Update a dish
+ * @access  Private (Admin only)
+ */
+router.put('/:id', authenticate, authorize('admin'), validate(updateDishSchema), updateDish);
+
+/**
+ * @route   DELETE /api/dishes/:id
+ * @desc    Delete a dish
+ * @access  Private (Admin only)
+ */
+router.delete('/:id', authenticate, authorize('admin'), deleteDish);
+
+/**
+ * @route   GET /api/dishes/:id/history
+ * @desc    Get dish edit history
+ * @access  Private (Admin only)
+ */
+router.get('/:id/history', authenticate, authorize('admin'), getDishHistory);
+
+/**
+ * @route   POST /api/dishes/:id/revert
+ * @desc    Revert dish to a previous version
+ * @access  Private (Admin only)
+ */
+router.post('/:id/revert', authenticate, authorize('admin'), revertDish);
+
+/**
+ * @route   POST /api/dishes/upload
+ * @desc    Upload dish images
+ * @access  Private (Admin only)
+ */
+router.post('/upload', authenticate, authorize('admin'), uploadMultiple, uploadDishImages);
+
+export default router;

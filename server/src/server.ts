@@ -1,6 +1,8 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express, { Application, Request, Response } from 'express';
+import path from 'path';
+import routes from './routes';
 import connectDatabase from './utils/database';
 
 // Load environment variables
@@ -19,10 +21,16 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Basic route
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
+
+// API routes
+app.use('/api', routes);
 
 // Connect to database and start server
 const startServer = async () => {
