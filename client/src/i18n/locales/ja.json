@@ -96,6 +96,14 @@
     "resetLinkSent": "メールアドレスが登録されている場合、パスワードリセットリンクが送信されました",
     "welcome": "ようこそ"
   },
+  "favorites": {
+    "title": "お気に入り料理",
+    "errorLoad": "お気に入りリストの読み込みに失敗しました。もう一度お試しください。",
+    "noDishes": {
+      "title": "お気に入り料理はありません",
+      "subtitle": "ハートアイコンをクリックして、このリストに料理を追加してください。"
+    }
+  },
   "footer": {
     "rights": "All rights reserved",
     "about": "About",

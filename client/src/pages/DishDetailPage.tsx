@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/hooks/useAuth';
+import { useFavorites } from '@/hooks/useFavorites';
 import { getDishById } from '@/services/dishService';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Clock, Heart, MapPin, Star, Users } from 'lucide-react';
@@ -17,20 +17,14 @@ export const DishDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { isAuthenticated } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, isMutating, toggleFavorite } = useFavorites(id || '');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['dish', id],
     queryFn: () => getDishById(id!),
-    enabled: !!id && isAuthenticated,
+    enabled: !!id,
   });
-
-  if (!isAuthenticated) {
-    navigate('/login');
-    return null;
-  }
 
   if (isLoading) {
     return (
@@ -38,7 +32,7 @@ export const DishDetailPage = () => {
         <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-6xl">
           <Skeleton className="h-8 w-24 mb-6" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Skeleton className="aspect-[4/3] rounded-lg" />
+            <Skeleton className="aspect-4/3 rounded-lg" />
             <div className="space-y-4">
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-4 w-1/3" />
@@ -82,7 +76,7 @@ export const DishDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
           {/* Image Section */}
           <div className="lg:col-span-3 space-y-3">
-            <div className="relative aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+            <div className="relative aspect-4/3 bg-muted rounded-lg overflow-hidden">
               <img
                 src={dish.images[currentImageIndex] || '/placeholder.jpg'}
                 alt={displayName}
@@ -127,7 +121,7 @@ export const DishDetailPage = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
+                    className={`shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
                       currentImageIndex === index
                         ? 'border-primary'
                         : 'border-border hover:border-primary/50'
@@ -152,8 +146,9 @@ export const DishDetailPage = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setIsFavorite(!isFavorite)}
-                  className="h-9 w-9 rounded-full flex-shrink-0"
+                  onClick={toggleFavorite}
+                  className="h-9 w-9 rounded-full shrink-0 disabled:opacity-50 disabled:cursor-wait"
+                  disabled={isMutating}
                 >
                   <Heart className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
                 </Button>
@@ -210,7 +205,7 @@ export const DishDetailPage = () => {
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {dish.ingredients.map((ingredient: any, index: number) => (
                   <div key={index} className="flex items-start gap-2 text-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                     <div>
                       <span className="font-medium">{ingredient.name}</span>
                       {ingredient.quantity && (

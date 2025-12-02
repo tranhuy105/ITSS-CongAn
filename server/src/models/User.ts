@@ -14,7 +14,7 @@ export interface IUser extends Document {
   password: string;
   role: UserRole;
   isLocked: boolean;
-  favorites: mongoose.Types.ObjectId[];
+  favorites: { dish: mongoose.Types.ObjectId; addedAt: Date }[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -61,8 +61,16 @@ const userSchema = new Schema<IUser>(
     },
     favorites: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'Dish',
+        dish: {
+          type: Schema.Types.ObjectId,
+          ref: 'Dish',
+          required: true,
+        },
+        addedAt: {
+          type: Date,
+          default: Date.now,
+          required: true,
+        },
       },
     ],
   },
@@ -99,9 +107,7 @@ userSchema.pre('save', async function () {
 });
 
 // Method to compare password
-userSchema.methods.comparePassword = async function (
-  candidatePassword: string
-): Promise<boolean> {
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {

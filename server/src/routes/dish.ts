@@ -1,13 +1,16 @@
 import { Router } from 'express';
 import {
-    createDish,
-    deleteDish,
-    getDishById,
-    getDishes,
-    getDishHistory,
-    revertDish,
-    updateDish,
-    uploadDishImages,
+  createDish,
+  deleteDish,
+  getDishById,
+  getDishByIdAdmin,
+  getDishes,
+  getDishesAdmin,
+  getDishHistory,
+  restoreDish,
+  revertDish,
+  updateDish,
+  uploadDishImages,
 } from '../controllers/dish';
 import { authenticate, authorize } from '../middleware/auth';
 import { uploadMultiple } from '../middleware/upload';
@@ -29,6 +32,20 @@ router.get('/', getDishes);
  * @access  Public
  */
 router.get('/:id', getDishById);
+
+/**
+ * @route   GET /api/dishes/admin
+ * @desc    Admin: Get all dishes including deleted ones
+ * @access  Private (Admin only)
+ */
+router.get('/admin', authenticate, authorize('admin'), getDishesAdmin);
+
+/**
+ * @route   GET /api/dishes/:id/admin
+ * @desc    Admin: Get dish by ID, including if deleted
+ * @access  Private (Admin only)
+ */
+router.get('/:id/admin', authenticate, authorize('admin'), getDishByIdAdmin);
 
 /**
  * @route   POST /api/dishes
@@ -64,6 +81,13 @@ router.get('/:id/history', authenticate, authorize('admin'), getDishHistory);
  * @access  Private (Admin only)
  */
 router.post('/:id/revert', authenticate, authorize('admin'), revertDish);
+
+/**
+ * @route   POST /api/dishes/:id/restore
+ * @desc    Restore a soft-deleted dish
+ * @access  Private (Admin only)
+ */
+router.post('/:id/restore', authenticate, authorize('admin'), restoreDish);
 
 /**
  * @route   POST /api/dishes/upload

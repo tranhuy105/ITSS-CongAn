@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useFavorites } from '@/hooks/useFavorites';
 import { Clock, Heart, MapPin, Star, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -31,11 +32,11 @@ export const DishCard = ({
   language,
 }: DishCardProps) => {
   const [imageError, setImageError] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, isMutating, toggleFavorite } = useFavorites(id);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    setIsFavorite(!isFavorite);
+    toggleFavorite();
   };
 
   const displayName = name[language] || name.ja;
@@ -56,7 +57,8 @@ export const DishCard = ({
 
           <button
             onClick={handleFavoriteClick}
-            className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-all z-10"
+            className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-all z-10 disabled:opacity-50 disabled:cursor-wait"
+            disabled={isMutating}
           >
             <Heart
               className={`w-4 h-4 transition-colors ${

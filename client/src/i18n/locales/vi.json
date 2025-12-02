@@ -96,6 +96,14 @@
     "resetLinkSent": "Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi",
     "welcome": "Chào mừng"
   },
+  "favorites": {
+    "title": "Món ăn yêu thích",
+    "errorLoad": "Không thể tải danh sách yêu thích. Vui lòng thử lại.",
+    "noDishes": {
+      "title": "Không có món ăn yêu thích",
+      "subtitle": "Bấm vào biểu tượng trái tim để thêm món ăn vào danh sách này."
+    }
+  },
   "footer": {
     "rights": "Bản quyền thuộc về",
     "about": "Giới thiệu",

@@ -2,102 +2,194 @@ import mongoose from 'mongoose';
 import Restaurant from '../models/Restaurant';
 
 interface GetRestaurantsParams {
-    page?: number;
-    limit?: number;
-    dishId?: string;
-    search?: string;
-    sortBy?: string;
-    latitude?: number;
-    longitude?: number;
-    maxDistance?: number;
+  page?: number;
+  limit?: number;
+  dishId?: string;
+  search?: string;
+  sortBy?: string;
+  latitude?: number;
+  longitude?: number;
+  maxDistance?: number;
 }
 
+// feature for end user
 export const getRestaurants = async (params: GetRestaurantsParams) => {
-    const {
-        page = 1,
-        limit = 12,
-        dishId,
-        search,
-        sortBy = '-createdAt',
-        latitude,
-        longitude,
-        maxDistance = 10000, // 10km default
-    } = params;
+  const {
+    page = 1,
+    limit = 12,
+    dishId,
+    search,
+    sortBy = '-createdAt',
+    latitude,
+    longitude,
+    maxDistance = 10000,
+  } = params;
 
-    const query: any = {};
+  const query: any = { deletedAt: null };
 
-    // Filter by dish
-    if (dishId) {
-        query.dishes = new mongoose.Types.ObjectId(dishId);
-    }
+  // Filter by dish
+  if (dishId) {
+    query.dishes = new mongoose.Types.ObjectId(dishId);
+  }
 
-    // Search by name
-    if (search) {
-        query.name = { $regex: search, $options: 'i' };
-    }
+  // Search by name
+  if (search) {
+    query.name = { $regex: search, $options: 'i' };
+  }
 
-    const skip = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-    let restaurantsQuery;
+  let restaurantsQuery;
 
-    // Geospatial query if coordinates provided
-    if (latitude !== undefined && longitude !== undefined) {
-        restaurantsQuery = Restaurant.find(query)
-            .where('location')
-            .near({
-                center: {
-                    type: 'Point',
-                    coordinates: [longitude, latitude],
-                },
-                maxDistance,
-            })
-            .skip(skip)
-            .limit(limit)
-            .populate('dishes', 'name images category')
-            .lean();
-    } else {
-        restaurantsQuery = Restaurant.find(query)
-            .sort(sortBy)
-            .skip(skip)
-            .limit(limit)
-            .populate('dishes', 'name images category')
-            .lean();
-    }
-
-    const [restaurants, total] = await Promise.all([
-        restaurantsQuery,
-        Restaurant.countDocuments(query),
-    ]);
-
-    return {
-        restaurants,
-        pagination: {
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit),
+  // Geospatial query if coordinates provided
+  if (latitude !== undefined && longitude !== undefined) {
+    restaurantsQuery = Restaurant.find(query)
+      .where('location')
+      .near({
+        center: {
+          type: 'Point',
+          coordinates: [longitude, latitude],
         },
-    };
+        maxDistance,
+      })
+      .skip(skip)
+      .limit(limit)
+      .populate('dishes', 'name images category')
+      .lean();
+  } else {
+    restaurantsQuery = Restaurant.find(query)
+      .sort(sortBy)
+      .skip(skip)
+      .limit(limit)
+      .populate('dishes', 'name images category')
+      .lean();
+  }
+
+  const [restaurants, total] = await Promise.all([
+    restaurantsQuery,
+    Restaurant.countDocuments(query),
+  ]);
+
+  return {
+    restaurants,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 export const getRestaurantById = async (id: string) => {
-    const restaurant = await Restaurant.findById(id)
-        .populate('dishes', 'name description images category region averageRating')
-        .lean();
+  const restaurant = await Restaurant.findById(id)
+    .where({ deletedAt: null })
+    .populate('dishes', 'name description images category region averageRating')
+    .lean();
 
-    if (!restaurant) {
-        throw new Error('Restaurant not found');
-    }
+  if (!restaurant) {
+    throw new Error('Restaurant not found');
+  }
 
-    return restaurant;
+  return restaurant;
 };
 
 export const getRestaurantsByDish = async (dishId: string) => {
-    const restaurants = await Restaurant.find({
-        dishes: new mongoose.Types.ObjectId(dishId),
-    })
-        .populate('dishes', 'name images category')
-        .lean();
+  const restaurants = await Restaurant.find({
+    dishes: new mongoose.Types.ObjectId(dishId),
+  })
+    .populate('dishes', 'name images category')
+    .lean();
 
-    return restaurants;
+  return restaurants;
+};
+
+// feature for admin
+export const getRestaurantsAdmin = async (params: GetRestaurantsParams) => {
+  const { page = 1, limit = 12, dishId, search, sortBy = '-createdAt' } = params;
+
+  const query: any = {};
+
+  if (dishId) {
+    query.dishes = new mongoose.Types.ObjectId(dishId);
+  }
+
+  if (search) {
+    query.name = { $regex: search, $options: 'i' };
+  }
+
+  const skip = (page - 1) * limit;
+
+  const restaurantsQuery = Restaurant.find(query)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .populate('dishes', 'name images category')
+    .lean();
+
+  const [restaurants, total] = await Promise.all([
+    restaurantsQuery,
+    Restaurant.countDocuments(query),
+  ]);
+
+  return {
+    restaurants,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+export const getRestaurantByIdAdmin = async (id: string) => {
+  const restaurant = await Restaurant.findById(id)
+    .populate('dishes', 'name description images category region averageRating')
+    .lean();
+
+  if (!restaurant) {
+    throw new Error('Restaurant not found (Admin)');
+  }
+  return restaurant;
+};
+
+export const createRestaurant = async (data: any) => {
+  const restaurant = await Restaurant.create(data);
+  return restaurant;
+};
+
+export const updateRestaurant = async (id: string, data: any) => {
+  const restaurant = await Restaurant.findOneAndUpdate({ _id: id, deletedAt: null }, data, {
+    new: true,
+    runValidators: true,
+  });
+  if (!restaurant) {
+    throw new Error('Restaurant not found or soft-deleted');
+  }
+  return restaurant;
+};
+
+export const deleteRestaurant = async (id: string) => {
+  const restaurant = await Restaurant.findOneAndUpdate(
+    { _id: id, deletedAt: null },
+    { deletedAt: new Date() },
+    { new: true }
+  );
+  if (!restaurant) {
+    throw new Error('Restaurant not found or already soft-deleted');
+  }
+  return restaurant;
+};
+
+export const restoreRestaurant = async (id: string) => {
+  const restaurant = await Restaurant.findOneAndUpdate(
+    { _id: id, deletedAt: { $ne: null } },
+    { deletedAt: null },
+    { new: true }
+  );
+  if (!restaurant) {
+    throw new Error('Restaurant not found or already active');
+  }
+  return restaurant;
 };

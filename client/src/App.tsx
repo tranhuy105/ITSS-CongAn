@@ -9,6 +9,8 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { RestaurantDetailPage } from './pages/RestaurantDetailPage';
 import { RestaurantListPage } from './pages/RestaurantListPage';
+import { FavoritesPage } from './pages/FavoritesPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +29,14 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/dishes/:id" element={<DishDetailPage />} />
+            <Route
+              path="/favorites"
+              element={
+                <ProtectedRoute>
+                  <FavoritesPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/restaurants" element={<RestaurantListPage />} />
             <Route path="/restaurants/:id" element={<RestaurantDetailPage />} />
             <Route path="/login" element={<LoginPage />} />

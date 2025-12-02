@@ -35,6 +35,7 @@ export interface IDish extends Document {
   history: EditHistory[];
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date | null;
 }
 
 // Multilingual text schema
@@ -170,6 +171,12 @@ const dishSchema = new Schema<IDish>(
       type: [editHistorySchema],
       default: [],
     },
+    // Soft delete field
+    deletedAt: {
+      type: Date,
+      default: null,
+      select: false, // Don't expose this field by default
+    },
   },
   {
     timestamps: true,
@@ -183,6 +190,7 @@ dishSchema.index({ region: 1 });
 dishSchema.index({ averageRating: -1 });
 dishSchema.index({ createdAt: -1 });
 dishSchema.index({ category: 1, region: 1 }); // Compound index for filtering
+dishSchema.index({ deletedAt: 1 });
 
 // Pre-save hook to track edit history
 dishSchema.pre('save', function () {

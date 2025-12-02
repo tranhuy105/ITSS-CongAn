@@ -19,6 +19,7 @@ export interface IRestaurant extends Document {
   reviewCount: number;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date | null;
 }
 
 // Location schema for GeoJSON
@@ -44,7 +45,8 @@ const locationSchema = new Schema<Location>(
             coords[1] <= 90 // latitude
           );
         },
-        message: 'Invalid coordinates. Longitude must be between -180 and 180, latitude between -90 and 90',
+        message:
+          'Invalid coordinates. Longitude must be between -180 and 180, latitude between -90 and 90',
       },
     },
   },
@@ -123,6 +125,12 @@ const restaurantSchema = new Schema<IRestaurant>(
       default: 0,
       min: 0,
     },
+    // Soft delete field
+    deletedAt: {
+      type: Date,
+      default: null,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -134,6 +142,7 @@ restaurantSchema.index({ location: '2dsphere' }); // Geospatial index for locati
 restaurantSchema.index({ name: 'text' }); // Text search on name
 restaurantSchema.index({ averageRating: -1 });
 restaurantSchema.index({ createdAt: -1 });
+restaurantSchema.index({ deletedAt: 1 });
 
 // Method to find nearby restaurants
 restaurantSchema.statics.findNearby = function (

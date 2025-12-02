@@ -3,17 +3,14 @@ import { FilterSidebar } from '@/components/FilterSidebar';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useAuth } from '@/hooks/useAuth';
 import { getDishes } from '@/services/dishService';
 import { useQuery } from '@tanstack/react-query';
 import { ChefHat, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 export const HomePage = () => {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -43,11 +40,6 @@ export const HomePage = () => {
         search: searchQuery || undefined,
       }),
   });
-
-  if (!isAuthenticated) {
-    navigate('/login');
-    return null;
-  }
 
   const language = i18n.language as 'ja' | 'vi';
 
