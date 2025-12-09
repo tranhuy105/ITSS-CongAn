@@ -65,6 +65,10 @@ export const DishDetailPage = () => {
   const displayName = dish.name[language] || dish.name.ja;
   const displayDescription = dish.description[language] || dish.description.ja;
 
+  const imageUrl = dish.images?.[currentImageIndex]
+    ? `${import.meta.env.VITE_BACKEND_URL}${dish.images[currentImageIndex]}`
+    : '/placeholder.jpg';
+
   return (
     <AppLayout>
       <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-6xl">
@@ -78,12 +82,9 @@ export const DishDetailPage = () => {
           <div className="lg:col-span-3 space-y-3">
             <div className="relative aspect-4/3 bg-muted rounded-lg overflow-hidden">
               <img
-                src={dish.images[currentImageIndex] || '/placeholder.jpg'}
+                src={imageUrl || '/placeholder.jpg'}
                 alt={displayName}
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/placeholder.jpg';
-                }}
               />
               {dish.images.length > 1 && (
                 <>

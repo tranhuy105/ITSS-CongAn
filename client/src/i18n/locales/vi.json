@@ -7,7 +7,8 @@
     "next": "Tiếp",
     "page": "Trang",
     "of": "/",
-    "back": "Quay lại"
+    "back": "Quay lại",
+    "welcome": "こんにちは"
   },
   "restaurants": {
     "title": "Nhà hàng",
@@ -95,6 +96,14 @@
   "messages": {
     "resetLinkSent": "Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi",
     "welcome": "Chào mừng"
+  },
+  "admin": {
+    "dashboard": "Bảng điều khiển",
+    "dishes": "Quản lý Món ăn",
+    "restaurants": "Quản lý Nhà hàng",
+    "users": "Quản lý Người dùng",
+    "welcomeMessage": "Chào mừng trở lại, Admin!",
+    "dashboardDescription": "Đây là khu vực quản lý dữ liệu của nền tảng. Sử dụng menu bên trái để điều hướng giữa các chức năng."
   },
   "favorites": {
     "title": "Món ăn yêu thích",

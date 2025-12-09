@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Restaurant from '../models/Restaurant';
+import { Dish } from '@/models';
 
 interface GetRestaurantsParams {
   page?: number;
@@ -105,6 +106,26 @@ export const getRestaurantsByDish = async (dishId: string) => {
 };
 
 // feature for admin
+// Helper function to validate dishes are active
+const validateActiveDishes = async (dishIds: string[]) => {
+  if (!dishIds || dishIds.length === 0) return [];
+
+  const activeDishes = await Dish.find({
+    _id: { $in: dishIds },
+    deletedAt: null,
+  })
+    .select('_id')
+    .lean();
+
+  if (activeDishes.length !== dishIds.length) {
+    const foundIds = activeDishes.map((d) => d._id.toString());
+    const invalidIds = dishIds.filter((id) => !foundIds.includes(id));
+    throw new Error(`One or more dishes are inactive or not found: ${invalidIds.join(', ')}`);
+  }
+  // Trả về ObjectIds
+  return activeDishes.map((d) => d._id);
+};
+
 export const getRestaurantsAdmin = async (params: GetRestaurantsParams) => {
   const { page = 1, limit = 12, dishId, search, sortBy = '-createdAt' } = params;
 
@@ -155,11 +176,17 @@ export const getRestaurantByIdAdmin = async (id: string) => {
 };
 
 export const createRestaurant = async (data: any) => {
+  if (data.dishes && data.dishes.length > 0) {
+    data.dishes = await validateActiveDishes(data.dishes);
+  }
   const restaurant = await Restaurant.create(data);
   return restaurant;
 };
 
 export const updateRestaurant = async (id: string, data: any) => {
+  if (data.dishes && data.dishes.length > 0) {
+    data.dishes = await validateActiveDishes(data.dishes);
+  }
   const restaurant = await Restaurant.findOneAndUpdate({ _id: id, deletedAt: null }, data, {
     new: true,
     runValidators: true,

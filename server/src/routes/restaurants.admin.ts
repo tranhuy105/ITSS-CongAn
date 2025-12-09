@@ -6,23 +6,14 @@ import { uploadMultiple } from '@/middleware/upload';
 
 const router = Router();
 
-// Get all restaurants with optional filters
-router.get('/', restaurantController.getRestaurants);
-
-// Get restaurant by ID
-router.get('/:id', restaurantController.getRestaurantById);
-
-// Get restaurants by dish ID
-router.get('/dish/:dishId', restaurantController.getRestaurantsByDish);
-
 // ADMIN ROUTES
 router.use(authenticate, authorize('admin'));
 
 // GET ALL
-router.get('/admin', restaurantController.getRestaurantsAdmin);
+router.get('/', restaurantController.getRestaurantsAdmin);
 
 // GET BY ID
-router.get('/:id/admin', restaurantController.getRestaurantByIdAdmin);
+router.get('/:id', restaurantController.getRestaurantByIdAdmin);
 
 // CREATE
 router.post('/', validate(z.object({})), restaurantController.createRestaurant);

@@ -129,7 +129,7 @@ const restaurantSchema = new Schema<IRestaurant>(
     deletedAt: {
       type: Date,
       default: null,
-      select: false,
+      select: true,
     },
   },
   {

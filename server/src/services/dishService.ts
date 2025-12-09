@@ -1,3 +1,4 @@
+import { Restaurant } from '@/models';
 import Dish from '../models/Dish';
 
 interface GetDishesParams {
@@ -60,7 +61,7 @@ export const getDishById = async (id: string) => {
 
 // feature for admin
 export const getDishesAdmin = async (params: GetDishesParams) => {
-  const { page = 1, limit = 12, category, region, search, sortBy = '-createdAt' } = params;
+  const { page = 1, limit = 12, category, region, search, sortBy = '-updatedAt' } = params;
 
   const query: any = {};
 
@@ -95,6 +96,33 @@ export const getDishesAdmin = async (params: GetDishesParams) => {
       totalPages: Math.ceil(total / limit),
     },
   };
+};
+
+export const getUnassignedActiveDishes = async (searchQuery?: string) => {
+  const assignedDishIdsResult = await Restaurant.aggregate([
+    { $unwind: '$dishes' },
+    { $group: { _id: '$dishes' } },
+  ]);
+
+  const assignedIds = assignedDishIdsResult.map((item) => item._id);
+
+  // 2. Xây dựng Query cho các món ăn chưa được gán và đang hoạt động
+  const query: any = {
+    _id: { $nin: assignedIds }, // $nin (not in)
+    deletedAt: null, // đang hoạt động
+  };
+
+  if (searchQuery) {
+    // Thêm search vào query
+    query.$or = [
+      { 'name.ja': { $regex: searchQuery, $options: 'i' } },
+      { 'name.vi': { $regex: searchQuery, $options: 'i' } },
+    ];
+  }
+
+  const unassignedDishes = await Dish.find(query).select('_id name category').lean();
+
+  return { dishes: unassignedDishes };
 };
 
 export const getDishByIdAdmin = async (id: string) => {

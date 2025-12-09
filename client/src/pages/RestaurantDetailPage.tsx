@@ -3,7 +3,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/hooks/useAuth';
 import { getRestaurantById } from '@/services/restaurantService';
 import { useQuery } from '@tanstack/react-query';
 import L from 'leaflet';
@@ -66,7 +65,9 @@ export const RestaurantDetailPage = () => {
 
   const restaurant = data.restaurant;
   const language = i18n.language as 'ja' | 'vi';
-  const imageUrl = restaurant.images[0] || '/placeholder.jpg';
+  const imageUrl = restaurant.images?.[0]
+    ? `${import.meta.env.VITE_BACKEND_URL}${restaurant.images[0]}`
+    : '/placeholder.jpg';
 
   return (
     <AppLayout>
@@ -78,7 +79,7 @@ export const RestaurantDetailPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Image */}
-          <div className="relative aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+          <div className="relative aspect-4/3 bg-muted rounded-lg overflow-hidden">
             <img
               src={imageUrl}
               alt={restaurant.name}
@@ -105,12 +106,12 @@ export const RestaurantDetailPage = () => {
 
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-muted-foreground" />
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
                 <span>{restaurant.address}</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                <Phone className="w-4 h-4 shrink-0 text-muted-foreground" />
                 <a href={`tel:${restaurant.phone}`} className="hover:underline">
                   {restaurant.phone}
                 </a>
@@ -118,7 +119,7 @@ export const RestaurantDetailPage = () => {
 
               {restaurant.website && (
                 <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                  <Globe className="w-4 h-4 shrink-0 text-muted-foreground" />
                   <a
                     href={restaurant.website}
                     target="_blank"
@@ -147,7 +148,7 @@ export const RestaurantDetailPage = () => {
         <Card className="mb-6">
           <CardContent className="p-4">
             <h2 className="text-base font-semibold mb-3">{t('restaurants.location')}</h2>
-            <div className="aspect-[16/9] rounded-md overflow-hidden border relative z-0">
+            <div className="aspect-video rounded-md overflow-hidden border relative z-0">
               <MapContainer
                 center={[restaurant.location.coordinates[1], restaurant.location.coordinates[0]]}
                 zoom={15}

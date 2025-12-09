@@ -7,7 +7,8 @@
     "next": "次へ",
     "page": "ページ",
     "of": "/",
-    "back": "戻る"
+    "back": "戻る",
+    "welcome": "Xin chào"
   },
   "restaurants": {
     "title": "レストラン",
@@ -95,6 +96,14 @@
   "messages": {
     "resetLinkSent": "メールアドレスが登録されている場合、パスワードリセットリンクが送信されました",
     "welcome": "ようこそ"
+  },
+  "admin": {
+    "dashboard": "ダッシュボード",
+    "dishes": "料理管理",
+    "restaurants": "レストラン管理",
+    "users": "ユーザー管理",
+    "welcomeMessage": "おかえりなさい、管理者様！",
+    "dashboardDescription": "ここはプラットフォームのデータ管理エリアです。左側のメニューを使用して機能間を移動してください。"
   },
   "favorites": {
     "title": "お気に入り料理",

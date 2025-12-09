@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Clock, Heart, MapPin, Star, Users } from 'lucide-react';
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface DishCardProps {
@@ -31,7 +31,6 @@ export const DishCard = ({
   region,
   language,
 }: DishCardProps) => {
-  const [imageError, setImageError] = useState(false);
   const { isFavorite, isMutating, toggleFavorite } = useFavorites(id);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -41,16 +40,17 @@ export const DishCard = ({
 
   const displayName = name[language] || name.ja;
   const displayDescription = description?.[language] || description?.ja || '';
-  const imageUrl = images[0] || '/placeholder.jpg';
+  const imageUrl = images?.[0]
+    ? `${import.meta.env.VITE_BACKEND_URL}${images[0]}`
+    : '/placeholder.jpg';
 
   return (
     <Link to={`/dishes/${id}`} className="group block h-full">
       <Card className="overflow-hidden h-full transition-all hover:shadow-2xl hover:-translate-y-1 border-border/50 bg-card">
         <div className="relative aspect-4/3 overflow-hidden bg-muted">
           <img
-            src={imageError ? '/placeholder.jpg' : imageUrl}
+            src={imageUrl}
             alt={displayName}
-            onError={() => setImageError(true)}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />

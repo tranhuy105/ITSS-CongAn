@@ -7,6 +7,7 @@ import {
   getDishes,
   getDishesAdmin,
   getDishHistory,
+  getUnassignedDishesList,
   restoreDish,
   revertDish,
   updateDish,
@@ -20,18 +21,11 @@ import { createDishSchema, updateDishSchema } from '../validators/dish';
 const router = Router();
 
 /**
- * @route   GET /api/dishes
- * @desc    Get all dishes with pagination and filters
- * @access  Public
+ * @route   POST /api/dishes/upload
+ * @desc    Upload dish images
+ * @access  Private (Admin only)
  */
-router.get('/', getDishes);
-
-/**
- * @route   GET /api/dishes/:id
- * @desc    Get dish by ID
- * @access  Public
- */
-router.get('/:id', getDishById);
+router.post('/upload', authenticate, authorize('admin'), uploadMultiple, uploadDishImages);
 
 /**
  * @route   GET /api/dishes/admin
@@ -41,11 +35,32 @@ router.get('/:id', getDishById);
 router.get('/admin', authenticate, authorize('admin'), getDishesAdmin);
 
 /**
+ * @route   GET /api/dishes/unassigned-list
+ * @desc    Admin: Get all active dishes NOT assigned to any restaurant (Non-paginated list for assignments)
+ * @access  Private (Admin only)
+ */
+router.get('/unassigned-list', authenticate, authorize('admin'), getUnassignedDishesList);
+
+/**
+ * @route   GET /api/dishes
+ * @desc    Get all dishes with pagination and filters
+ * @access  Public
+ */
+router.get('/', getDishes);
+
+/**
  * @route   GET /api/dishes/:id/admin
  * @desc    Admin: Get dish by ID, including if deleted
  * @access  Private (Admin only)
  */
 router.get('/:id/admin', authenticate, authorize('admin'), getDishByIdAdmin);
+
+/**
+ * @route   GET /api/dishes/:id
+ * @desc    Get dish by ID
+ * @access  Public
+ */
+router.get('/:id', getDishById);
 
 /**
  * @route   POST /api/dishes
@@ -88,12 +103,5 @@ router.post('/:id/revert', authenticate, authorize('admin'), revertDish);
  * @access  Private (Admin only)
  */
 router.post('/:id/restore', authenticate, authorize('admin'), restoreDish);
-
-/**
- * @route   POST /api/dishes/upload
- * @desc    Upload dish images
- * @access  Private (Admin only)
- */
-router.post('/upload', authenticate, authorize('admin'), uploadMultiple, uploadDishImages);
 
 export default router;

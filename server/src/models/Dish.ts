@@ -175,7 +175,7 @@ const dishSchema = new Schema<IDish>(
     deletedAt: {
       type: Date,
       default: null,
-      select: false, // Don't expose this field by default
+      select: true,
     },
   },
   {

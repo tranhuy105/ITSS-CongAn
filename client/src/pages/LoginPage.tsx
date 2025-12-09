@@ -42,9 +42,14 @@ export const LoginPage = () => {
     setLoading(true);
 
     try {
-      await login({ email, password });
-      const redirectUrl = searchParams.get('redirect');
-      navigate(redirectUrl || '/');
+      const authResponse = await login({ email, password });
+      if (authResponse.user.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        // Guest -> check callback
+        const redirectUrl = searchParams.get('redirect');
+        navigate(redirectUrl || '/', { replace: true });
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Login failed');

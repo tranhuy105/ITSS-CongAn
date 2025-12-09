@@ -95,6 +95,27 @@ export const getDishesAdmin = async (req: Request, res: Response): Promise<void>
   }
 };
 
+export const getUnassignedDishesList = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { search } = req.query;
+    const dishes = await dishService.getUnassignedActiveDishes(search as string); // Truyền search query
+
+    res.status(200).json({
+      success: true,
+      data: dishes,
+    });
+  } catch (error) {
+    console.error('Get unassigned dishes error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: ErrorCode.INTERNAL_ERROR,
+        message: 'Failed to fetch unassigned dishes',
+      },
+    });
+  }
+};
+
 export const getDishByIdAdmin = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
