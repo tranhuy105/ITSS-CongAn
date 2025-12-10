@@ -58,6 +58,17 @@ export const DishDetailModal: React.FC<DishDetailModalProps> = ({ dishId, onClos
     ? `${baseUrl.replace(/\/$/, '')}${dish.images[0].startsWith('/') ? dish.images[0] : '/' + dish.images[0]}`
     : '/placeholder.jpg';
 
+  const minPrice = dish.minPrice || 0;
+  const maxPrice = dish.maxPrice || 0;
+  const displayPrice =
+    minPrice === maxPrice && minPrice > 0
+      ? formatPrice(minPrice)
+      : minPrice > 0 && maxPrice > 0
+        ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+        : minPrice > 0
+          ? `Từ ${formatPrice(minPrice)}`
+          : 'Giá liên hệ';
+
   return (
     <ModalShell title={displayName} onClose={onClose} size="lg">
       <div className="space-y-6">
@@ -89,7 +100,7 @@ export const DishDetailModal: React.FC<DishDetailModalProps> = ({ dishId, onClos
               {/* GIÁ (BỔ SUNG) */}
               <div className="flex items-center gap-1.5 text-green-600">
                 <DollarSign className="w-4 h-4" />
-                <span className="font-semibold">{formatPrice(dish.price)}</span>
+                <span className="font-semibold">{displayPrice}</span>
               </div>
               {/* END GIÁ */}
 

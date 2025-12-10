@@ -2,13 +2,13 @@ import { Router } from 'express';
 import {
   createDish,
   deleteDish,
+  getActiveDishesList,
   getAssignedDishesList,
   getDishById,
   getDishByIdAdmin,
   getDishes,
   getDishesAdmin,
   getDishHistory,
-  getUnassignedDishesList,
   restoreDish,
   revertDish,
   updateDish,
@@ -36,12 +36,11 @@ router.post('/upload', authenticate, authorize('admin'), uploadMultiple, uploadD
 router.get('/admin', authenticate, authorize('admin'), getDishesAdmin);
 
 /**
- * @route   GET /api/dishes/unassigned-list
- * @desc    Admin: Get all active dishes NOT assigned to any restaurant (Non-paginated list for assignments)
+ * @route   GET /api/dishes/active-list
+ * @desc    Admin: Get all active dishes (Non-paginated list for assignments)
  * @access  Private (Admin only)
  */
-router.get('/unassigned-list', authenticate, authorize('admin'), getUnassignedDishesList);
-
+router.get('/active-list', authenticate, authorize('admin'), getActiveDishesList);
 /**
  * @route   GET /api/dishes/assigned-list/:id
  * @desc    Admin: Get all active dishes assigned to a specific restaurant ID (Non-paginated)

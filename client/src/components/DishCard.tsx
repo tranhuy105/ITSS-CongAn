@@ -3,7 +3,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Clock, DollarSign, Heart, MapPin, Star, Users } from 'lucide-react';
-// import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface DishCardProps {
@@ -16,7 +15,8 @@ interface DishCardProps {
   cookingTime: number;
   category: string;
   region?: string;
-  price: number;
+  minPrice: number;
+  maxPrice: number;
   language: 'ja' | 'vi';
 }
 
@@ -30,7 +30,8 @@ export const DishCard = ({
   cookingTime,
   category,
   region,
-  price = 0,
+  minPrice = 0,
+  maxPrice = 0,
   language,
 }: DishCardProps) => {
   const { isFavorite, isMutating, toggleFavorite } = useFavorites(id);
@@ -50,6 +51,15 @@ export const DishCard = ({
   const formatPrice = (p: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
   };
+
+  const displayPrice =
+    minPrice === maxPrice && minPrice > 0
+      ? formatPrice(minPrice)
+      : minPrice > 0 && maxPrice > 0
+        ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+        : minPrice > 0
+          ? `Từ ${formatPrice(minPrice)}`
+          : 'Giá liên hệ';
 
   return (
     <Link to={`/dishes/${id}`} className="group block h-full">
@@ -114,10 +124,11 @@ export const DishCard = ({
 
             <div className="flex items-center gap-3">
               {/* PRICE */}
-              {price > 0 && (
+              {minPrice > 0 && ( // Kiểm tra minPrice để hiển thị
                 <div className="flex items-center gap-1 text-green-600">
                   <DollarSign className="w-4 h-4" />
-                  <span className="text-sm font-semibold">{formatPrice(price)}</span>
+                  <span className="text-sm font-semibold">{displayPrice}</span>{' '}
+                  {/* SỬ DỤNG displayPrice */}
                 </div>
               )}
               {/* END PRICE */}

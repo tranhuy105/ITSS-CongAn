@@ -185,36 +185,33 @@ const FeedSection = ({
               ref={containerRef}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {displayedItems.map(
-                (
-                  item: any,
-                  index: number // SỬA: displayedItems
-                ) => (
-                  <div
-                    key={item._id}
-                    className={`${getItemAnimationClass(index)} transition-all duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg`}
-                    style={{
-                      transitionDelay: isExpanded ? `${Math.min(index * 50, 300)}ms` : '0ms',
-                    }}
-                  >
-                    <DisplayCard
-                      id={item._id}
-                      language={language}
-                      name={item.name}
-                      description={item.description}
-                      images={item.images}
-                      averageRating={item.averageRating}
-                      reviewCount={item.reviewCount}
-                      cookingTime={item.cookingTime}
-                      category={item.category}
-                      region={item.region}
-                      address={item.address}
-                      phone={item.phone}
-                      dishes={item.dishes}
-                    />
-                  </div>
-                )
-              )}
+              {displayedItems.map((item: any, index: number) => (
+                <div
+                  key={item._id}
+                  className={`${getItemAnimationClass(index)} transition-all duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg`}
+                  style={{
+                    transitionDelay: isExpanded ? `${Math.min(index * 50, 300)}ms` : '0ms',
+                  }}
+                >
+                  <DisplayCard
+                    id={item._id}
+                    language={language}
+                    name={item.name}
+                    description={item.description}
+                    images={item.images}
+                    averageRating={item.averageRating}
+                    reviewCount={item.reviewCount}
+                    cookingTime={item.cookingTime}
+                    category={item.category}
+                    region={item.region}
+                    address={item.address}
+                    phone={item.phone}
+                    dishes={item.dishes}
+                    minPrice={item.minPrice}
+                    maxPrice={item.maxPrice}
+                  />
+                </div>
+              ))}
 
               {/* Hiển thị skeleton khi đang tải thêm */}
               {isFetching &&

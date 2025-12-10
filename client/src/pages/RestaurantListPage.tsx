@@ -1,23 +1,21 @@
-import { AppLayout } from '@/components/layout/AppLayout'; //
-import { RestaurantCard } from '@/components/RestaurantCard'; //
-import { Button } from '@/components/ui/button'; //
-import { Card, CardContent } from '@/components/ui/card'; //
-import { Input } from '@/components/ui/input'; //
-import { Skeleton } from '@/components/ui/skeleton'; //
-import { getRestaurants } from '@/services/restaurantService'; //
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { RestaurantCard } from '@/components/RestaurantCard';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getDishById } from '@/services/dishService';
+import { getRestaurants } from '@/services/restaurantService';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { ArrowLeft, List, Map as MapIcon, Store, Search, Star, X } from 'lucide-react';
+import { ArrowLeft, List, Map as MapIcon, Store, Search, Star, X, DollarSign } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next'; //
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-// Fix Leaflet default marker icon
-//
-//
-//
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -125,9 +123,98 @@ const RestaurantFilterSidebar = ({
   );
 };
 
+const DishFilterBanner = ({ dishId, language }: { dishId: string; language: 'ja' | 'vi' }) => {
+  const { t } = useTranslation();
+  const { data: dishData, isLoading: isDishLoading } = useQuery({
+    queryKey: ['dishFilterDetail', dishId],
+    queryFn: () => getDishById(dishId),
+    enabled: !!dishId,
+    staleTime: Infinity, // Dữ liệu này không cần refresh thường xuyên
+    select: (data) => data.dish, // Lấy trực tiếp object dish
+  });
+
+  if (!dishId) return null;
+
+  if (isDishLoading) {
+    return (
+      <Card className="mb-6 border-primary/50 bg-primary/5">
+        <CardContent className="p-4 flex items-center gap-4">
+          <Skeleton className="w-16 h-16 rounded-lg shrink-0" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-3 w-1/3" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!dishData) return null;
+
+  const displayName = dishData.name[language] || dishData.name.ja;
+  const imageUrl = dishData.images?.[0]
+    ? `${import.meta.env.VITE_BACKEND_URL}${dishData.images[0]}`
+    : '/placeholder.jpg';
+
+  // Format Price Logic (Copy từ DishCard hoặc DishDetailPage)
+  const formatPrice = (p: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
+  };
+  const minPrice = dishData.minPrice || 0;
+  const maxPrice = dishData.maxPrice || 0;
+  const displayPrice =
+    minPrice === maxPrice && minPrice > 0
+      ? formatPrice(minPrice)
+      : minPrice > 0 && maxPrice > 0
+        ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+        : minPrice > 0
+          ? `Từ ${formatPrice(minPrice)}`
+          : 'Giá liên hệ';
+
+  return (
+    <Card className="mb-6 border-primary/50 bg-primary/5">
+      <CardContent className="p-4 flex items-center gap-4">
+        {/* Image - Left */}
+        <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+          <img
+            src={imageUrl}
+            alt={displayName}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/placeholder.jpg';
+            }}
+          />
+        </div>
+
+        {/* Info - Right */}
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold uppercase text-primary/80 mb-1">
+            {t('home.filters.title')}:
+          </p>
+          <h3 className="text-lg font-bold line-clamp-1">{displayName}</h3>
+          <div className="flex items-center gap-3 text-sm mt-1">
+            <Badge variant="secondary" className="text-xs">
+              {dishData.category}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {dishData.region}
+            </Badge>
+            {minPrice > 0 && (
+              <span className="flex items-center gap-1 text-green-700">
+                <DollarSign className="w-3 h-3" />
+                <span className="font-semibold">{displayPrice}</span>
+              </span>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export const RestaurantListPage = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const [showMap, setShowMap] = useState(false);
 
@@ -139,6 +226,8 @@ export const RestaurantListPage = () => {
 
   const dishId = searchParams.get('dish');
   const restaurantLimit = 12;
+
+  const language = i18n.language as 'ja' | 'vi';
 
   // --- Infinite Query for Load More ---
   const {
@@ -220,11 +309,6 @@ export const RestaurantListPage = () => {
                 {totalRestaurants} {t('restaurants.found')}
               </p>
             )}
-            {dishId && (
-              <p className="text-sm font-semibold text-primary mt-1">
-                (Đang lọc theo món ăn ID: {dishId})
-              </p>
-            )}
           </div>
           <Button
             variant="outline"
@@ -245,6 +329,8 @@ export const RestaurantListPage = () => {
             )}
           </Button>
         </div>
+
+        {dishId && <DishFilterBanner dishId={dishId} language={language} />}
 
         {isFiltered && !dishId && (
           <div className="mb-6 flex items-center justify-end">

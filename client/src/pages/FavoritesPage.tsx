@@ -91,6 +91,8 @@ export const FavoritesPage = () => {
                   category={dish.category}
                   region={dish.region}
                   language={language}
+                  minPrice={dish.minPrice}
+                  maxPrice={dish.maxPrice}
                 />
               ))}
             </div>

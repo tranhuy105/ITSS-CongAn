@@ -26,7 +26,8 @@ interface DishFormState {
   category: string;
   region: string;
   cookingTime: number;
-  price: number;
+  minPrice: number;
+  maxPrice: number;
 }
 
 const CATEGORIES = ['Phở', 'Bánh', 'Cơm', 'Bún', 'Gỏi', 'Lẩu', 'Chè', 'Khác'];
@@ -46,7 +47,8 @@ export const AdminDishForm: React.FC = () => {
     category: CATEGORIES[0],
     region: REGIONS[0],
     cookingTime: 30,
-    price: 0,
+    minPrice: 0,
+    maxPrice: 0,
   });
   const [formError, setFormError] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -70,7 +72,8 @@ export const AdminDishForm: React.FC = () => {
         category: dishData.category,
         region: dishData.region,
         cookingTime: dishData.cookingTime,
-        price: dishData.price,
+        minPrice: dishData.minPrice || 0,
+        maxPrice: dishData.maxPrice || 0,
       });
     }
   }, [isEdit, dishData]);
@@ -121,7 +124,7 @@ export const AdminDishForm: React.FC = () => {
         return { ...prev, ingredients: newIngredients };
       }
 
-      if (field === 'cookingTime' || field === 'price') {
+      if (field === 'cookingTime' || field === 'minPrice' || field === 'maxPrice') {
         const numValue = parseInt(value) || 0;
         return { ...prev, [field]: Math.max(0, numValue) };
       }
@@ -167,7 +170,8 @@ export const AdminDishForm: React.FC = () => {
       ...formData,
       ingredients: formData.ingredients.filter((ing) => ing.name.trim() && ing.quantity.trim()),
       cookingTime: Number(formData.cookingTime),
-      price: Number(formData.price),
+      minPrice: Number(formData.minPrice),
+      maxPrice: Number(formData.maxPrice),
     };
 
     try {
@@ -308,14 +312,28 @@ export const AdminDishForm: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Giá (VND)</Label>
+                <Label>Giá Min (VND)</Label>
                 <div className="relative">
                   <Input
                     type="number"
                     min="0"
                     step="1000"
-                    value={formData.price}
-                    onChange={(e) => handleInputChange('price', e.target.value)}
+                    value={formData.minPrice}
+                    onChange={(e) => handleInputChange('minPrice', e.target.value)} // CHANGED
+                    className="pr-12"
+                  />
+                  <DollarSign className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Giá Max (VND)</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={formData.maxPrice}
+                    onChange={(e) => handleInputChange('maxPrice', e.target.value)} // CHANGED
                     className="pr-12"
                   />
                   <DollarSign className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -396,7 +414,7 @@ export const AdminDishForm: React.FC = () => {
                     className="relative w-24 h-24 border rounded-md overflow-hidden group"
                   >
                     <img
-                      src={url}
+                      src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
                       alt={`Ảnh cũ ${index}`}
                       className="w-full h-full object-cover"
                       onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}

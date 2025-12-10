@@ -30,7 +30,7 @@ export const getDishesAdmin = async (params: GetDishesParams = {}) => {
   return response.data.data;
 };
 
-export const getUnassignedDishesList = async (searchQuery?: string) => {
+export const getActiveDishesList = async (searchQuery?: string) => {
   const response = await api.get('/dishes/unassigned-list', { params: { search: searchQuery } });
   return response.data.data;
 };

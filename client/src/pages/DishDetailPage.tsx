@@ -13,9 +13,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
-// Helper function để format giá tiền
 const formatPrice = (p: number) => {
-  // Sử dụng định dạng tiền tệ Việt Nam (VNĐ)
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
 };
 
@@ -74,6 +72,18 @@ export const DishDetailPage = () => {
   const imageUrl = dish.images?.[currentImageIndex]
     ? `${import.meta.env.VITE_BACKEND_URL}${dish.images[currentImageIndex]}`
     : '/placeholder.jpg';
+
+  const minPrice = dish.minPrice || 0;
+  const maxPrice = dish.maxPrice || 0;
+
+  const displayPrice =
+    minPrice === maxPrice && minPrice > 0
+      ? formatPrice(minPrice)
+      : minPrice > 0 && maxPrice > 0
+        ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+        : minPrice > 0
+          ? `Từ ${formatPrice(minPrice)}`
+          : 'Giá liên hệ';
 
   return (
     <AppLayout>
@@ -135,7 +145,7 @@ export const DishDetailPage = () => {
                     }`}
                   >
                     <img
-                      src={image}
+                      src={`${import.meta.env.VITE_BACKEND_URL}${image}`}
                       alt={`${displayName} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
@@ -169,12 +179,12 @@ export const DishDetailPage = () => {
                   <span className="text-muted-foreground">({dish.reviewCount})</span>
                 </div>
 
-                {/* GIÁ (BỔ SUNG) */}
+                {/* PRICE */}
                 <div className="flex items-center gap-1.5 text-green-600">
                   <DollarSign className="w-4 h-4" />
-                  <span className="font-semibold">{formatPrice(dish.price)}</span>
+                  <span className="font-semibold">{displayPrice}</span>
                 </div>
-                {/* END GIÁ */}
+                {/* END PRICE */}
 
                 {/* Thời gian nấu */}
                 <div className="flex items-center gap-1.5 text-muted-foreground">

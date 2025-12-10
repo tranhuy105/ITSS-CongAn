@@ -157,8 +157,8 @@ export const DishListPage = () => {
                   <option value="averageRating">Đánh giá (Thấp nhất)</option>
                   <option value="cookingTime">Thời gian nấu (Tăng dần)</option>
                   <option value="-cookingTime">Thời gian nấu (Giảm dần)</option>
-                  <option value="price">Giá (Tăng dần)</option> {/* <<< BỔ SUNG */}
-                  <option value="-price">Giá (Giảm dần)</option> {/* <<< BỔ SUNG */}
+                  <option value="minPrice">Giá (Tăng dần)</option>
+                  <option value="-minPrice">Giá (Giảm dần)</option>
                 </select>
               </div>
 
@@ -262,12 +262,12 @@ export const DishListPage = () => {
                       <option value="averageRating">Đánh giá (Thấp nhất)</option>
                       <option value="cookingTime">Thời gian nấu (Tăng dần)</option>
                       <option value="-cookingTime">Thời gian nấu (Giảm dần)</option>
-                      <option value="price">Giá (Tăng dần)</option> {/* <<< BỔ SUNG */}
-                      <option value="-price">Giá (Giảm dần)</option> {/* <<< BỔ SUNG */}
+                      <option value="minPrice">Giá (Tăng dần)</option>
+                      <option value="-minPrice">Giá (Giảm dần)</option>
                     </select>
                   </div>
 
-                  {/* Price Filter Mobile <<< BỔ SUNG */}
+                  {/* Price Filter Mobile */}
                   <div className="pt-4 border-t space-y-2">
                     <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                       Giá (VNĐ) <DollarSign className="w-3 h-3" />
@@ -405,7 +405,8 @@ export const DishListPage = () => {
                       cookingTime={dish.cookingTime}
                       category={dish.category}
                       region={dish.region}
-                      price={dish.price}
+                      minPrice={dish.minPrice}
+                      maxPrice={dish.maxPrice}
                       language={language}
                     />
                   ))}

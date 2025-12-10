@@ -110,10 +110,10 @@ export const getDishesAdmin = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getUnassignedDishesList = async (req: Request, res: Response): Promise<void> => {
+export const getActiveDishesList = async (req: Request, res: Response): Promise<void> => {
   try {
     const { search } = req.query;
-    const dishes = await dishService.getUnassignedActiveDishes(search as string); // Truyền search query
+    const dishes = await dishService.getAllActiveDishesForAssignment(search as string); // Truyền search query
 
     res.status(200).json({
       success: true,

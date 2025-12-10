@@ -59,12 +59,21 @@ export const getDishes = async (params: GetDishesParams) => {
 
   // Price filter implementation
   if (minPrice !== undefined || maxPrice !== undefined) {
-    query.price = {};
-    if (minPrice !== undefined) {
-      query.price.$gte = minPrice;
-    }
+    const priceFilter: any[] = [];
+
+    // Điều kiện 1: D.minPrice <= F.maxPrice
     if (maxPrice !== undefined) {
-      query.price.$lte = maxPrice;
+      priceFilter.push({ minPrice: { $lte: maxPrice } });
+    }
+
+    // Điều kiện 2: D.maxPrice >= F.minPrice
+    if (minPrice !== undefined) {
+      priceFilter.push({ maxPrice: { $gte: minPrice } });
+    }
+
+    if (priceFilter.length > 0) {
+      // Sử dụng $and để kết hợp cả hai điều kiện giao nhau
+      query.$and = (query.$and || []).concat(priceFilter);
     }
   }
 
@@ -135,31 +144,21 @@ export const getDishesAdmin = async (params: GetDishesParams) => {
   };
 };
 
-export const getUnassignedActiveDishes = async (searchQuery?: string) => {
-  const assignedDishIdsResult = await Restaurant.aggregate([
-    { $unwind: '$dishes' },
-    { $group: { _id: '$dishes' } },
-  ]);
-
-  const assignedIds = assignedDishIdsResult.map((item) => item._id);
-
-  // 2. Xây dựng Query cho các món ăn chưa được gán và đang hoạt động
+export const getAllActiveDishesForAssignment = async (searchQuery?: string) => {
   const query: any = {
-    _id: { $nin: assignedIds }, // $nin (not in)
     deletedAt: null,
   };
 
   if (searchQuery) {
-    // Thêm search vào query
     query.$or = [
       { 'name.ja': { $regex: searchQuery, $options: 'i' } },
       { 'name.vi': { $regex: searchQuery, $options: 'i' } },
     ];
   }
 
-  const unassignedDishes = await Dish.find(query).select('_id name category').lean();
+  const activeDishes = await Dish.find(query).select('_id name category').lean();
 
-  return { dishes: unassignedDishes };
+  return { dishes: activeDishes };
 };
 
 export const getDishesByRestaurantId = async (restaurantId: string) => {

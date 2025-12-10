@@ -31,7 +31,8 @@ export interface IDish extends Document {
   cookingTime: number;
   averageRating: number;
   reviewCount: number;
-  price: number;
+  minPrice: number;
+  maxPrice: number;
   createdBy: mongoose.Types.ObjectId;
   history: EditHistory[];
   createdAt: Date;
@@ -163,10 +164,16 @@ const dishSchema = new Schema<IDish>(
       default: 0,
       min: 0,
     },
-    price: {
+    minPrice: {
       type: Number,
-      required: [true, 'Price is required'],
-      min: [0, 'Price cannot be negative'],
+      required: [true, 'Min price is required'],
+      min: [0, 'Min price cannot be negative'],
+      select: true,
+    },
+    maxPrice: {
+      type: Number,
+      required: [true, 'Max price is required'],
+      min: [0, 'Max price cannot be negative'],
       select: true,
     },
     createdBy: {
@@ -198,10 +205,19 @@ dishSchema.index({ averageRating: -1 });
 dishSchema.index({ createdAt: -1 });
 dishSchema.index({ category: 1, region: 1 }); // Compound index for filtering
 dishSchema.index({ deletedAt: 1 });
-dishSchema.index({ price: 1 });
+dishSchema.index({ minPrice: 1, maxPrice: 1 });
 
 // Pre-save hook to track edit history
 dishSchema.pre('save', function () {
+  // minPrice <= maxPrice
+  if (this.isModified('minPrice') || this.isModified('maxPrice')) {
+    if (this.minPrice > this.maxPrice) {
+      // Tạo lỗi Validation
+      const error = new Error('Min price cannot be greater than Max price') as any;
+      error.name = 'ValidationError';
+      throw error;
+    }
+  }
   // Only track history if document is being modified (not on creation)
   if (!this.isNew && this.isModified()) {
     const currentVersion = this.history.length + 1;
