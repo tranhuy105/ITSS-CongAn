@@ -5,7 +5,18 @@ import * as dishService from '../services/dishService';
 // feature for end user
 export const getDishes = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { page, limit, category, region, search, sortBy } = req.query;
+    const {
+      page,
+      limit,
+      category,
+      region,
+      search,
+      sortBy,
+      minRating,
+      maxRating,
+      minPrice,
+      maxPrice,
+    } = req.query;
 
     const result = await dishService.getDishes({
       page: page ? parseInt(page as string) : undefined,
@@ -14,6 +25,10 @@ export const getDishes = async (req: Request, res: Response): Promise<void> => {
       region: region as string,
       search: search as string,
       sortBy: sortBy as string,
+      minRating: minRating ? parseFloat(minRating as string) : undefined,
+      maxRating: maxRating ? parseFloat(maxRating as string) : undefined,
+      minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
     });
 
     res.status(200).json({
@@ -111,6 +126,37 @@ export const getUnassignedDishesList = async (req: Request, res: Response): Prom
       error: {
         code: ErrorCode.INTERNAL_ERROR,
         message: 'Failed to fetch unassigned dishes',
+      },
+    });
+  }
+};
+
+export const getAssignedDishesList = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params; // Expects restaurant ID in params
+    const dishes = await dishService.getDishesByRestaurantId(id);
+
+    res.status(200).json({
+      success: true,
+      data: dishes,
+    });
+  } catch (error: any) {
+    console.error('Get assigned dishes error:', error);
+    if (error.message === 'Restaurant not found') {
+      res.status(404).json({
+        success: false,
+        error: {
+          code: ErrorCode.NOT_FOUND,
+          message: 'Restaurant not found',
+        },
+      });
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: {
+        code: ErrorCode.INTERNAL_ERROR,
+        message: 'Failed to fetch assigned dishes',
       },
     });
   }

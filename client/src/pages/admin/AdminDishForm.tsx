@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Clock, Trash2, Plus, Loader2, Save, X } from 'lucide-react';
+import { Clock, Trash2, Plus, Loader2, Save, X, DollarSign } from 'lucide-react';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -26,6 +26,7 @@ interface DishFormState {
   category: string;
   region: string;
   cookingTime: number;
+  price: number;
 }
 
 const CATEGORIES = ['Phở', 'Bánh', 'Cơm', 'Bún', 'Gỏi', 'Lẩu', 'Chè', 'Khác'];
@@ -45,6 +46,7 @@ export const AdminDishForm: React.FC = () => {
     category: CATEGORIES[0],
     region: REGIONS[0],
     cookingTime: 30,
+    price: 0,
   });
   const [formError, setFormError] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -68,6 +70,7 @@ export const AdminDishForm: React.FC = () => {
         category: dishData.category,
         region: dishData.region,
         cookingTime: dishData.cookingTime,
+        price: dishData.price,
       });
     }
   }, [isEdit, dishData]);
@@ -114,17 +117,13 @@ export const AdminDishForm: React.FC = () => {
       }
       if (index !== undefined && subfield) {
         const newIngredients = [...prev.ingredients];
-        // Xử lý chuyển đổi cookingTime (nếu cần)
-        if (field === 'cookingTime') {
-          return { ...prev, cookingTime: value };
-        }
         newIngredients[index] = { ...newIngredients[index], [subfield]: value };
         return { ...prev, ingredients: newIngredients };
       }
 
-      // Xử lý cookingTime như number
-      if (field === 'cookingTime') {
-        return { ...prev, cookingTime: parseInt(value) || 0 };
+      if (field === 'cookingTime' || field === 'price') {
+        const numValue = parseInt(value) || 0;
+        return { ...prev, [field]: Math.max(0, numValue) };
       }
 
       return { ...prev, [field]: value };
@@ -168,6 +167,7 @@ export const AdminDishForm: React.FC = () => {
       ...formData,
       ingredients: formData.ingredients.filter((ing) => ing.name.trim() && ing.quantity.trim()),
       cookingTime: Number(formData.cookingTime),
+      price: Number(formData.price),
     };
 
     try {
@@ -264,8 +264,8 @@ export const AdminDishForm: React.FC = () => {
               onChange={(e) => handleInputChange('description', e.target.value, 'ja')}
             />
 
-            {/* Category & Region & Cooking Time */}
-            <div className="grid grid-cols-3 gap-4">
+            {/* Category & Region & Cooking Time & PRICE */}
+            <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label>Danh Mục</Label>
                 <select
@@ -299,11 +299,26 @@ export const AdminDishForm: React.FC = () => {
                 <div className="relative">
                   <Input
                     type="number"
+                    min="1"
                     value={formData.cookingTime}
                     onChange={(e) => handleInputChange('cookingTime', e.target.value)}
                     className="pr-12"
                   />
                   <Clock className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Giá (VND)</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={formData.price}
+                    onChange={(e) => handleInputChange('price', e.target.value)}
+                    className="pr-12"
+                  />
+                  <DollarSign className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
               </div>
             </div>

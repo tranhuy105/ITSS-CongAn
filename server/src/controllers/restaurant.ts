@@ -5,7 +5,18 @@ import * as restaurantService from '../services/restaurantService';
 // feature for end user
 export const getRestaurants = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { page, limit, dishId, search, sortBy, latitude, longitude, maxDistance } = req.query;
+    const {
+      page,
+      limit,
+      dishId,
+      search,
+      sortBy,
+      latitude,
+      longitude,
+      maxDistance,
+      minRating,
+      maxRating,
+    } = req.query;
 
     const result = await restaurantService.getRestaurants({
       page: page ? parseInt(page as string) : undefined,
@@ -16,6 +27,8 @@ export const getRestaurants = async (req: Request, res: Response): Promise<void>
       latitude: latitude ? parseFloat(latitude as string) : undefined,
       longitude: longitude ? parseFloat(longitude as string) : undefined,
       maxDistance: maxDistance ? parseInt(maxDistance as string) : undefined,
+      minRating: minRating ? parseFloat(minRating as string) : undefined,
+      maxRating: maxRating ? parseFloat(maxRating as string) : undefined,
     });
 
     res.status(200).json({

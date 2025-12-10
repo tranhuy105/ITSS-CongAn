@@ -8,10 +8,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/hooks/useFavorites';
 import { getDishById } from '@/services/dishService';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Clock, Heart, MapPin, Star, Users } from 'lucide-react';
+import { ArrowLeft, Clock, Heart, MapPin, Star, Users, DollarSign } from 'lucide-react'; // <<< BỔ SUNG DollarSign
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+
+// Helper function để format giá tiền
+const formatPrice = (p: number) => {
+  // Sử dụng định dạng tiền tệ Việt Nam (VNĐ)
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
+};
 
 export const DishDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -156,11 +162,21 @@ export const DishDetailPage = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-4 text-sm mb-3">
+                {/* Đánh giá */}
                 <div className="flex items-center gap-1.5">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-semibold">{dish.averageRating.toFixed(1)}</span>
                   <span className="text-muted-foreground">({dish.reviewCount})</span>
                 </div>
+
+                {/* GIÁ (BỔ SUNG) */}
+                <div className="flex items-center gap-1.5 text-green-600">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="font-semibold">{formatPrice(dish.price)}</span>
+                </div>
+                {/* END GIÁ */}
+
+                {/* Thời gian nấu */}
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Clock className="w-4 h-4" />
                   <span>{dish.cookingTime} min</span>

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createDish,
   deleteDish,
+  getAssignedDishesList,
   getDishById,
   getDishByIdAdmin,
   getDishes,
@@ -40,6 +41,13 @@ router.get('/admin', authenticate, authorize('admin'), getDishesAdmin);
  * @access  Private (Admin only)
  */
 router.get('/unassigned-list', authenticate, authorize('admin'), getUnassignedDishesList);
+
+/**
+ * @route   GET /api/dishes/assigned-list/:id
+ * @desc    Admin: Get all active dishes assigned to a specific restaurant ID (Non-paginated)
+ * @access  Private (Admin only)
+ */
+router.get('/assigned-list/:id', authenticate, authorize('admin'), getAssignedDishesList);
 
 /**
  * @route   GET /api/dishes

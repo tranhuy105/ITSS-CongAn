@@ -9,6 +9,8 @@ interface GetRestaurantsParams {
   latitude?: number;
   longitude?: number;
   maxDistance?: number;
+  minRating?: number;
+  maxRating?: number;
 }
 
 // feature for end user

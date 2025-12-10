@@ -8,11 +8,26 @@ interface GetDishesParams {
   region?: string;
   search?: string;
   sortBy?: string;
+  minRating?: number;
+  maxRating?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 // feature for end user
 export const getDishes = async (params: GetDishesParams) => {
-  const { page = 1, limit = 12, category, region, search, sortBy = '-createdAt' } = params;
+  const {
+    page = 1,
+    limit = 12,
+    category,
+    region,
+    search,
+    sortBy = '-createdAt',
+    minRating,
+    maxRating,
+    minPrice,
+    maxPrice,
+  } = params;
 
   const query: any = { deletedAt: null };
 
@@ -29,6 +44,28 @@ export const getDishes = async (params: GetDishesParams) => {
       { 'name.ja': { $regex: search, $options: 'i' } },
       { 'name.vi': { $regex: search, $options: 'i' } },
     ];
+  }
+
+  // Rating filter implementation
+  if (minRating !== undefined || maxRating !== undefined) {
+    query.averageRating = {};
+    if (minRating !== undefined) {
+      query.averageRating.$gte = minRating;
+    }
+    if (maxRating !== undefined) {
+      query.averageRating.$lte = maxRating;
+    }
+  }
+
+  // Price filter implementation
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    query.price = {};
+    if (minPrice !== undefined) {
+      query.price.$gte = minPrice;
+    }
+    if (maxPrice !== undefined) {
+      query.price.$lte = maxPrice;
+    }
   }
 
   const skip = (page - 1) * limit;
@@ -109,7 +146,7 @@ export const getUnassignedActiveDishes = async (searchQuery?: string) => {
   // 2. Xây dựng Query cho các món ăn chưa được gán và đang hoạt động
   const query: any = {
     _id: { $nin: assignedIds }, // $nin (not in)
-    deletedAt: null, // đang hoạt động
+    deletedAt: null,
   };
 
   if (searchQuery) {
@@ -123,6 +160,27 @@ export const getUnassignedActiveDishes = async (searchQuery?: string) => {
   const unassignedDishes = await Dish.find(query).select('_id name category').lean();
 
   return { dishes: unassignedDishes };
+};
+
+export const getDishesByRestaurantId = async (restaurantId: string) => {
+  // 1. Find the restaurant and get its dish IDs
+  const restaurant = await Restaurant.findById(restaurantId).select('dishes').lean();
+
+  if (!restaurant) {
+    throw new Error('Restaurant not found');
+  }
+
+  const assignedDishIds = restaurant.dishes;
+
+  // 2. Fetch the actual Dish documents, ensuring they are ACTIVE (deletedAt: null)
+  const dishes = await Dish.find({
+    _id: { $in: assignedDishIds },
+    deletedAt: null, // Chỉ lấy các món ăn đang hoạt động
+  })
+    .select('_id name category')
+    .lean(); // Select necessary fields for assignment form
+
+  return { dishes };
 };
 
 export const getDishByIdAdmin = async (id: string) => {

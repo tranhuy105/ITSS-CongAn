@@ -31,6 +31,7 @@ export interface IDish extends Document {
   cookingTime: number;
   averageRating: number;
   reviewCount: number;
+  price: number;
   createdBy: mongoose.Types.ObjectId;
   history: EditHistory[];
   createdAt: Date;
@@ -162,6 +163,12 @@ const dishSchema = new Schema<IDish>(
       default: 0,
       min: 0,
     },
+    price: {
+      type: Number,
+      required: [true, 'Price is required'],
+      min: [0, 'Price cannot be negative'],
+      select: true,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -191,6 +198,7 @@ dishSchema.index({ averageRating: -1 });
 dishSchema.index({ createdAt: -1 });
 dishSchema.index({ category: 1, region: 1 }); // Compound index for filtering
 dishSchema.index({ deletedAt: 1 });
+dishSchema.index({ price: 1 });
 
 // Pre-save hook to track edit history
 dishSchema.pre('save', function () {

@@ -14,16 +14,15 @@ import {
   uploadRestaurantImages,
   getRestaurantByIdAdmin,
 } from '@/services/restaurantService';
-import { getDishes, getUnassignedDishesList } from '@/services/dishService';
+import { getUnassignedDishesList, getAssignedDishesList } from '@/services/dishService';
 import { z } from 'zod';
 import {
   createRestaurantClientSchema,
   updateRestaurantClientSchema,
 } from '@/validators/restaurant.client';
-// FIX: Chỉ import types từ shared
 import { IDish, IRestaurant, Location } from '../../../../shared/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge'; // Cần import Badge
+import { Badge } from '@/components/ui/badge';
 
 // Định nghĩa types từ Zod Client Validator (Sử dụng cho cả Request và Mutation)
 type CreateRestaurantPayload = z.infer<typeof createRestaurantClientSchema>;
@@ -59,8 +58,11 @@ export const AdminRestaurantForm: React.FC = () => {
   const [formError, setFormError] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-  // NEW STATE: Search query cho món ăn
+  // State tìm kiếm món ăn (dùng cho API getUnassignedDishesList)
   const [dishSearchQuery, setDishSearchQuery] = useState('');
+
+  // State để lưu trữ thông tin chi tiết của tất cả dishes (cho việc hiển thị)
+  const [allDishesMap, setAllDishesMap] = useState<Map<string, IDish>>(new Map());
 
   // --- Fetch Data ---
   const { data: restaurantData, isLoading: isRestaurantLoading } = useQuery({
@@ -70,53 +72,85 @@ export const AdminRestaurantForm: React.FC = () => {
     select: (data) => data.restaurant as IRestaurant,
   });
 
-  // Fetch Full Details of all dishes for local filtering/display of ASSIGNED dishes
-  const { data: allActiveDishesData } = useQuery({
-    queryKey: ['allActiveDishes'],
-    queryFn: () => getDishes({ limit: 9999 }), // Lấy toàn bộ ACTIVE dishes để có chi tiết (name, category)
+  // Lấy danh sách dishes ĐÃ ĐƯỢC GÁN cho restaurant này
+  const { data: assignedDishesResponse, isLoading: isAssignedDishesLoading } = useQuery({
+    queryKey: ['assignedDishes', id],
+    queryFn: () => getAssignedDishesList(id!),
+    enabled: isEdit, // Chỉ fetch khi là edit mode
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch DISHES CÓ SẴN (UNASSIGNED) cho Panel Tìm kiếm (Dùng API chuyên dụng mới)
-  const {
-    data: availableDishesData,
-    isLoading: isAvailableDishesLoading,
-    refetch: refetchUnassigned,
-  } = useQuery({
+  // Lấy danh sách dishes CHƯA ĐƯỢC GÁN (dùng API chuyên dụng)
+  const { data: unassignedDishesResponse, isLoading: isUnassignedDishesLoading } = useQuery({
     queryKey: ['unassignedDishes', dishSearchQuery],
-    queryFn: () => getUnassignedDishesList(dishSearchQuery), // SỬ DỤNG API CHUYÊN DỤNG
+    queryFn: () => getUnassignedDishesList(dishSearchQuery),
     staleTime: 5 * 60 * 1000,
   });
 
-  // Tạo Map từ All Active Dishes để dễ dàng tra cứu tên
-  const allKnownDishes = useMemo(() => {
-    const assignedMap = new Map();
-    if (allActiveDishesData?.dishes) {
-      for (const dish of allActiveDishesData.dishes) {
-        assignedMap.set(dish._id, dish);
+  // Chuyển đổi response data thành array và cập nhật allDishesMap
+  useEffect(() => {
+    const newMap = new Map<string, IDish>();
+
+    // Thêm assigned dishes vào map
+    if (assignedDishesResponse) {
+      let assignedArray: any[] = [];
+      if (Array.isArray(assignedDishesResponse)) {
+        assignedArray = assignedDishesResponse;
+      } else if (assignedDishesResponse && typeof assignedDishesResponse === 'object') {
+        if (Array.isArray(assignedDishesResponse.dishes))
+          assignedArray = assignedDishesResponse.dishes;
+        else if (Array.isArray(assignedDishesResponse.data))
+          assignedArray = assignedDishesResponse.data;
+        else if (Array.isArray(assignedDishesResponse.items))
+          assignedArray = assignedDishesResponse.items;
       }
+
+      assignedArray.forEach((dish: any) => {
+        if (dish && dish._id) {
+          newMap.set(dish._id, dish);
+        }
+      });
     }
-    return assignedMap;
-  }, [allActiveDishesData]);
 
-  // 1. Get the full details of dishes currently assigned
-  const assignedDishDetails = useMemo(() => {
-    if (!formData.dishes) return [];
-    // Dùng Map để lấy chi tiết của các món đã gán
-    return formData.dishes
-      .map((dishId) => allKnownDishes.get(dishId))
-      .filter((dish): dish is IDish => !!dish);
-  }, [allKnownDishes, formData.dishes]);
+    // Thêm unassigned dishes vào map
+    if (unassignedDishesResponse) {
+      let unassignedArray: any[] = [];
+      if (Array.isArray(unassignedDishesResponse)) {
+        unassignedArray = unassignedDishesResponse;
+      } else if (unassignedDishesResponse && typeof unassignedDishesResponse === 'object') {
+        if (Array.isArray(unassignedDishesResponse.dishes))
+          unassignedArray = unassignedDishesResponse.dishes;
+        else if (Array.isArray(unassignedDishesResponse.data))
+          unassignedArray = unassignedDishesResponse.data;
+        else if (Array.isArray(unassignedDishesResponse.items))
+          unassignedArray = unassignedDishesResponse.items;
+      }
 
-  // 2. Get dishes that match the search query AND are unassigned (Kết quả từ API mới)
-  const searchableUnassignedDishes = useMemo(() => {
-    // API đã lọc unassigned, chỉ cần dùng kết quả
-    return availableDishesData?.dishes || [];
-  }, [availableDishesData]);
+      unassignedArray.forEach((dish: any) => {
+        if (dish && dish._id && !newMap.has(dish._id)) {
+          newMap.set(dish._id, dish);
+        }
+      });
+    }
+
+    setAllDishesMap(newMap);
+  }, [assignedDishesResponse, unassignedDishesResponse]);
 
   // Cập nhật form state khi data được load
   useEffect(() => {
-    if (isEdit && restaurantData) {
+    if (isEdit && restaurantData && assignedDishesResponse) {
+      let assignedArray: any[] = [];
+      if (Array.isArray(assignedDishesResponse)) {
+        assignedArray = assignedDishesResponse;
+      } else if (assignedDishesResponse && typeof assignedDishesResponse === 'object') {
+        if (Array.isArray(assignedDishesResponse.dishes))
+          assignedArray = assignedDishesResponse.dishes;
+        else if (Array.isArray(assignedDishesResponse.data))
+          assignedArray = assignedDishesResponse.data;
+        else if (Array.isArray(assignedDishesResponse.items))
+          assignedArray = assignedDishesResponse.items;
+      }
+
       setFormData({
         name: restaurantData.name,
         address: restaurantData.address,
@@ -124,11 +158,11 @@ export const AdminRestaurantForm: React.FC = () => {
         phone: restaurantData.phone,
         website: restaurantData.website || '',
         images: restaurantData.images,
-        // Chuyển ObjectIds thành strings
-        dishes: restaurantData.dishes.map((d: any) => d._id || d) as string[],
+        // Chuyển ObjectIds thành strings từ assigned dishes
+        dishes: assignedArray.map((dish: any) => dish._id || dish.toString()),
       });
     }
-  }, [isEdit, restaurantData]);
+  }, [isEdit, restaurantData, assignedDishesResponse]);
 
   // --- Mutations ---
 
@@ -147,6 +181,8 @@ export const AdminRestaurantForm: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['adminRestaurants'] });
       queryClient.invalidateQueries({ queryKey: ['restaurants'] });
       queryClient.invalidateQueries({ queryKey: ['restaurant', data._id] });
+      queryClient.invalidateQueries({ queryKey: ['assignedDishes', id] });
+      queryClient.invalidateQueries({ queryKey: ['unassignedDishes'] });
 
       alert(`Nhà hàng "${data.name}" đã được ${isEdit ? 'cập nhật' : 'tạo mới'} thành công.`);
       navigate('/admin/restaurants');
@@ -161,7 +197,8 @@ export const AdminRestaurantForm: React.FC = () => {
   });
 
   const isSubmitting = restaurantMutation.isPending || uploadMutation.isPending;
-  const isLoading = isRestaurantLoading || isAvailableDishesLoading || isSubmitting;
+  const isLoading =
+    isRestaurantLoading || isAssignedDishesLoading || isUnassignedDishesLoading || isSubmitting;
 
   // --- Handlers ---
 
@@ -169,7 +206,6 @@ export const AdminRestaurantForm: React.FC = () => {
     setFormData((prev) => {
       if (field === 'location' && coordIndex !== undefined) {
         const newCoords = [...prev.location.coordinates];
-        // FIX: Đảm bảo là number khi gán tọa độ
         newCoords[coordIndex] = parseFloat(value) || 0;
         return {
           ...prev,
@@ -183,7 +219,8 @@ export const AdminRestaurantForm: React.FC = () => {
   const handleAddDish = (dishId: string) => {
     if (!formData.dishes.includes(dishId)) {
       setFormData((prev) => ({ ...prev, dishes: [...prev.dishes, dishId] }));
-      refetchUnassigned(); // Yêu cầu refetch danh sách unassigned để ẩn món ăn vừa gán
+      // Clear search để hiển thị danh sách cập nhật
+      setDishSearchQuery('');
     }
   };
 
@@ -192,8 +229,54 @@ export const AdminRestaurantForm: React.FC = () => {
       ...prev,
       dishes: prev.dishes.filter((id) => id !== dishId),
     }));
-    refetchUnassigned(); // Yêu cầu refetch danh sách unassigned để hiển thị món ăn vừa loại bỏ
   };
+
+  // Lấy chi tiết của dishes đang được gán trong form
+  const assignedDishDetails = useMemo(() => {
+    return formData.dishes
+      .map((dishId) => allDishesMap.get(dishId))
+      .filter((dish): dish is IDish => !!dish);
+  }, [formData.dishes, allDishesMap]);
+
+  // Lấy danh sách dishes khả dụng để hiển thị
+  // Bao gồm: dishes từ API (unassigned) + dishes đã bị xóa khỏi form
+  const availableDishes = useMemo(() => {
+    const allAvailableDishes: IDish[] = [];
+
+    // Lấy unassigned dishes từ API
+    if (unassignedDishesResponse) {
+      let unassignedArray: any[] = [];
+      if (Array.isArray(unassignedDishesResponse)) {
+        unassignedArray = unassignedDishesResponse;
+      } else if (unassignedDishesResponse && typeof unassignedDishesResponse === 'object') {
+        if (Array.isArray(unassignedDishesResponse.dishes))
+          unassignedArray = unassignedDishesResponse.dishes;
+        else if (Array.isArray(unassignedDishesResponse.data))
+          unassignedArray = unassignedDishesResponse.data;
+        else if (Array.isArray(unassignedDishesResponse.items))
+          unassignedArray = unassignedDishesResponse.items;
+      }
+
+      unassignedArray.forEach((dish: any) => {
+        if (dish && dish._id && !formData.dishes.includes(dish._id)) {
+          allAvailableDishes.push(dish);
+        }
+      });
+    }
+
+    // Thêm các dishes đã có trong allDishesMap nhưng không có trong formData.dishes và không có trong unassigned
+    // (tức là các dishes vừa bị xóa khỏi form)
+    allDishesMap.forEach((dish, dishId) => {
+      if (!formData.dishes.includes(dishId) && !allAvailableDishes.some((d) => d._id === dishId)) {
+        allAvailableDishes.push(dish);
+      }
+    });
+
+    // Lọc theo search query
+    return allAvailableDishes.filter((dish) =>
+      dish.name?.vi?.toLowerCase().includes(dishSearchQuery.toLowerCase())
+    );
+  }, [unassignedDishesResponse, formData.dishes, allDishesMap, dishSearchQuery]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -252,7 +335,11 @@ export const AdminRestaurantForm: React.FC = () => {
   if (isLoading) {
     return (
       <AdminLayout title={isEdit ? 'Đang tải nhà hàng...' : 'Tạo mới nhà hàng'}>
-        <p>Đang tải...</p>
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
       </AdminLayout>
     );
   }
@@ -293,11 +380,13 @@ export const AdminRestaurantForm: React.FC = () => {
             <Input
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder="Nhập tên nhà hàng"
             />
             <Label>Địa Chỉ</Label>
             <Input
               value={formData.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
+              placeholder="Nhập địa chỉ"
             />
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -305,6 +394,7 @@ export const AdminRestaurantForm: React.FC = () => {
                 <Input
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="Nhập số điện thoại"
                 />
               </div>
               <div className="space-y-2">
@@ -314,6 +404,7 @@ export const AdminRestaurantForm: React.FC = () => {
                     value={formData.website}
                     onChange={(e) => handleInputChange('website', e.target.value)}
                     className="pl-10"
+                    placeholder="https://example.com"
                   />
                   <Globe className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
@@ -337,6 +428,7 @@ export const AdminRestaurantForm: React.FC = () => {
                     step="any"
                     value={formData.location.coordinates[0]}
                     onChange={(e) => handleInputChange('location', e.target.value, 0)}
+                    placeholder="106.7008"
                   />
                   <MapPin className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
@@ -349,6 +441,7 @@ export const AdminRestaurantForm: React.FC = () => {
                     step="any"
                     value={formData.location.coordinates[1]}
                     onChange={(e) => handleInputChange('location', e.target.value, 1)}
+                    placeholder="10.7769"
                   />
                   <MapPin className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
@@ -394,10 +487,10 @@ export const AdminRestaurantForm: React.FC = () => {
                 </div>
               </div>
 
-              {/* PANEL 2: TÌM KIẾM CÁC MÓN ĂN CHƯA ĐƯỢC GÁN */}
+              {/* PANEL 2: TÌM KIẾM CÁC MÓN ĂN KHẢ DỤNG */}
               <div>
                 <Label className="font-semibold mb-2 block">
-                  Tìm kiếm và gán món ăn (Chỉ các món chưa gán):
+                  Tìm kiếm và gán món ăn (Khả dụng):
                 </Label>
                 <div className="relative mb-3">
                   <Input
@@ -411,25 +504,29 @@ export const AdminRestaurantForm: React.FC = () => {
                 </div>
 
                 <div className="max-h-48 overflow-y-auto border rounded-md p-2 space-y-1">
-                  {isAvailableDishesLoading ? (
+                  {isUnassignedDishesLoading ? (
                     <p className="text-sm text-muted-foreground text-center">
                       Đang tải danh sách món ăn...
                     </p>
-                  ) : searchableUnassignedDishes.length === 0 && dishSearchQuery ? (
+                  ) : availableDishes.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      Không tìm thấy món ăn nào phù hợp.
+                      {dishSearchQuery
+                        ? 'Không tìm thấy món ăn nào phù hợp.'
+                        : 'Không có món ăn nào khả dụng.'}
                     </p>
                   ) : (
-                    searchableUnassignedDishes.map((dish) => (
+                    availableDishes.map((dish) => (
                       <div
                         key={dish._id}
                         className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md"
                       >
                         <span className="text-sm">
-                          {dish.name.vi}{' '}
-                          <Badge variant="secondary" className="ml-2">
-                            {dish.category}
-                          </Badge>
+                          {dish.name?.vi || 'Không có tên'}{' '}
+                          {dish.category && (
+                            <Badge variant="secondary" className="ml-2">
+                              {dish.category}
+                            </Badge>
+                          )}
                         </span>
                         <Button
                           type="button"

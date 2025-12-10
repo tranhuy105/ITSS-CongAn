@@ -11,6 +11,8 @@ interface GetRestaurantsParams {
   latitude?: number;
   longitude?: number;
   maxDistance?: number;
+  minRating?: number;
+  maxRating?: number;
 }
 
 // feature for end user
@@ -24,6 +26,8 @@ export const getRestaurants = async (params: GetRestaurantsParams) => {
     latitude,
     longitude,
     maxDistance = 10000,
+    minRating,
+    maxRating,
   } = params;
 
   const query: any = { deletedAt: null };
@@ -36,6 +40,17 @@ export const getRestaurants = async (params: GetRestaurantsParams) => {
   // Search by name
   if (search) {
     query.name = { $regex: search, $options: 'i' };
+  }
+
+  // Rating filter implementation
+  if (minRating !== undefined || maxRating !== undefined) {
+    query.averageRating = {};
+    if (minRating !== undefined) {
+      query.averageRating.$gte = minRating;
+    }
+    if (maxRating !== undefined) {
+      query.averageRating.$lte = maxRating;
+    }
   }
 
   const skip = (page - 1) * limit;

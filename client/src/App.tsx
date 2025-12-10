@@ -18,6 +18,7 @@ import { AdminRestaurantList } from './pages/admin/AdminRestaurantList';
 import { AdminUserList } from './pages/admin/AdminUserList';
 import { AdminDishForm } from './pages/admin/AdminDishForm';
 import { AdminRestaurantForm } from './pages/admin/AdminRestaurantForm';
+import { DishListPage } from './pages/DishListPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +37,7 @@ function App() {
           <Routes>
             {/* PUBLIC/GUEST ROUTES */}
             <Route path="/" element={<HomePage />} />
+            <Route path="/dishes" element={<DishListPage />} />
             <Route path="/dishes/:id" element={<DishDetailPage />} />
             <Route path="/restaurants" element={<RestaurantListPage />} />
             <Route path="/restaurants/:id" element={<RestaurantDetailPage />} />

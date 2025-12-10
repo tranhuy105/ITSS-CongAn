@@ -6,6 +6,11 @@ interface GetDishesParams {
   category?: string;
   region?: string;
   search?: string;
+  sortBy?: string;
+  minRating?: number;
+  maxRating?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 // feature for end user
@@ -27,6 +32,11 @@ export const getDishesAdmin = async (params: GetDishesParams = {}) => {
 
 export const getUnassignedDishesList = async (searchQuery?: string) => {
   const response = await api.get('/dishes/unassigned-list', { params: { search: searchQuery } });
+  return response.data.data;
+};
+
+export const getAssignedDishesList = async (restaurantId: string) => {
+  const response = await api.get(`/dishes/assigned-list/${restaurantId}`);
   return response.data.data;
 };
 

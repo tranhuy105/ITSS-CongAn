@@ -9,6 +9,7 @@ type CreateDishPayload = {
   category: string;
   region: string;
   cookingTime: number;
+  price: number;
 };
 
 type UpdateDishPayload = Partial<CreateDishPayload>;
@@ -35,6 +36,7 @@ export const createDishClientSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   region: z.string().min(1, 'Region is required'),
   cookingTime: z.number().min(1, 'Cooking time must be at least 1 minute'),
+  price: z.number().min(0, 'Price cannot be negative'),
 }) as z.ZodType<CreateDishPayload>;
 
 // CLIENT UPDATE SCHEMA
@@ -46,4 +48,5 @@ export const updateDishClientSchema = z.object({
   category: z.string().optional(),
   region: z.string().optional(),
   cookingTime: z.number().min(1).optional(),
+  price: z.number().min(0).optional(),
 }) as z.ZodType<UpdateDishPayload>;

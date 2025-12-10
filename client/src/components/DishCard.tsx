@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/hooks/useFavorites';
-import { Clock, Heart, MapPin, Star, Users } from 'lucide-react';
+import { Clock, DollarSign, Heart, MapPin, Star, Users } from 'lucide-react';
 // import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -16,6 +16,7 @@ interface DishCardProps {
   cookingTime: number;
   category: string;
   region?: string;
+  price: number;
   language: 'ja' | 'vi';
 }
 
@@ -29,6 +30,7 @@ export const DishCard = ({
   cookingTime,
   category,
   region,
+  price = 0,
   language,
 }: DishCardProps) => {
   const { isFavorite, isMutating, toggleFavorite } = useFavorites(id);
@@ -43,6 +45,11 @@ export const DishCard = ({
   const imageUrl = images?.[0]
     ? `${import.meta.env.VITE_BACKEND_URL}${images[0]}`
     : '/placeholder.jpg';
+
+  // Format price (VND)
+  const formatPrice = (p: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
+  };
 
   return (
     <Link to={`/dishes/${id}`} className="group block h-full">
@@ -105,8 +112,17 @@ export const DishCard = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <div className="flex items-center gap-1">
+            <div className="flex items-center gap-3">
+              {/* PRICE */}
+              {price > 0 && (
+                <div className="flex items-center gap-1 text-green-600">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="text-sm font-semibold">{formatPrice(price)}</span>
+                </div>
+              )}
+              {/* END PRICE */}
+
+              <div className="flex items-center gap-1 text-muted-foreground">
                 <Clock className="w-4 h-4" />
                 <span className="text-sm font-medium">{cookingTime}m</span>
               </div>

@@ -5,33 +5,60 @@ import { ChefHat, Heart, LogOut, Search, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { LanguageToggle } from '../LanguageToggle'; //
+import { cn } from '@/lib/utils'; //
+
+// Nav Item Component
+const NavItem = ({
+  to,
+  label,
+  currentPath,
+}: {
+  to: string;
+  label: string;
+  currentPath: string;
+}) => {
+  const isActive = to === '/' ? currentPath === '/' : currentPath.startsWith(to);
+
+  return (
+    <Link
+      to={to}
+      className={cn(
+        'text-sm font-medium transition-colors hover:text-primary border-b-2 py-2 -mb-2',
+        isActive ? 'border-primary text-primary' : 'border-transparent text-foreground/70'
+      )}
+    >
+      {label}
+    </Link>
+  );
+};
 
 export const Header = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth(); //
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t } = useTranslation(); //
   const [showSearch, setShowSearch] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
+    await logout(); //
     navigate('/', { replace: true });
     window.location.reload();
   };
 
   const handleSearch = (query: string) => {
     const currentPath = location.pathname;
+
     if (query.trim()) {
-      // Stay on current page if on home, otherwise go to home
-      if (currentPath === '/') {
-        navigate(`/?search=${encodeURIComponent(query)}`);
-      } else {
-        navigate(`/?search=${encodeURIComponent(query)}`);
-      }
+      navigate(`/?search=${encodeURIComponent(query)}`);
     } else if (currentPath === '/') {
       navigate('/');
+    } else {
+      navigate(currentPath);
     }
   };
+
+  const currentPath = location.pathname;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
@@ -40,16 +67,23 @@ export const Header = () => {
           {/* Logo */}
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0 mr-6"
           >
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">
-              <ChefHat className="w-5 h-5" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-primary-foreground">
+              <ChefHat className="w-4 h-4" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg font-bold leading-tight">Vietnamese Food</h1>
-              <p className="text-xs text-muted-foreground">Discovery Platform</p>
+              <h1 className="text-base font-bold leading-tight">VnFoodDiscovery</h1>
+              <p className="text-xs text-muted-foreground">Platform</p>
             </div>
           </button>
+
+          {/* Navigation Links (NEW) */}
+          <nav className="hidden lg:flex items-center gap-8 h-full">
+            <NavItem to="/" label="Trang Chủ" currentPath={currentPath} />
+            <NavItem to="/dishes" label="Món Ăn" currentPath={currentPath} />
+            <NavItem to="/restaurants" label="Nhà Hàng" currentPath={currentPath} />
+          </nav>
 
           {/* Search Bar - Desktop */}
           {!showSearch && (
@@ -59,7 +93,12 @@ export const Header = () => {
           )}
 
           {/* Right side actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {/* Language Toggle (MOVED) */}
+            <div className="hidden md:block">
+              <LanguageToggle />
+            </div>
+
             {isAuthenticated ? (
               <>
                 {/* Mobile Search Toggle */}
@@ -86,7 +125,7 @@ export const Header = () => {
                   </span>
                 </Button>
 
-                {/* User Info */}
+                {/* User Info (Keep it simple) */}
                 <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted">
                   <User className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm font-medium">{user?.name}</span>
@@ -127,7 +166,7 @@ export const Header = () => {
         </div>
 
         {/* Mobile Search Bar */}
-        {showSearch && isAuthenticated && (
+        {showSearch && (
           <div className="md:hidden pb-4">
             <SearchBar
               onSearch={(query) => {
@@ -140,6 +179,13 @@ export const Header = () => {
             />
           </div>
         )}
+
+        {/* Mobile Nav Links */}
+        <nav className="lg:hidden flex items-center justify-around gap-2 pb-2 pt-1 border-t">
+          <NavItem to="/" label="Trang Chủ" currentPath={currentPath} />
+          <NavItem to="/dishes" label="Món Ăn" currentPath={currentPath} />
+          <NavItem to="/restaurants" label="Nhà Hàng" currentPath={currentPath} />
+        </nav>
       </div>
     </header>
   );
