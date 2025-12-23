@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
 import type { AuthResponse, IUser, LoginCredentials, RegisterData } from '../../../shared/types';
 import * as authService from '../services/authService';

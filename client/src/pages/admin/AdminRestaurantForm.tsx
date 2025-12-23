@@ -41,6 +41,26 @@ interface RestaurantFormState {
 
 const INITIAL_LOCATION: Location = { type: 'Point', coordinates: [106.7008, 10.7769] }; // HCMC
 
+type ArrayCarrier = Record<string, unknown>;
+const toArrayFromMaybeListResponse = (resp: unknown): unknown[] => {
+  if (Array.isArray(resp)) return resp;
+  if (resp && typeof resp === 'object') {
+    const obj = resp as ArrayCarrier;
+    const candidates = ['dishes', 'data', 'items'] as const;
+    for (const key of candidates) {
+      const v = obj[key];
+      if (Array.isArray(v)) return v;
+    }
+  }
+  return [];
+};
+
+const hasObjectId = (v: unknown): v is { _id: string } => {
+  if (!v || typeof v !== 'object') return false;
+  const obj = v as Record<string, unknown>;
+  return typeof obj._id === 'string' && obj._id.length > 0;
+};
+
 export const AdminRestaurantForm: React.FC = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -95,41 +115,20 @@ export const AdminRestaurantForm: React.FC = () => {
 
     // Thêm assigned dishes vào map
     if (assignedDishesResponse) {
-      let assignedArray: any[] = [];
-      if (Array.isArray(assignedDishesResponse)) {
-        assignedArray = assignedDishesResponse;
-      } else if (assignedDishesResponse && typeof assignedDishesResponse === 'object') {
-        if (Array.isArray(assignedDishesResponse.dishes))
-          assignedArray = assignedDishesResponse.dishes;
-        else if (Array.isArray(assignedDishesResponse.data))
-          assignedArray = assignedDishesResponse.data;
-        else if (Array.isArray(assignedDishesResponse.items))
-          assignedArray = assignedDishesResponse.items;
-      }
-
-      assignedArray.forEach((dish: any) => {
-        if (dish && dish._id) {
-          newMap.set(dish._id, dish);
+      const assignedArray = toArrayFromMaybeListResponse(assignedDishesResponse);
+      assignedArray.forEach((dish) => {
+        if (hasObjectId(dish)) {
+          newMap.set(dish._id, dish as IDish);
         }
       });
     }
 
     // Thêm available dishes vào map
     if (availableDishesResponse) {
-      let availableArray: any[] = [];
-      if (Array.isArray(availableDishesResponse)) {
-        availableArray = availableDishesResponse;
-      } else if (availableDishesResponse && typeof availableDishesResponse === 'object') {
-        if (Array.isArray(availableDishesResponse.dishes))
-          availableArray = availableDishesResponse.dishes;
-        else if (Array.isArray(availableDishesResponse.data))
-          availableArray = availableDishesResponse.data;
-        else if (Array.isArray(availableDishesResponse.items))
-          availableArray = availableDishesResponse.items;
-      }
-      availableArray.forEach((dish: any) => {
-        if (dish && dish._id && !newMap.has(dish._id)) {
-          newMap.set(dish._id, dish);
+      const availableArray = toArrayFromMaybeListResponse(availableDishesResponse);
+      availableArray.forEach((dish) => {
+        if (hasObjectId(dish) && !newMap.has(dish._id)) {
+          newMap.set(dish._id, dish as IDish);
         }
       });
     }
@@ -140,17 +139,7 @@ export const AdminRestaurantForm: React.FC = () => {
   // Cập nhật form state khi data được load
   useEffect(() => {
     if (isEdit && restaurantData && assignedDishesResponse) {
-      let assignedArray: any[] = [];
-      if (Array.isArray(assignedDishesResponse)) {
-        assignedArray = assignedDishesResponse;
-      } else if (assignedDishesResponse && typeof assignedDishesResponse === 'object') {
-        if (Array.isArray(assignedDishesResponse.dishes))
-          assignedArray = assignedDishesResponse.dishes;
-        else if (Array.isArray(assignedDishesResponse.data))
-          assignedArray = assignedDishesResponse.data;
-        else if (Array.isArray(assignedDishesResponse.items))
-          assignedArray = assignedDishesResponse.items;
-      }
+      const assignedArray = toArrayFromMaybeListResponse(assignedDishesResponse);
 
       setFormData({
         name: restaurantData.name,
@@ -160,7 +149,13 @@ export const AdminRestaurantForm: React.FC = () => {
         website: restaurantData.website || '',
         images: restaurantData.images,
         // Chuyển ObjectIds thành strings từ assigned dishes
-        dishes: assignedArray.map((dish: any) => dish._id || dish.toString()),
+        dishes: assignedArray
+          .map((dish) => {
+            if (typeof dish === 'string') return dish;
+            if (hasObjectId(dish)) return dish._id;
+            return String(dish);
+          })
+          .filter(Boolean),
       });
     }
   }, [isEdit, restaurantData, assignedDishesResponse]);
@@ -193,11 +188,20 @@ export const AdminRestaurantForm: React.FC = () => {
       );
       navigate('/admin/restaurants');
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
+      type ApiError = {
+        response?: {
+          data?: {
+            error?: {
+              details?: Array<{ field: string; message: string }>;
+            };
+          };
+        };
+      };
+      const apiErr = err as ApiError;
       const msg =
-        err.response?.data?.error?.details
-          ?.map((d: any) => `${d.field}: ${d.message}`)
-          .join('; ') || t('adminPages.forms.genericProcessError');
+        apiErr.response?.data?.error?.details?.map((d) => `${d.field}: ${d.message}`).join('; ') ||
+        t('adminPages.forms.genericProcessError');
       setFormError(t('adminPages.forms.systemValidationError', { msg }));
     },
   });
@@ -208,11 +212,15 @@ export const AdminRestaurantForm: React.FC = () => {
 
   // --- Handlers ---
 
-  const handleInputChange = (field: keyof RestaurantFormState, value: any, coordIndex?: 0 | 1) => {
+  const handleInputChange = (
+    field: keyof RestaurantFormState,
+    value: string | number,
+    coordIndex?: 0 | 1
+  ) => {
     setFormData((prev) => {
       if (field === 'location' && coordIndex !== undefined) {
         const newCoords = [...prev.location.coordinates];
-        newCoords[coordIndex] = parseFloat(value) || 0;
+        newCoords[coordIndex] = parseFloat(String(value)) || 0;
         return {
           ...prev,
           location: { ...prev.location, coordinates: newCoords as [number, number] },
@@ -250,22 +258,11 @@ export const AdminRestaurantForm: React.FC = () => {
 
     // Lấy tất cả dishes từ API active-list
     if (availableDishesResponse) {
-      let availableArray: any[] = [];
-      if (Array.isArray(availableDishesResponse)) {
-        availableArray = availableDishesResponse;
-      } else if (availableDishesResponse && typeof availableDishesResponse === 'object') {
-        if (Array.isArray(availableDishesResponse.dishes))
-          availableArray = availableDishesResponse.dishes;
-        else if (Array.isArray(availableDishesResponse.data))
-          availableArray = availableDishesResponse.data;
-        else if (Array.isArray(availableDishesResponse.items))
-          availableArray = availableDishesResponse.items;
-      }
-
+      const availableArray = toArrayFromMaybeListResponse(availableDishesResponse);
       // Chỉ giữ lại những dishes chưa được gán vào form
-      availableArray.forEach((dish: any) => {
-        if (dish && dish._id && !formData.dishes.includes(dish._id)) {
-          allActiveDishes.push(dish);
+      availableArray.forEach((dish) => {
+        if (hasObjectId(dish) && !formData.dishes.includes(dish._id)) {
+          allActiveDishes.push(dish as IDish);
         }
       });
     }
@@ -324,19 +321,29 @@ export const AdminRestaurantForm: React.FC = () => {
       const validatedData = schema.parse(finalData);
 
       await restaurantMutation.mutateAsync(validatedData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof z.ZodError) {
         const errorDetails = err.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ');
-        setFormError(`Lỗi Validation: ${errorDetails}`);
+        setFormError(t('adminPages.forms.systemValidationError', { msg: errorDetails }));
       } else {
-        setFormError(`Lỗi hệ thống: ${err.message || 'Không thể lưu nhà hàng.'}`);
+        setFormError(
+          err instanceof Error
+            ? t('adminPages.forms.systemValidationError', { msg: err.message })
+            : t('adminPages.restaurantForm.errors.saveFailed')
+        );
       }
     }
   };
 
   if (isLoading) {
     return (
-      <AdminLayout title={isEdit ? 'Đang tải nhà hàng...' : 'Tạo mới nhà hàng'}>
+      <AdminLayout
+        title={
+          isEdit
+            ? t('adminPages.restaurantForm.loading.editTitle')
+            : t('adminPages.restaurantForm.loading.createTitle')
+        }
+      >
         <div className="space-y-4">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-full" />
@@ -346,7 +353,9 @@ export const AdminRestaurantForm: React.FC = () => {
     );
   }
 
-  const pageTitle = isEdit ? `Sửa Nhà Hàng: ${formData.name}` : 'Tạo Nhà Hàng Mới';
+  const pageTitle = isEdit
+    ? t('adminPages.restaurantForm.pageTitle.edit', { name: formData.name })
+    : t('adminPages.restaurantForm.pageTitle.create');
 
   return (
     <AdminLayout title={pageTitle}>
@@ -356,7 +365,7 @@ export const AdminRestaurantForm: React.FC = () => {
           <div className="flex gap-3">
             <NavLink to="/admin/restaurants">
               <Button type="button" variant="outline" disabled={isSubmitting}>
-                <X className="w-4 h-4 mr-2" /> Hủy
+                <X className="w-4 h-4 mr-2" /> {t('adminPages.restaurantForm.actions.cancel')}
               </Button>
             </NavLink>
             <Button type="submit" disabled={isSubmitting}>
@@ -365,7 +374,9 @@ export const AdminRestaurantForm: React.FC = () => {
               ) : (
                 <Save className="w-4 h-4 mr-2" />
               )}
-              {isEdit ? 'Cập Nhật' : 'Tạo Nhà Hàng'}
+              {isEdit
+                ? t('adminPages.restaurantForm.actions.update')
+                : t('adminPages.restaurantForm.actions.create')}
             </Button>
           </div>
         </div>
@@ -375,38 +386,38 @@ export const AdminRestaurantForm: React.FC = () => {
         {/* --- Thông tin Cơ bản --- */}
         <Card>
           <CardHeader>
-            <CardTitle>Thông tin cơ bản</CardTitle>
+            <CardTitle>{t('adminPages.restaurantForm.sections.basicInfo')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Label>Tên Nhà Hàng</Label>
+            <Label>{t('adminPages.restaurantForm.fields.nameLabel')}</Label>
             <Input
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Nhập tên nhà hàng"
+              placeholder={t('adminPages.restaurantForm.fields.namePlaceholder')}
             />
-            <Label>Địa Chỉ</Label>
+            <Label>{t('adminPages.restaurantForm.fields.addressLabel')}</Label>
             <Input
               value={formData.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
-              placeholder="Nhập địa chỉ"
+              placeholder={t('adminPages.restaurantForm.fields.addressPlaceholder')}
             />
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Số Điện Thoại</Label>
+                <Label>{t('adminPages.restaurantForm.fields.phoneLabel')}</Label>
                 <Input
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Nhập số điện thoại"
+                  placeholder={t('adminPages.restaurantForm.fields.phonePlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Website</Label>
+                <Label>{t('adminPages.restaurantForm.fields.websiteLabel')}</Label>
                 <div className="relative">
                   <Input
                     value={formData.website}
                     onChange={(e) => handleInputChange('website', e.target.value)}
                     className="pl-10"
-                    placeholder="https://example.com"
+                    placeholder={t('adminPages.restaurantForm.fields.websitePlaceholder')}
                   />
                   <Globe className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
@@ -418,32 +429,32 @@ export const AdminRestaurantForm: React.FC = () => {
         {/* --- Vị Trí (Geospatial) --- */}
         <Card>
           <CardHeader>
-            <CardTitle>Vị trí (Tọa độ)</CardTitle>
+            <CardTitle>{t('adminPages.restaurantForm.sections.location')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Kinh Độ (Longitude)</Label>
+                <Label>{t('adminPages.restaurantForm.fields.longitudeLabel')}</Label>
                 <div className="relative">
                   <Input
                     type="number"
                     step="any"
                     value={formData.location.coordinates[0]}
                     onChange={(e) => handleInputChange('location', e.target.value, 0)}
-                    placeholder="106.7008"
+                    placeholder={t('adminPages.restaurantForm.fields.longitudePlaceholder')}
                   />
                   <MapPin className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Vĩ Độ (Latitude)</Label>
+                <Label>{t('adminPages.restaurantForm.fields.latitudeLabel')}</Label>
                 <div className="relative">
                   <Input
                     type="number"
                     step="any"
                     value={formData.location.coordinates[1]}
                     onChange={(e) => handleInputChange('location', e.target.value, 1)}
-                    placeholder="10.7769"
+                    placeholder={t('adminPages.restaurantForm.fields.latitudePlaceholder')}
                   />
                   <MapPin className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
@@ -455,17 +466,23 @@ export const AdminRestaurantForm: React.FC = () => {
         {/* --- Gán Món Ăn (Dish Assignment) --- */}
         <Card>
           <CardHeader>
-            <CardTitle>Món ăn phục vụ ({assignedDishDetails.length})</CardTitle>
+            <CardTitle>
+              {t('adminPages.restaurantForm.sections.dishesServed', {
+                count: assignedDishDetails.length,
+              })}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-6">
               {/* PANEL 1: MÓN ĂN ĐANG GÁN */}
               <div>
-                <Label className="font-semibold mb-2 block">Món ăn đang gán:</Label>
+                <Label className="font-semibold mb-2 block">
+                  {t('adminPages.restaurantForm.dishes.assignedLabel')}
+                </Label>
                 <div className="flex flex-col gap-2 p-3 border rounded-md h-60 overflow-y-auto bg-muted/40">
                   {assignedDishDetails.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center pt-8">
-                      Chưa có món ăn nào được gán.
+                      {t('adminPages.restaurantForm.dishes.noneAssigned')}
                     </p>
                   ) : (
                     assignedDishDetails.map((dish) => (
@@ -550,11 +567,11 @@ export const AdminRestaurantForm: React.FC = () => {
         {/* --- Images Section (Upload và Preview) --- */}
         <Card>
           <CardHeader>
-            <CardTitle>Hình ảnh</CardTitle>
+            <CardTitle>{t('adminPages.restaurantForm.sections.images')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="image-upload">Chọn tệp ảnh (Max 5MB)</Label>
+              <Label htmlFor="image-upload">{t('adminPages.restaurantForm.images.uploadLabel')}</Label>
               <Input
                 id="image-upload"
                 type="file"
@@ -575,7 +592,7 @@ export const AdminRestaurantForm: React.FC = () => {
                   >
                     <img
                       src={url.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${url}` : url}
-                      alt={`Ảnh cũ ${index}`}
+                      alt={t('adminPages.restaurantForm.images.oldImageAlt', { index })}
                       className="w-full h-full object-cover"
                       onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
                     />
@@ -585,7 +602,7 @@ export const AdminRestaurantForm: React.FC = () => {
                       size="icon-sm"
                       className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => handleRemoveImage(index)}
-                      title="Xóa ảnh cũ"
+                      title={t('adminPages.restaurantForm.images.removeOldImageTitle')}
                     >
                       <X className="w-3 h-3" />
                     </Button>
@@ -600,11 +617,11 @@ export const AdminRestaurantForm: React.FC = () => {
                   >
                     <img
                       src={URL.createObjectURL(file)}
-                      alt={`Preview ${index}`}
+                      alt={t('adminPages.restaurantForm.images.newPreviewAlt', { index })}
                       className="w-full h-full object-cover opacity-60"
                     />
                     <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-foreground bg-white/70">
-                      Mới
+                      {t('adminPages.restaurantForm.images.newBadge')}
                     </span>
                   </div>
                 ))}

@@ -28,7 +28,7 @@ export const RegisterPage = () => {
         let criteriaCount = 0;
         if (/[a-zA-Z]/.test(password)) criteriaCount++;
         if (/\d/.test(password)) criteriaCount++;
-        if (/[!@#$%^&*()_+\-=\[\]{};:,.<>?/\\|`~]/.test(password)) criteriaCount++;
+        if (/[!@#$%^&*()_+\-=[\]{};:,.<>?/\\|`~]/.test(password)) criteriaCount++;
 
         if (criteriaCount < 2) {
             return { valid: false, message: t('validation.passwordWeak') };
@@ -72,8 +72,10 @@ export const RegisterPage = () => {
         try {
             await register({ name, email, password });
             navigate('/');
-        } catch (err: any) {
-            setError(err.response?.data?.error?.message || 'Registration failed');
+        } catch (err: unknown) {
+            type ApiError = { response?: { data?: { error?: { message?: string } } } };
+            const apiErr = err as ApiError;
+            setError(apiErr.response?.data?.error?.message || t('auth.errors.registerFailed'));
         } finally {
             setLoading(false);
         }
@@ -121,7 +123,7 @@ export const RegisterPage = () => {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Loading...' : t('auth.registerButton')}
+                    {loading ? t('common.loading') : t('auth.registerButton')}
                 </Button>
             </form>
 

@@ -13,12 +13,19 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 // Fix Leaflet default marker icon
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+type DishForRestaurant = {
+  _id: string;
+  images: string[];
+  name: Record<string, string>;
+  category: string;
+};
 
 export const RestaurantDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -183,7 +190,7 @@ export const RestaurantDetailPage = () => {
             <CardContent className="p-4">
               <h2 className="text-base font-semibold mb-3">{t('restaurants.dishesServed')}</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {restaurant.dishes.map((dish: any) => (
+                {restaurant.dishes.map((dish: DishForRestaurant) => (
                   <Link key={dish._id} to={`/dishes/${dish._id}`} className="group block">
                     <div className="relative aspect-square bg-muted rounded-lg overflow-hidden mb-2">
                       <img

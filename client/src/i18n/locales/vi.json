@@ -10,7 +10,75 @@
     "back": "Quay lại",
     "welcome": "Xin chào",
     "loadingData": "Đang tải dữ liệu...",
-    "loadError": "Lỗi tải dữ liệu"
+    "loadError": "Lỗi tải dữ liệu",
+    "viewAll": "Xem tất cả",
+    "loadMore": "Xem thêm {{target}}",
+    "loadMoreSimple": "Xem thêm",
+    "loading": "Đang tải...",
+    "collapse": "Thu gọn",
+    "showAll": "Hiển thị tất cả ({{count}})",
+    "locating": "Đang lấy vị trí...",
+    "useMyLocation": "Dùng vị trí của tôi",
+    "priceFrom": "Từ {{price}}",
+    "priceContact": "Giá liên hệ"
+  },
+  "restaurantList": {
+    "filters": {
+      "searchPlaceholder": "Tìm theo tên nhà hàng...",
+      "sort": {
+        "title": "Sắp xếp",
+        "newestDefault": "Mới nhất (Mặc định)",
+        "ratingDesc": "Đánh giá (Cao nhất)",
+        "ratingAsc": "Đánh giá (Thấp nhất)",
+        "reviewCountDesc": "Lượt đánh giá (Nhiều nhất)",
+        "reviewCountAsc": "Lượt đánh giá (Ít nhất)"
+      },
+      "rating": {
+        "title": "Đánh giá",
+        "fromPlaceholder": "Từ 0",
+        "toPlaceholder": "Đến 5"
+      },
+      "nearby": {
+        "title": "Gần bạn",
+        "radiusPlaceholder": "Bán kính (km) — ví dụ: 3",
+        "radiusHint": "Nhập bán kính xong hãy bấm “{{action}}” để lọc."
+      }
+    },
+    "location": {
+      "coords": "Vị trí: {{lat}}, {{lng}}",
+      "errors": {
+        "notSupported": "Trình duyệt không hỗ trợ định vị (geolocation).",
+        "permissionDenied": "Bạn đã từ chối quyền vị trí. Hãy bật lại quyền và thử lại.",
+        "positionUnavailable": "Không lấy được vị trí hiện tại. Vui lòng thử lại.",
+        "timeout": "Lấy vị trí bị timeout. Vui lòng thử lại."
+      }
+    }
+  },
+  "dishList": {
+    "title": "Danh sách Món Ăn",
+    "filters": {
+      "searchPlaceholder": "Tìm theo tên món ăn...",
+      "sort": {
+        "title": "Sắp xếp",
+        "newestDefault": "Mới nhất (Mặc định)",
+        "ratingDesc": "Đánh giá (Cao nhất)",
+        "ratingAsc": "Đánh giá (Thấp nhất)",
+        "cookingTimeAsc": "Thời gian nấu (Tăng dần)",
+        "cookingTimeDesc": "Thời gian nấu (Giảm dần)",
+        "priceAsc": "Giá (Tăng dần)",
+        "priceDesc": "Giá (Giảm dần)"
+      },
+      "price": {
+        "title": "Giá (VNĐ)",
+        "fromPlaceholder": "Từ",
+        "toPlaceholder": "Đến"
+      },
+      "rating": {
+        "title": "Đánh giá",
+        "fromPlaceholder": "Từ 0",
+        "toPlaceholder": "Đến 5"
+      }
+    }
   },
   "restaurants": {
     "title": "Nhà hàng",
@@ -38,9 +106,20 @@
   "dishDetail": {
     "error": {
       "loadFailed": "Không thể tải chi tiết món ăn. Vui lòng thử lại."
-    }
+    },
+    "descriptionTitle": "Mô tả",
+    "findRestaurants": "Tìm nhà hàng",
+    "ingredientsTitle": "Nguyên liệu",
+    "cookingTimeMinutes": "{{minutes}} phút",
+    "servingsDefault": "2-4 khẩu phần"
   },
   "home": {
+    "latestHeading": "Món Ăn & Nhà Hàng Mới Nhất",
+    "searchingFor": "Đang tìm kiếm cho:",
+    "sections": {
+      "newDishes": "Món Ăn Mới",
+      "newRestaurants": "Nhà Hàng Mới"
+    },
     "hero": {
       "title": "Khám phá ẩm thực Việt Nam chính gốc",
       "subtitle": "Khám phá các món ăn truyền thống từ Bắc đến Nam Việt Nam, với công thức chi tiết và gợi ý nhà hàng"
@@ -100,7 +179,12 @@
     "sendResetLink": "Gửi liên kết đặt lại",
     "backToLogin": "Quay lại đăng nhập",
     "resetPassword": "Đặt lại mật khẩu",
-    "resetDescription": "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến email của bạn"
+    "resetDescription": "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến email của bạn",
+    "errors": {
+      "loginFailed": "Đăng nhập thất bại",
+      "registerFailed": "Đăng ký thất bại",
+      "resetLinkFailed": "Không thể gửi liên kết đặt lại. Vui lòng thử lại."
+    }
   },
   "validation": {
     "emailRequired": "Vui lòng nhập email",
@@ -279,7 +363,8 @@
       },
       "actions": {
         "edit": "Chỉnh sửa",
-        "restore": "Khôi Phục"
+        "restore": "Khôi Phục",
+        "viewDetailsAdmin": "Xem chi tiết (Admin)"
       },
       "confirm": {
         "softDelete": "Bạn có chắc chắn muốn xóa mềm món ăn \"{{name}}\" không?",
@@ -287,6 +372,101 @@
       },
       "messages": {
         "noResults": "Không tìm thấy món ăn nào."
+      }
+    },
+    "restaurantForm": {
+      "loading": {
+        "editTitle": "Đang tải nhà hàng...",
+        "createTitle": "Tạo mới nhà hàng"
+      },
+      "pageTitle": {
+        "edit": "Sửa Nhà Hàng: {{name}}",
+        "create": "Tạo Nhà Hàng Mới"
+      },
+      "actions": {
+        "cancel": "Hủy",
+        "create": "Tạo Nhà Hàng",
+        "update": "Cập Nhật"
+      },
+      "sections": {
+        "basicInfo": "Thông tin cơ bản",
+        "location": "Vị trí (Tọa độ)",
+        "dishesServed": "Món ăn phục vụ ({{count}})",
+        "images": "Hình ảnh"
+      },
+      "fields": {
+        "nameLabel": "Tên Nhà Hàng",
+        "namePlaceholder": "Nhập tên nhà hàng",
+        "addressLabel": "Địa Chỉ",
+        "addressPlaceholder": "Nhập địa chỉ",
+        "phoneLabel": "Số Điện Thoại",
+        "phonePlaceholder": "Nhập số điện thoại",
+        "websiteLabel": "Website",
+        "websitePlaceholder": "https://example.com",
+        "longitudeLabel": "Kinh Độ (Longitude)",
+        "longitudePlaceholder": "106.7008",
+        "latitudeLabel": "Vĩ Độ (Latitude)",
+        "latitudePlaceholder": "10.7769"
+      },
+      "dishes": {
+        "assignedLabel": "Món ăn đang gán:",
+        "noneAssigned": "Chưa có món ăn nào được gán."
+      },
+      "images": {
+        "uploadLabel": "Chọn tệp ảnh (Max 5MB)",
+        "oldImageAlt": "Ảnh cũ {{index}}",
+        "removeOldImageTitle": "Xóa ảnh cũ",
+        "newPreviewAlt": "Preview {{index}}",
+        "newBadge": "Mới"
+      },
+      "errors": {
+        "saveFailed": "Không thể lưu nhà hàng."
+      }
+    },
+    "dishForm": {
+      "loading": {
+        "editTitle": "Đang tải món ăn...",
+        "createTitle": "Tạo mới món ăn"
+      },
+      "pageTitle": {
+        "edit": "Sửa Món Ăn: {{name}}",
+        "create": "Tạo Món Ăn Mới"
+      },
+      "actions": {
+        "cancel": "Hủy",
+        "create": "Tạo Món Ăn",
+        "update": "Cập Nhật"
+      },
+      "sections": {
+        "basicInfo": "Thông tin cơ bản",
+        "ingredients": "Nguyên liệu",
+        "images": "Hình ảnh"
+      },
+      "fields": {
+        "nameVi": "Tên (Tiếng Việt)",
+        "nameJa": "Tên (Tiếng Nhật)",
+        "descriptionVi": "Mô tả (Tiếng Việt)",
+        "descriptionJa": "Mô tả (Tiếng Nhật)",
+        "category": "Danh Mục",
+        "region": "Vùng Miền",
+        "cookingTimeMinutes": "Thời gian nấu (phút)",
+        "minPrice": "Giá Min (VND)",
+        "maxPrice": "Giá Max (VND)",
+        "ingredientName": "Tên Nguyên liệu",
+        "ingredientQuantity": "Số lượng/Đơn vị"
+      },
+      "ingredients": {
+        "add": "Thêm"
+      },
+      "images": {
+        "uploadLabel": "Chọn tệp ảnh (Max 5MB)",
+        "oldImageAlt": "Ảnh cũ {{index}}",
+        "removeOldImageTitle": "Xóa ảnh cũ",
+        "newPreviewAlt": "Preview {{index}}",
+        "newBadge": "Mới"
+      },
+      "errors": {
+        "saveFailed": "Không thể lưu món ăn."
       }
     },
     "forms": {
@@ -322,7 +502,14 @@
       "subtitle": "Bấm vào biểu tượng trái tim để thêm món ăn vào danh sách này."
     }
   },
+  "nav": {
+    "home": "Trang chủ",
+    "dishes": "Món ăn",
+    "restaurants": "Nhà hàng",
+    "platform": "Nền tảng"
+  },
   "footer": {
+    "brand": "Công an Hà Nội",
     "rights": "Bản quyền thuộc về",
     "about": "Giới thiệu",
     "contact": "Liên hệ",

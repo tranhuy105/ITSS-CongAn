@@ -52,7 +52,7 @@ export const LoginPage = () => {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Login failed');
+      setError(err.response?.data?.error?.message || t('auth.errors.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export const LoginPage = () => {
         </div>
 
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Loading...' : t('auth.loginButton')}
+          {loading ? t('common.loading') : t('auth.loginButton')}
         </Button>
       </form>
 

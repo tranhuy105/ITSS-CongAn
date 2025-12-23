@@ -82,8 +82,8 @@ export const DishDetailPage = () => {
       : minPrice > 0 && maxPrice > 0
         ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
         : minPrice > 0
-          ? `Từ ${formatPrice(minPrice)}`
-          : 'Giá liên hệ';
+          ? t('common.priceFrom', { price: formatPrice(minPrice) })
+          : t('common.priceContact');
 
   return (
     <AppLayout>
@@ -189,11 +189,11 @@ export const DishDetailPage = () => {
                 {/* Thời gian nấu */}
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Clock className="w-4 h-4" />
-                  <span>{dish.cookingTime} min</span>
+                  <span>{t('dishDetail.cookingTimeMinutes', { minutes: dish.cookingTime })}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Users className="w-4 h-4" />
-                  <span>2-4 servings</span>
+                  <span>{t('dishDetail.servingsDefault')}</span>
                 </div>
               </div>
 
@@ -208,7 +208,7 @@ export const DishDetailPage = () => {
             </div>
 
             <div className="border-t pt-4">
-              <h2 className="text-sm font-semibold mb-2">Description</h2>
+              <h2 className="text-sm font-semibold mb-2">{t('dishDetail.descriptionTitle')}</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">{displayDescription}</p>
             </div>
 
@@ -218,7 +218,7 @@ export const DishDetailPage = () => {
               onClick={() => navigate(`/restaurants?dish=${id}`)}
             >
               <MapPin className="w-4 h-4 mr-2" />
-              Find Restaurants
+              {t('dishDetail.findRestaurants')}
             </Button>
           </div>
         </div>
@@ -227,7 +227,7 @@ export const DishDetailPage = () => {
         {dish.ingredients && dish.ingredients.length > 0 && (
           <Card className="mb-6">
             <CardContent className="p-4">
-              <h2 className="text-base font-semibold mb-3">Ingredients</h2>
+              <h2 className="text-base font-semibold mb-3">{t('dishDetail.ingredientsTitle')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {dish.ingredients.map((ingredient: any, index: number) => (

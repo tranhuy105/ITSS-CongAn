@@ -123,7 +123,7 @@ export const DishListPage = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold mb-6">Danh sách Món Ăn</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('dishList.title')}</h1>
 
         <div className="flex gap-6">
           {/* Desktop Sidebar (Filters) */}
@@ -136,7 +136,7 @@ export const DishListPage = () => {
               {/* Local Search Input */}
               <div className="space-y-2">
                 <Input
-                  placeholder="Tìm theo tên món ăn..."
+                  placeholder={t('dishList.filters.searchPlaceholder')}
                   value={localSearchQuery}
                   onChange={(e) => setLocalSearchQuery(e.target.value)}
                 />
@@ -145,34 +145,34 @@ export const DishListPage = () => {
               {/* Sorting */}
               <div className="pt-4 border-t space-y-2">
                 <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-                  Sắp xếp
+                  {t('dishList.filters.sort.title')}
                 </h3>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="w-full h-9 border rounded-md p-2 text-sm bg-background"
                 >
-                  <option value="-updatedAt">Mới nhất (Mặc định)</option>
-                  <option value="-averageRating">Đánh giá (Cao nhất)</option>
-                  <option value="averageRating">Đánh giá (Thấp nhất)</option>
-                  <option value="cookingTime">Thời gian nấu (Tăng dần)</option>
-                  <option value="-cookingTime">Thời gian nấu (Giảm dần)</option>
-                  <option value="minPrice">Giá (Tăng dần)</option>
-                  <option value="-minPrice">Giá (Giảm dần)</option>
+                  <option value="-updatedAt">{t('dishList.filters.sort.newestDefault')}</option>
+                  <option value="-averageRating">{t('dishList.filters.sort.ratingDesc')}</option>
+                  <option value="averageRating">{t('dishList.filters.sort.ratingAsc')}</option>
+                  <option value="cookingTime">{t('dishList.filters.sort.cookingTimeAsc')}</option>
+                  <option value="-cookingTime">{t('dishList.filters.sort.cookingTimeDesc')}</option>
+                  <option value="minPrice">{t('dishList.filters.sort.priceAsc')}</option>
+                  <option value="-minPrice">{t('dishList.filters.sort.priceDesc')}</option>
                 </select>
               </div>
 
               {/* Price Filter */}
               <div className="pt-4 border-t space-y-2">
                 <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                  Giá (VNĐ) <DollarSign className="w-3 h-3" />
+                  {t('dishList.filters.price.title')} <DollarSign className="w-3 h-3" />
                 </h3>
                 <div className="flex gap-2 items-center">
                   <Input
                     type="number"
                     min="0"
                     step="1000"
-                    placeholder="Từ"
+                    placeholder={t('dishList.filters.price.fromPlaceholder')}
                     value={minPrice}
                     onChange={(e) => handleNumberInputChange(setMinPrice, e.target.value)}
                     className="w-1/2 h-9 text-sm"
@@ -182,7 +182,7 @@ export const DishListPage = () => {
                     type="number"
                     min="0"
                     step="1000"
-                    placeholder="Đến"
+                    placeholder={t('dishList.filters.price.toPlaceholder')}
                     value={maxPrice}
                     onChange={(e) => handleNumberInputChange(setMaxPrice, e.target.value)}
                     className="w-1/2 h-9 text-sm"
@@ -193,7 +193,8 @@ export const DishListPage = () => {
               {/* Rating Filter */}
               <div className="pt-4 border-t space-y-2">
                 <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                  Đánh giá <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  {t('dishList.filters.rating.title')}{' '}
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                 </h3>
                 <div className="flex gap-2 items-center">
                   <Input
@@ -201,7 +202,7 @@ export const DishListPage = () => {
                     step="0.1"
                     min="0"
                     max="5"
-                    placeholder="Từ 0"
+                    placeholder={t('dishList.filters.rating.fromPlaceholder')}
                     value={minRating}
                     onChange={(e) => handleNumberInputChange(setMinRating, e.target.value)}
                     className="w-1/2 h-9 text-sm"
@@ -212,7 +213,7 @@ export const DishListPage = () => {
                     step="0.1"
                     min="0"
                     max="5"
-                    placeholder="Đến 5"
+                    placeholder={t('dishList.filters.rating.toPlaceholder')}
                     value={maxRating}
                     onChange={(e) => handleNumberInputChange(setMaxRating, e.target.value)}
                     className="w-1/2 h-9 text-sm"
@@ -242,7 +243,7 @@ export const DishListPage = () => {
                 <div className="p-4 space-y-4">
                   {/* ... (Header và Local Search Input Mobile) */}
                   <Input
-                    placeholder="Tìm theo tên món ăn..."
+                    placeholder={t('dishList.filters.searchPlaceholder')}
                     value={localSearchQuery}
                     onChange={(e) => setLocalSearchQuery(e.target.value)}
                   />
@@ -250,34 +251,34 @@ export const DishListPage = () => {
                   {/* Sorting Mobile */}
                   <div className="space-y-2">
                     <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-                      Sắp xếp
+                      {t('dishList.filters.sort.title')}
                     </h3>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
                       className="w-full h-9 border rounded-md p-2 text-sm bg-background"
                     >
-                      <option value="-updatedAt">Mới nhất (Mặc định)</option>
-                      <option value="-averageRating">Đánh giá (Cao nhất)</option>
-                      <option value="averageRating">Đánh giá (Thấp nhất)</option>
-                      <option value="cookingTime">Thời gian nấu (Tăng dần)</option>
-                      <option value="-cookingTime">Thời gian nấu (Giảm dần)</option>
-                      <option value="minPrice">Giá (Tăng dần)</option>
-                      <option value="-minPrice">Giá (Giảm dần)</option>
+                      <option value="-updatedAt">{t('dishList.filters.sort.newestDefault')}</option>
+                      <option value="-averageRating">{t('dishList.filters.sort.ratingDesc')}</option>
+                      <option value="averageRating">{t('dishList.filters.sort.ratingAsc')}</option>
+                      <option value="cookingTime">{t('dishList.filters.sort.cookingTimeAsc')}</option>
+                      <option value="-cookingTime">{t('dishList.filters.sort.cookingTimeDesc')}</option>
+                      <option value="minPrice">{t('dishList.filters.sort.priceAsc')}</option>
+                      <option value="-minPrice">{t('dishList.filters.sort.priceDesc')}</option>
                     </select>
                   </div>
 
                   {/* Price Filter Mobile */}
                   <div className="pt-4 border-t space-y-2">
                     <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                      Giá (VNĐ) <DollarSign className="w-3 h-3" />
+                      {t('dishList.filters.price.title')} <DollarSign className="w-3 h-3" />
                     </h3>
                     <div className="flex gap-2 items-center">
                       <Input
                         type="number"
                         min="0"
                         step="1000"
-                        placeholder="Từ"
+                        placeholder={t('dishList.filters.price.fromPlaceholder')}
                         value={minPrice}
                         onChange={(e) => handleNumberInputChange(setMinPrice, e.target.value)}
                         className="w-1/2 h-9 text-sm"
@@ -287,7 +288,7 @@ export const DishListPage = () => {
                         type="number"
                         min="0"
                         step="1000"
-                        placeholder="Đến"
+                        placeholder={t('dishList.filters.price.toPlaceholder')}
                         value={maxPrice}
                         onChange={(e) => handleNumberInputChange(setMaxPrice, e.target.value)}
                         className="w-1/2 h-9 text-sm"
@@ -299,7 +300,8 @@ export const DishListPage = () => {
                   {/* Rating Filter Mobile */}
                   <div className="pt-4 border-t space-y-2">
                     <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                      Đánh giá <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      {t('dishList.filters.rating.title')}{' '}
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     </h3>
                     <div className="flex gap-2 items-center">
                       <Input
@@ -307,7 +309,7 @@ export const DishListPage = () => {
                         step="0.1"
                         min="0"
                         max="5"
-                        placeholder="Từ 0"
+                        placeholder={t('dishList.filters.rating.fromPlaceholder')}
                         value={minRating}
                         onChange={(e) => handleNumberInputChange(setMinRating, e.target.value)}
                         className="w-1/2 h-9 text-sm"
@@ -318,7 +320,7 @@ export const DishListPage = () => {
                         step="0.1"
                         min="0"
                         max="5"
-                        placeholder="Đến 5"
+                        placeholder={t('dishList.filters.rating.toPlaceholder')}
                         value={maxRating}
                         onChange={(e) => handleNumberInputChange(setMaxRating, e.target.value)}
                         className="w-1/2 h-9 text-sm"
@@ -421,7 +423,7 @@ export const DishListPage = () => {
                       variant="outline"
                       size="lg"
                     >
-                      {isFetchingNextPage ? 'Đang tải...' : 'Xem thêm'}
+                      {isFetchingNextPage ? t('common.loading') : t('common.loadMoreSimple')}
                     </Button>
                   </div>
                 )}

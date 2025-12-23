@@ -11,7 +11,7 @@ interface RestaurantCardProps {
   images: string[];
   averageRating: number;
   reviewCount: number;
-  dishes?: any[];
+  dishes?: Array<{ _id: string; category: string }>;
   distance?: number;
 }
 
@@ -74,7 +74,7 @@ export const RestaurantCard = ({
 
           {dishes.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-2 border-t">
-              {dishes.slice(0, 3).map((dish: any) => (
+              {dishes.slice(0, 3).map((dish) => (
                 <Badge key={dish._id} variant="secondary" className="text-xs">
                   {dish.category}
                 </Badge>

@@ -45,12 +45,12 @@ export const getDishByIdAdmin = async (id: string) => {
   return response.data.data;
 };
 
-export const createDish = async (data: any) => {
+export const createDish = async (data: unknown) => {
   const response = await api.post('/dishes', data);
   return response.data.data.dish;
 };
 
-export const updateDish = async (id: string, data: any) => {
+export const updateDish = async (id: string, data: unknown) => {
   const response = await api.put(`/dishes/${id}`, data);
   return response.data.data.dish;
 };

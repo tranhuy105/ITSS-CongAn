@@ -170,7 +170,7 @@ export const AdminDishList = () => {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => setSelectedDishId(dish._id)}
-                          title="Xem chi tiết (Admin)"
+                          title={t('adminPages.dishes.actions.viewDetailsAdmin')}
                         >
                           <ExternalLink className="w-4 h-4" />
                         </Button>

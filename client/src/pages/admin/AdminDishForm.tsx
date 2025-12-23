@@ -104,11 +104,14 @@ export const AdminDishForm: React.FC = () => {
       );
       navigate('/admin/dishes');
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
+      type ApiError = {
+        response?: { data?: { error?: { details?: Array<{ field: string; message: string }> } } };
+      };
+      const apiErr = err as ApiError;
       const msg =
-        err.response?.data?.error?.details
-          ?.map((d: any) => `${d.field}: ${d.message}`)
-          .join('; ') || t('adminPages.forms.genericProcessError');
+        apiErr.response?.data?.error?.details?.map((d) => `${d.field}: ${d.message}`).join('; ') ||
+        t('adminPages.forms.genericProcessError');
       setFormError(t('adminPages.forms.systemValidationError', { msg }));
     },
   });
@@ -118,7 +121,7 @@ export const AdminDishForm: React.FC = () => {
   // --- Handlers ---
   const handleInputChange = (
     field: keyof DishFormState,
-    value: any,
+    value: string,
     lang?: 'ja' | 'vi',
     index?: number,
     subfield?: keyof Ingredient
@@ -204,25 +207,35 @@ export const AdminDishForm: React.FC = () => {
 
       // 5. Submit Dish Data
       await dishMutation.mutateAsync(validatedData as CreateDishPayload | UpdateDishPayload);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof z.ZodError) {
         const errorDetails = err.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ');
-        setFormError(`Lỗi Validation: ${errorDetails}`);
+        setFormError(t('adminPages.forms.systemValidationError', { msg: errorDetails }));
       } else {
-        setFormError(`Lỗi hệ thống: ${err.message || 'Không thể lưu món ăn.'}`);
+        setFormError(
+          err instanceof Error
+            ? t('adminPages.forms.systemValidationError', { msg: err.message })
+            : t('adminPages.dishForm.errors.saveFailed')
+        );
       }
     }
   };
 
   if (isDishLoading) {
     return (
-      <AdminLayout title={isEdit ? 'Đang tải món ăn...' : 'Tạo mới món ăn'}>
-        <p>Đang tải...</p>
+      <AdminLayout
+        title={
+          isEdit ? t('adminPages.dishForm.loading.editTitle') : t('adminPages.dishForm.loading.createTitle')
+        }
+      >
+        <p>{t('common.loading')}</p>
       </AdminLayout>
     );
   }
 
-  const pageTitle = isEdit ? `Sửa Món Ăn: ${formData.name.vi}` : 'Tạo Món Ăn Mới';
+  const pageTitle = isEdit
+    ? t('adminPages.dishForm.pageTitle.edit', { name: formData.name.vi })
+    : t('adminPages.dishForm.pageTitle.create');
 
   return (
     <AdminLayout title={pageTitle}>
@@ -232,7 +245,7 @@ export const AdminDishForm: React.FC = () => {
           <div className="flex gap-3">
             <NavLink to="/admin/dishes">
               <Button type="button" variant="outline" disabled={isSubmitting}>
-                <X className="w-4 h-4 mr-2" /> Hủy
+                <X className="w-4 h-4 mr-2" /> {t('adminPages.dishForm.actions.cancel')}
               </Button>
             </NavLink>
             <Button type="submit" disabled={isSubmitting}>
@@ -241,7 +254,7 @@ export const AdminDishForm: React.FC = () => {
               ) : (
                 <Save className="w-4 h-4 mr-2" />
               )}
-              {isEdit ? 'Cập Nhật' : 'Tạo Món Ăn'}
+              {isEdit ? t('adminPages.dishForm.actions.update') : t('adminPages.dishForm.actions.create')}
             </Button>
           </div>
         </div>
@@ -250,28 +263,28 @@ export const AdminDishForm: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Thông tin cơ bản</CardTitle>
+            <CardTitle>{t('adminPages.dishForm.sections.basicInfo')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Tên Món Ăn */}
-            <Label>Tên (Tiếng Việt)</Label>
+            <Label>{t('adminPages.dishForm.fields.nameVi')}</Label>
             <Input
               value={formData.name.vi}
               onChange={(e) => handleInputChange('name', e.target.value, 'vi')}
             />
-            <Label>Tên (Tiếng Nhật)</Label>
+            <Label>{t('adminPages.dishForm.fields.nameJa')}</Label>
             <Input
               value={formData.name.ja}
               onChange={(e) => handleInputChange('name', e.target.value, 'ja')}
             />
 
             {/* Mô tả */}
-            <Label>Mô tả (Tiếng Việt)</Label>
+            <Label>{t('adminPages.dishForm.fields.descriptionVi')}</Label>
             <Textarea
               value={formData.description.vi}
               onChange={(e) => handleInputChange('description', e.target.value, 'vi')}
             />
-            <Label>Mô tả (Tiếng Nhật)</Label>
+            <Label>{t('adminPages.dishForm.fields.descriptionJa')}</Label>
             <Textarea
               value={formData.description.ja}
               onChange={(e) => handleInputChange('description', e.target.value, 'ja')}
@@ -280,7 +293,7 @@ export const AdminDishForm: React.FC = () => {
             {/* Category & Region & Cooking Time & PRICE */}
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Danh Mục</Label>
+                <Label>{t('adminPages.dishForm.fields.category')}</Label>
                 <select
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
@@ -294,7 +307,7 @@ export const AdminDishForm: React.FC = () => {
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>Vùng Miền</Label>
+                <Label>{t('adminPages.dishForm.fields.region')}</Label>
                 <select
                   value={formData.region}
                   onChange={(e) => handleInputChange('region', e.target.value)}
@@ -308,7 +321,7 @@ export const AdminDishForm: React.FC = () => {
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>Thời gian nấu (phút)</Label>
+                <Label>{t('adminPages.dishForm.fields.cookingTimeMinutes')}</Label>
                 <div className="relative">
                   <Input
                     type="number"
@@ -321,7 +334,7 @@ export const AdminDishForm: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Giá Min (VND)</Label>
+                <Label>{t('adminPages.dishForm.fields.minPrice')}</Label>
                 <div className="relative">
                   <Input
                     type="number"
@@ -335,7 +348,7 @@ export const AdminDishForm: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Giá Max (VND)</Label>
+                <Label>{t('adminPages.dishForm.fields.maxPrice')}</Label>
                 <div className="relative">
                   <Input
                     type="number"
@@ -355,16 +368,16 @@ export const AdminDishForm: React.FC = () => {
         {/* Ingredients Section */}
         <Card>
           <CardHeader className="flex flex-row justify-between items-center">
-            <CardTitle>Nguyên liệu</CardTitle>
+            <CardTitle>{t('adminPages.dishForm.sections.ingredients')}</CardTitle>
             <Button type="button" variant="outline" size="sm" onClick={handleAddIngredient}>
-              <Plus className="w-4 h-4 mr-2" /> Thêm
+              <Plus className="w-4 h-4 mr-2" /> {t('adminPages.dishForm.ingredients.add')}
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {formData.ingredients.map((ing, index) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <Label>Tên Nguyên liệu</Label>
+                  <Label>{t('adminPages.dishForm.fields.ingredientName')}</Label>
                   <Input
                     value={ing.name}
                     onChange={(e) =>
@@ -373,7 +386,7 @@ export const AdminDishForm: React.FC = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <Label>Số lượng/Đơn vị</Label>
+                  <Label>{t('adminPages.dishForm.fields.ingredientQuantity')}</Label>
                   <Input
                     value={ing.quantity}
                     onChange={(e) =>
@@ -399,11 +412,11 @@ export const AdminDishForm: React.FC = () => {
         {/* Images Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Hình ảnh</CardTitle>
+            <CardTitle>{t('adminPages.dishForm.sections.images')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="image-upload">Chọn tệp ảnh (Max 5MB)</Label>
+              <Label htmlFor="image-upload">{t('adminPages.dishForm.images.uploadLabel')}</Label>
               <Input
                 id="image-upload"
                 type="file"
@@ -424,7 +437,7 @@ export const AdminDishForm: React.FC = () => {
                   >
                     <img
                       src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
-                      alt={`Ảnh cũ ${index}`}
+                      alt={t('adminPages.dishForm.images.oldImageAlt', { index })}
                       className="w-full h-full object-cover"
                       onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
                     />
@@ -434,7 +447,7 @@ export const AdminDishForm: React.FC = () => {
                       size="icon-sm"
                       className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => handleRemoveImage(index)}
-                      title="Xóa ảnh cũ"
+                      title={t('adminPages.dishForm.images.removeOldImageTitle')}
                     >
                       <X className="w-3 h-3" />
                     </Button>
@@ -449,11 +462,11 @@ export const AdminDishForm: React.FC = () => {
                   >
                     <img
                       src={URL.createObjectURL(file)}
-                      alt={`Preview ${index}`}
+                      alt={t('adminPages.dishForm.images.newPreviewAlt', { index })}
                       className="w-full h-full object-cover opacity-60"
                     />
                     <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-foreground bg-white/70">
-                      Mới
+                      {t('adminPages.dishForm.images.newBadge')}
                     </span>
                   </div>
                 ))}

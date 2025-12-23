@@ -14,6 +14,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const HOME_LIMIT = 4;
 
+type FeedItem = { _id: string; [key: string]: unknown };
+type FeedResponse = {
+  dishes?: FeedItem[];
+  restaurants?: FeedItem[];
+  pagination?: { total?: number };
+};
+type FetchFn = (params: Record<string, unknown>) => Promise<FeedResponse>;
+
 // Component cho một khối Feed (Dishes hoặc Restaurants)
 const FeedSection = ({
   title,
@@ -28,7 +36,7 @@ const FeedSection = ({
   title: string;
   linkTo: string;
   queryKey: string;
-  fetchFn: (params: any) => Promise<any>;
+  fetchFn: FetchFn;
   CardComponent: React.ElementType;
   NoItemsComponent: React.ElementType;
   isFetchingGlobalSearch: boolean;
@@ -38,12 +46,12 @@ const FeedSection = ({
   const [searchParams] = useSearchParams();
   const search = searchParams.get('search') || '';
   const [page, setPage] = useState(1);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<FeedItem[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Fetch data
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching } = useQuery<FeedResponse>({
     queryKey: [queryKey, search, page],
     queryFn: () =>
       fetchFn({
@@ -59,7 +67,7 @@ const FeedSection = ({
   useEffect(() => {
     console.log('Data received:', data); // Debug
     if (data) {
-      const newItems = (data?.dishes || data?.restaurants || []) as any[];
+      const newItems = data.dishes ?? data.restaurants ?? [];
       console.log('New items:', newItems.length); // Debug
 
       if (page === 1) {
@@ -85,7 +93,7 @@ const FeedSection = ({
     setIsExpanded(false);
   }, [search]);
 
-  const total = data?.pagination?.total || 0;
+  const total = data?.pagination?.total ?? 0;
   const isLastPage = items.length >= total;
   const showLoadMore = !isLastPage && total > HOME_LIMIT;
   const showCollapse = items.length > HOME_LIMIT && isExpanded;
@@ -167,7 +175,7 @@ const FeedSection = ({
           to={linkTo}
           className="text-sm font-medium text-primary flex items-center gap-1 hover:underline"
         >
-          Xem tất cả <ArrowRight className="w-4 h-4" />
+          {t('common.viewAll')} <ArrowRight className="w-4 h-4" />
         </Link>
       </CardHeader>
       <CardContent className="p-6">
@@ -186,7 +194,7 @@ const FeedSection = ({
               ref={containerRef}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {displayedItems.map((item: any, index: number) => (
+              {displayedItems.map((item, index) => (
                 <div
                   key={item._id}
                   className={`${getItemAnimationClass(index)} transition-all duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg`}
@@ -239,7 +247,7 @@ const FeedSection = ({
                   className="px-8 py-6 text-base transition-all duration-300 hover:scale-105 hover:shadow-md group"
                 >
                   <ChevronDown className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform duration-300" />
-                  Xem thêm {title.toLowerCase()}
+                  {t('common.loadMore', { target: title })}
                 </Button>
               )}
 
@@ -252,7 +260,7 @@ const FeedSection = ({
                   className="px-8 py-6 text-base text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:shadow-md group"
                 >
                   <ChevronUp className="w-5 h-5 mr-2 group-hover:-translate-y-1 transition-transform duration-300" />
-                  Thu gọn
+                  {t('common.collapse')}
                 </Button>
               )}
 
@@ -265,7 +273,7 @@ const FeedSection = ({
                   className="px-8 py-6 text-base transition-all duration-300 hover:scale-105 hover:shadow-md group"
                 >
                   <ChevronDown className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform duration-300" />
-                  Hiển thị tất cả ({items.length})
+                  {t('common.showAll', { count: items.length })}
                 </Button>
               )}
             </div>
@@ -284,7 +292,7 @@ const FeedSection = ({
             {isLastPage && items.length > 0 && (
               <div className="text-center mt-6">
                 <p className="text-muted-foreground text-sm">
-                  {t('home.messages.showingAll', { count: items.length, title: title.toLowerCase() })}
+                  {t('home.messages.showingAll', { count: items.length, title })}
                 </p>
               </div>
             )}
@@ -358,19 +366,20 @@ export const HomePage = () => {
           </p>
         </section>
 
-        <h2 className="text-2xl font-bold mb-6">Món Ăn & Nhà Hàng Mới Nhất</h2>
+        <h2 className="text-2xl font-bold mb-6">{t('home.latestHeading')}</h2>
 
         {search && (
           <div className="mb-6 p-4 border rounded-lg bg-primary/5">
             <p className="text-sm font-medium">
-              Đang tìm kiếm cho: <span className="font-bold text-primary">"{search}"</span>
+              {t('home.searchingFor')}{' '}
+              <span className="font-bold text-primary">"{search}"</span>
             </p>
           </div>
         )}
 
         {/* Dishes Section */}
         <FeedSection
-          title="Món Ăn Mới"
+          title={t('home.sections.newDishes')}
           linkTo="/dishes"
           queryKey="homepageDishes"
           fetchFn={getDishes}
@@ -382,7 +391,7 @@ export const HomePage = () => {
 
         {/* Restaurants Section */}
         <FeedSection
-          title="Nhà Hàng Mới"
+          title={t('home.sections.newRestaurants')}
           linkTo="/restaurants"
           queryKey="homepageRestaurants"
           fetchFn={getRestaurants}

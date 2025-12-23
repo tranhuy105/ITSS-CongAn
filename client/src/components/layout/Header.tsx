@@ -74,15 +74,15 @@ export const Header = () => {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-base font-bold leading-tight">VnFoodDiscovery</h1>
-              <p className="text-xs text-muted-foreground">Platform</p>
+              <p className="text-xs text-muted-foreground">{t('nav.platform')}</p>
             </div>
           </button>
 
           {/* Navigation Links (NEW) */}
           <nav className="hidden lg:flex items-center gap-8 h-full">
-            <NavItem to="/" label="Trang Chủ" currentPath={currentPath} />
-            <NavItem to="/dishes" label="Món Ăn" currentPath={currentPath} />
-            <NavItem to="/restaurants" label="Nhà Hàng" currentPath={currentPath} />
+            <NavItem to="/" label={t('nav.home')} currentPath={currentPath} />
+            <NavItem to="/dishes" label={t('nav.dishes')} currentPath={currentPath} />
+            <NavItem to="/restaurants" label={t('nav.restaurants')} currentPath={currentPath} />
           </nav>
 
           {/* Search Bar - Desktop */}
@@ -182,9 +182,9 @@ export const Header = () => {
 
         {/* Mobile Nav Links */}
         <nav className="lg:hidden flex items-center justify-around gap-2 pb-2 pt-1 border-t">
-          <NavItem to="/" label="Trang Chủ" currentPath={currentPath} />
-          <NavItem to="/dishes" label="Món Ăn" currentPath={currentPath} />
-          <NavItem to="/restaurants" label="Nhà Hàng" currentPath={currentPath} />
+          <NavItem to="/" label={t('nav.home')} currentPath={currentPath} />
+          <NavItem to="/dishes" label={t('nav.dishes')} currentPath={currentPath} />
+          <NavItem to="/restaurants" label={t('nav.restaurants')} currentPath={currentPath} />
         </nav>
       </div>
     </header>

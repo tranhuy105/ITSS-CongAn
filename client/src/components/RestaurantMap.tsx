@@ -11,12 +11,19 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
 
 // Fix Leaflet default marker icon
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+type RestaurantMapItem = {
+    _id: string;
+    name: string;
+    address: string;
+    location: { coordinates: [number, number] };
+};
 
 interface RestaurantMapProps {
     dishId: string;
@@ -49,7 +56,7 @@ export const RestaurantMap = ({ dishId }: RestaurantMapProps) => {
         return null;
     }
 
-    const restaurants = data.restaurants;
+    const restaurants = data.restaurants as RestaurantMapItem[];
 
     if (restaurants.length === 0) {
         return (
@@ -70,8 +77,8 @@ export const RestaurantMap = ({ dishId }: RestaurantMapProps) => {
     // Calculate center of all restaurants
     const center: [number, number] = restaurants.length > 0
         ? [
-            restaurants.reduce((sum: number, r: any) => sum + r.location.coordinates[1], 0) / restaurants.length,
-            restaurants.reduce((sum: number, r: any) => sum + r.location.coordinates[0], 0) / restaurants.length,
+            restaurants.reduce((sum, r) => sum + r.location.coordinates[1], 0) / restaurants.length,
+            restaurants.reduce((sum, r) => sum + r.location.coordinates[0], 0) / restaurants.length,
         ]
         : [10.7769, 106.7008]; // Default to Ho Chi Minh City
 
@@ -103,7 +110,7 @@ export const RestaurantMap = ({ dishId }: RestaurantMapProps) => {
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
-                        {restaurants.map((restaurant: any) => (
+                        {restaurants.map((restaurant) => (
                             <Marker
                                 key={restaurant._id}
                                 position={[
@@ -122,7 +129,7 @@ export const RestaurantMap = ({ dishId }: RestaurantMapProps) => {
                                             className="w-full text-xs h-7"
                                             onClick={() => navigate(`/restaurants/${restaurant._id}`)}
                                         >
-                                            View Details
+                                            {t('restaurants.viewDetails')}
                                         </Button>
                                     </div>
                                 </Popup>

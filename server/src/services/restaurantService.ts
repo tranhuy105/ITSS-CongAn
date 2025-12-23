@@ -55,36 +55,26 @@ export const getRestaurants = async (params: GetRestaurantsParams) => {
 
   const skip = (page - 1) * limit;
 
-  let restaurantsQuery;
-
-  // Geospatial query if coordinates provided
+  // Geospatial filter (within radius) if coordinates provided.
+  // Note: maxDistance is in meters. For $centerSphere radius is in radians.
   if (latitude !== undefined && longitude !== undefined) {
-    restaurantsQuery = Restaurant.find(query)
-      .where('location')
-      .near({
-        center: {
-          type: 'Point',
-          coordinates: [longitude, latitude],
-        },
-        maxDistance,
-      })
-      .skip(skip)
-      .limit(limit)
-      .populate('dishes', 'name images category')
-      .lean();
-  } else {
-    restaurantsQuery = Restaurant.find(query)
-      .sort(sortBy)
-      .skip(skip)
-      .limit(limit)
-      .populate('dishes', 'name images category')
-      .lean();
+    const earthRadiusMeters = 6378100;
+    const safeMaxDistance = Number.isFinite(maxDistance) && maxDistance > 0 ? maxDistance : 10000;
+    query.location = {
+      $geoWithin: {
+        $centerSphere: [[longitude, latitude], safeMaxDistance / earthRadiusMeters],
+      },
+    };
   }
 
-  const [restaurants, total] = await Promise.all([
-    restaurantsQuery,
-    Restaurant.countDocuments(query),
-  ]);
+  const restaurantsQuery = Restaurant.find(query)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .populate('dishes', 'name images category')
+    .lean();
+
+  const [restaurants, total] = await Promise.all([restaurantsQuery, Restaurant.countDocuments(query)]);
 
   return {
     restaurants,

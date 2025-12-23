@@ -16,12 +16,44 @@ import { useTranslation } from 'react-i18next'; //
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+type RestaurantFilterSidebarProps = {
+  localSearchQuery: string;
+  setLocalSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  sortBy: string;
+  setSortBy: React.Dispatch<React.SetStateAction<string>>;
+  minRating: string;
+  setMinRating: React.Dispatch<React.SetStateAction<string>>;
+  maxRating: string;
+  setMaxRating: React.Dispatch<React.SetStateAction<string>>;
+  radiusKm: string;
+  setRadiusKm: React.Dispatch<React.SetStateAction<string>>;
+  userLatitude: number | null;
+  userLongitude: number | null;
+  isLocating: boolean;
+  locationError: string;
+  onUseMyLocation: () => void;
+  isFiltered: boolean;
+  onClearFilters: () => void;
+};
+
+type RestaurantListItem = {
+  _id: string;
+  name: string;
+  address: string;
+  phone: string;
+  images: string[];
+  averageRating: number;
+  reviewCount: number;
+  dishes: unknown[];
+  location: { coordinates: [number, number] };
+};
 
 // Component Filter Sidebar cho Restaurants
 const RestaurantFilterSidebar = ({
@@ -33,9 +65,16 @@ const RestaurantFilterSidebar = ({
   setMinRating,
   maxRating,
   setMaxRating,
+  radiusKm,
+  setRadiusKm,
+  userLatitude,
+  userLongitude,
+  isLocating,
+  locationError,
+  onUseMyLocation,
   isFiltered,
   onClearFilters,
-}: any) => {
+}: RestaurantFilterSidebarProps) => {
   const { t } = useTranslation();
 
   const handleRatingChange = (
@@ -47,14 +86,14 @@ const RestaurantFilterSidebar = ({
 
   return (
     <div className="sticky top-24 bg-card border rounded-lg p-4 space-y-4">
-      <h2 className="text-lg font-semibold border-b pb-2 mb-4">Bộ Lọc</h2>
+      <h2 className="text-lg font-semibold border-b pb-2 mb-4">{t('home.filters.title')}</h2>
 
       {/* Local Search Input */}
       <div className="space-y-2">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Tìm theo tên nhà hàng..."
+            placeholder={t('restaurantList.filters.searchPlaceholder')}
             value={localSearchQuery}
             onChange={(e) => setLocalSearchQuery(e.target.value)}
             className="pl-10"
@@ -65,25 +104,26 @@ const RestaurantFilterSidebar = ({
       {/* Sorting */}
       <div className="pt-2 border-t space-y-2">
         <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-          Sắp xếp
+          {t('restaurantList.filters.sort.title')}
         </h3>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
           className="w-full h-9 border rounded-md p-2 text-sm bg-background"
         >
-          <option value="-updatedAt">Mới nhất (Mặc định)</option>
-          <option value="-averageRating">Đánh giá (Cao nhất)</option>
-          <option value="averageRating">Đánh giá (Thấp nhất)</option>
-          <option value="-reviewCount">Lượt đánh giá (Nhiều nhất)</option>
-          <option value="reviewCount">Lượt đánh giá (Ít nhất)</option>
+          <option value="-updatedAt">{t('restaurantList.filters.sort.newestDefault')}</option>
+          <option value="-averageRating">{t('restaurantList.filters.sort.ratingDesc')}</option>
+          <option value="averageRating">{t('restaurantList.filters.sort.ratingAsc')}</option>
+          <option value="-reviewCount">{t('restaurantList.filters.sort.reviewCountDesc')}</option>
+          <option value="reviewCount">{t('restaurantList.filters.sort.reviewCountAsc')}</option>
         </select>
       </div>
 
       {/* Rating Filter */}
       <div className="pt-2 border-t space-y-2">
         <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-          Đánh giá <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+          {t('restaurantList.filters.rating.title')}{' '}
+          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
         </h3>
         <div className="flex gap-2 items-center">
           <Input
@@ -91,7 +131,7 @@ const RestaurantFilterSidebar = ({
             step="0.1"
             min="0"
             max="5"
-            placeholder="Từ 0"
+            placeholder={t('restaurantList.filters.rating.fromPlaceholder')}
             value={minRating}
             onChange={(e) => handleRatingChange(setMinRating, e.target.value)}
             className="w-1/2 h-9 text-sm"
@@ -102,11 +142,56 @@ const RestaurantFilterSidebar = ({
             step="0.1"
             min="0"
             max="5"
-            placeholder="Đến 5"
+            placeholder={t('restaurantList.filters.rating.toPlaceholder')}
             value={maxRating}
             onChange={(e) => handleRatingChange(setMaxRating, e.target.value)}
             className="w-1/2 h-9 text-sm"
           />
+        </div>
+      </div>
+
+      {/* Nearby Filter */}
+      <div className="pt-2 border-t space-y-2">
+        <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
+          {t('restaurantList.filters.nearby.title')}
+        </h3>
+        <div className="space-y-2">
+          <Input
+            type="number"
+            min="0"
+            step="0.5"
+            placeholder={t('restaurantList.filters.nearby.radiusPlaceholder')}
+            value={radiusKm}
+            onChange={(e) => setRadiusKm(e.target.value.replace(/[^0-9.]/g, ''))}
+            className="h-9 text-sm"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={onUseMyLocation}
+            disabled={isLocating}
+          >
+            {isLocating ? t('common.locating') : t('common.useMyLocation')}
+          </Button>
+
+          {locationError && <p className="text-xs text-destructive">{locationError}</p>}
+
+          {userLatitude !== null && userLongitude !== null && (
+            <p className="text-xs text-muted-foreground">
+              {t('restaurantList.location.coords', {
+                lat: userLatitude.toFixed(5),
+                lng: userLongitude.toFixed(5),
+              })}
+            </p>
+          )}
+
+          {radiusKm && (userLatitude === null || userLongitude === null) && !locationError && (
+            <p className="text-xs text-muted-foreground">
+              {t('restaurantList.filters.nearby.radiusHint', { action: t('common.useMyLocation') })}
+            </p>
+          )}
         </div>
       </div>
 
@@ -168,8 +253,8 @@ const DishFilterBanner = ({ dishId, language }: { dishId: string; language: 'ja'
       : minPrice > 0 && maxPrice > 0
         ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
         : minPrice > 0
-          ? `Từ ${formatPrice(minPrice)}`
-          : 'Giá liên hệ';
+          ? t('common.priceFrom', { price: formatPrice(minPrice) })
+          : t('common.priceContact');
 
   return (
     <Card className="mb-6 border-primary/50 bg-primary/5">
@@ -223,11 +308,49 @@ export const RestaurantListPage = () => {
   const [sortBy, setSortBy] = useState('-updatedAt');
   const [minRating, setMinRating] = useState('');
   const [maxRating, setMaxRating] = useState('');
+  const [radiusKm, setRadiusKm] = useState('');
+  const [userLatitude, setUserLatitude] = useState<number | null>(null);
+  const [userLongitude, setUserLongitude] = useState<number | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string>('');
 
   const dishId = searchParams.get('dish');
   const restaurantLimit = 12;
 
   const language = i18n.language as 'ja' | 'vi';
+
+  const handleUseMyLocation = () => {
+    setLocationError('');
+    if (!navigator.geolocation) {
+      setLocationError(t('restaurantList.location.errors.notSupported'));
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLatitude(pos.coords.latitude);
+        setUserLongitude(pos.coords.longitude);
+        setIsLocating(false);
+      },
+      (err) => {
+        setIsLocating(false);
+        // Common: PERMISSION_DENIED, POSITION_UNAVAILABLE, TIMEOUT
+        const msg =
+          err.code === err.PERMISSION_DENIED
+            ? t('restaurantList.location.errors.permissionDenied')
+            : err.code === err.POSITION_UNAVAILABLE
+              ? t('restaurantList.location.errors.positionUnavailable')
+              : t('restaurantList.location.errors.timeout');
+        setLocationError(msg);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+    );
+  };
+
+  const maxDistanceMeters =
+    radiusKm && userLatitude !== null && userLongitude !== null
+      ? Math.max(0, Math.round(parseFloat(radiusKm) * 1000))
+      : undefined;
 
   // --- Infinite Query for Load More ---
   const {
@@ -239,7 +362,17 @@ export const RestaurantListPage = () => {
     isError,
     // isFetching, // not needed as we use isFetchingNextPage and isLoading
   } = useInfiniteQuery({
-    queryKey: ['restaurantsList', dishId, localSearchQuery, sortBy, minRating, maxRating],
+    queryKey: [
+      'restaurantsList',
+      dishId,
+      localSearchQuery,
+      sortBy,
+      minRating,
+      maxRating,
+      userLatitude,
+      userLongitude,
+      maxDistanceMeters,
+    ],
     queryFn: ({ pageParam = 1 }) =>
       getRestaurants({
         page: pageParam,
@@ -249,6 +382,9 @@ export const RestaurantListPage = () => {
         sortBy: sortBy,
         minRating: minRating ? parseFloat(minRating) : undefined,
         maxRating: maxRating ? parseFloat(maxRating) : undefined,
+        latitude: maxDistanceMeters !== undefined ? (userLatitude ?? undefined) : undefined,
+        longitude: maxDistanceMeters !== undefined ? (userLongitude ?? undefined) : undefined,
+        maxDistance: maxDistanceMeters,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
@@ -265,31 +401,42 @@ export const RestaurantListPage = () => {
 
   // Combined array of all fetched restaurants
   const allRestaurants = useMemo(() => {
-    return data?.pages.flatMap((page) => page.restaurants) || [];
+    return (data?.pages.flatMap((page) => page.restaurants) || []) as RestaurantListItem[];
   }, [data]);
 
   const totalRestaurants = data?.pages[0]?.pagination.total || 0;
 
   const isFiltered =
-    localSearchQuery || sortBy !== '-updatedAt' || minRating || maxRating || dishId;
+    localSearchQuery ||
+    sortBy !== '-updatedAt' ||
+    minRating ||
+    maxRating ||
+    dishId ||
+    maxDistanceMeters !== undefined;
 
   const handleClearFilters = () => {
     setLocalSearchQuery('');
     setSortBy('-updatedAt');
     setMinRating('');
     setMaxRating('');
+    setRadiusKm('');
+    setUserLatitude(null);
+    setUserLongitude(null);
+    setLocationError('');
     navigate('/restaurants');
   };
 
   const center: [number, number] =
-    allRestaurants.length > 0
-      ? [
-          allRestaurants.reduce((sum: number, r: any) => sum + r.location.coordinates[1], 0) /
-            allRestaurants.length,
-          allRestaurants.reduce((sum: number, r: any) => sum + r.location.coordinates[0], 0) /
-            allRestaurants.length,
-        ]
-      : [10.7769, 106.7008];
+    userLatitude !== null && userLongitude !== null
+      ? [userLatitude, userLongitude]
+      : allRestaurants.length > 0
+        ? [
+            allRestaurants.reduce((sum, r) => sum + r.location.coordinates[1], 0) /
+              allRestaurants.length,
+            allRestaurants.reduce((sum, r) => sum + r.location.coordinates[0], 0) /
+              allRestaurants.length,
+          ]
+        : [10.7769, 106.7008];
 
   return (
     <AppLayout>
@@ -353,6 +500,13 @@ export const RestaurantListPage = () => {
               setMinRating={setMinRating}
               maxRating={maxRating}
               setMaxRating={setMaxRating}
+              radiusKm={radiusKm}
+              setRadiusKm={setRadiusKm}
+              userLatitude={userLatitude}
+              userLongitude={userLongitude}
+              isLocating={isLocating}
+              locationError={locationError}
+              onUseMyLocation={handleUseMyLocation}
               isFiltered={isFiltered}
               onClearFilters={handleClearFilters}
             />
@@ -410,8 +564,7 @@ export const RestaurantListPage = () => {
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {allRestaurants.map((restaurant: any) => (
+                      {allRestaurants.map((restaurant) => (
                         <Marker
                           key={restaurant._id}
                           position={[
@@ -442,8 +595,7 @@ export const RestaurantListPage = () => {
                   /* List View */
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {allRestaurants.map((restaurant: any) => (
+                      {allRestaurants.map((restaurant) => (
                         <RestaurantCard
                           key={restaurant._id}
                           id={restaurant._id}
@@ -467,7 +619,7 @@ export const RestaurantListPage = () => {
                           variant="outline"
                           size="lg"
                         >
-                          {isFetchingNextPage ? 'Đang tải...' : 'Xem thêm'}
+                          {isFetchingNextPage ? t('common.loading') : t('common.loadMoreSimple')}
                         </Button>
                       </div>
                     )}
