@@ -8,7 +8,9 @@
     "page": "Trang",
     "of": "/",
     "back": "Quay lại",
-    "welcome": "こんにちは"
+    "welcome": "Xin chào",
+    "loadingData": "Đang tải dữ liệu...",
+    "loadError": "Lỗi tải dữ liệu"
   },
   "restaurants": {
     "title": "Nhà hàng",
@@ -17,7 +19,12 @@
     "viewMap": "Bản đồ",
     "noRestaurants": {
       "title": "Không tìm thấy nhà hàng",
-      "subtitle": "Thử điều chỉnh bộ lọc hoặc tiêu chí tìm kiếm"
+      "subtitle": "Thử điều chỉnh bộ lọc hoặc tiêu chí tìm kiếm",
+      "searchNoResults": "Không tìm thấy nhà hàng nào cho \"{{search}}\". Hãy thử từ khóa khác."
+    },
+    "error": {
+      "loadFailed": "Không thể tải danh sách nhà hàng. Vui lòng thử lại.",
+      "loadDetailsFailed": "Không thể tải chi tiết nhà hàng."
     },
     "nearby": "Nhà hàng gần đây",
     "viewAll": "Xem tất cả",
@@ -27,6 +34,11 @@
     "visitWebsite": "Truy cập trang web",
     "location": "Vị trí",
     "dishesServed": "Món ăn phục vụ"
+  },
+  "dishDetail": {
+    "error": {
+      "loadFailed": "Không thể tải chi tiết món ăn. Vui lòng thử lại."
+    }
   },
   "home": {
     "hero": {
@@ -62,7 +74,12 @@
     },
     "noDishes": {
       "title": "Không tìm thấy món ăn",
-      "subtitle": "Hãy thử chọn danh mục khác."
+      "subtitle": "Hãy thử chọn danh mục khác.",
+      "searchNoResults": "Không tìm thấy món ăn nào cho \"{{search}}\". Hãy thử từ khóa khác."
+    },
+    "messages": {
+      "loadingMore": "Đang tải thêm...",
+      "showingAll": "Đã hiển thị tất cả {{count}} {{title}}"
     },
     "showing": "Hiển thị",
     "of": "trên",
@@ -103,7 +120,199 @@
     "restaurants": "Quản lý Nhà hàng",
     "users": "Quản lý Người dùng",
     "welcomeMessage": "Chào mừng trở lại, Admin!",
-    "dashboardDescription": "Đây là khu vực quản lý dữ liệu của nền tảng. Sử dụng menu bên trái để điều hướng giữa các chức năng."
+    "dashboardDescription": "Đây là khu vực quản lý dữ liệu của nền tảng. Sử dụng menu bên trái để điều hướng giữa các chức năng.",
+    "dashboardCharts": {
+      "loading": "Đang tải dữ liệu dashboard…",
+      "loadError": "Không thể tải dữ liệu dashboard (analytics).",
+      "area": {
+        "usersRestaurants": {
+          "title": "Người dùng & Nhà hàng mới",
+          "description": "Số lượng bản ghi tạo mới theo ngày (90 ngày gần nhất)"
+        },
+        "dishesReviews": {
+          "title": "Món ăn & Đánh giá mới",
+          "description": "Số lượng món mới và review mới theo ngày (90 ngày gần nhất)"
+        }
+      },
+      "pie": {
+        "userRoles": {
+          "title": "Người dùng theo vai trò",
+          "description": "Phân bố role trong hệ thống"
+        },
+        "reviewRatings": {
+          "title": "Đánh giá theo số sao",
+          "description": "Phân bố rating (1–5 sao)"
+        },
+        "dishCategories": {
+          "title": "Món ăn theo danh mục",
+          "description": "Top 5 danh mục (theo số lượng món)"
+        }
+      },
+      "legend": {
+        "series": {
+          "usersNew": "Người dùng mới",
+          "restaurantsNew": "Nhà hàng mới",
+          "dishesNew": "Món ăn mới",
+          "reviewsNew": "Đánh giá mới"
+        },
+        "roles": {
+          "admin": "Admin",
+          "guest": "Khách",
+          "unknown": "Khác"
+        },
+        "ratings": {
+          "1": "1 sao",
+          "2": "2 sao",
+          "3": "3 sao",
+          "4": "4 sao",
+          "5": "5 sao"
+        },
+        "categoryIndex": "Danh mục #{{index}}"
+      }
+    }
+  },
+  "adminPages": {
+    "users": {
+      "createNew": "Tạo Người Dùng Mới",
+      "searchPlaceholder": "Tìm kiếm theo tên hoặc email...",
+      "filters": {
+        "allRoles": "Tất cả vai trò",
+        "allStatuses": "Tất cả trạng thái",
+        "roleGuest": "Người dùng",
+        "roleAdmin": "Quản trị viên",
+        "statusActive": "Đang hoạt động",
+        "statusLocked": "Đã khóa"
+      },
+      "form": {
+        "basicInfo": "Thông tin cơ bản",
+        "name": "Tên",
+        "namePlaceholder": "Nhập tên...",
+        "email": "Email",
+        "emailPlaceholder": "Nhập email...",
+        "password": "Mật khẩu",
+        "passwordPlaceholder": "Nhập mật khẩu (tối thiểu 6 ký tự)...",
+        "passwordPlaceholderEdit": "Để trống nếu không đổi mật khẩu",
+        "role": "Vai trò",
+        "isLocked": "Khóa tài khoản ngay khi tạo",
+        "create": "Tạo người dùng",
+        "creating": "Đang tạo...",
+        "update": "Cập nhật người dùng",
+        "updating": "Đang cập nhật...",
+        "editTitle": "Cập nhật người dùng",
+        "successCreated": "Đã tạo người dùng \"{{name}}\" thành công."
+        ,
+        "successUpdated": "Đã cập nhật người dùng \"{{name}}\" thành công."
+      },
+      "table": {
+        "name": "Tên",
+        "email": "Email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "badges": {
+        "admin": "Quản trị",
+        "guest": "Người dùng"
+      },
+      "verbs": {
+        "lock": "khóa",
+        "unlock": "mở khóa"
+      },
+      "roleNames": {
+        "admin": "quản trị viên",
+        "guest": "người dùng"
+      },
+      "confirm": {
+        "toggleLock": "Bạn có chắc chắn muốn {{action}} tài khoản của người dùng \"{{name}}\" không?",
+        "changeRole": "Bạn có chắc chắn muốn thay đổi vai trò của \"{{name}}\" thành {{role}} không?",
+        "delete": "Bạn có chắc chắn muốn xóa người dùng \"{{name}}\" không?"
+      },
+      "messages": {
+        "noResults": "Không tìm thấy người dùng nào."
+      },
+      "actions": {
+        "changeRole": "Thay đổi vai trò",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa người dùng",
+        "lockAccount": "Khóa tài khoản",
+        "unlockAccount": "Mở khóa tài khoản"
+      }
+    },
+    "restaurants": {
+      "createNew": "Tạo Nhà Hàng Mới",
+      "searchPlaceholder": "Tìm kiếm theo tên...",
+      "table": {
+        "name": "Tên Nhà Hàng",
+        "address": "Địa Chỉ",
+        "rating": "Đánh Giá",
+        "status": "Trạng Thái",
+        "actions": "Hành Động"
+      },
+      "status": {
+        "deleted": "Đã Xóa",
+        "active": "Hoạt Động"
+      },
+      "actions": {
+        "viewPublic": "Xem công khai",
+        "edit": "Chỉnh sửa",
+        "restore": "Khôi Phục"
+      },
+      "confirm": {
+        "softDelete": "Bạn có chắc chắn muốn xóa mềm nhà hàng \"{{name}}\" không?",
+        "restore": "Bạn có chắc chắn muốn khôi phục nhà hàng \"{{name}}\" không?"
+      },
+      "messages": {
+        "noResults": "Không tìm thấy nhà hàng nào."
+      }
+    },
+    "dishes": {
+      "createNew": "Tạo Món Ăn Mới",
+      "searchPlaceholder": "Tìm kiếm theo tên...",
+      "table": {
+        "name": "Tên Món Ăn",
+        "category": "Danh Mục",
+        "region": "Vùng Miền",
+        "rating": "Đánh Giá",
+        "status": "Trạng Thái",
+        "actions": "Hành Động"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa",
+        "restore": "Khôi Phục"
+      },
+      "confirm": {
+        "softDelete": "Bạn có chắc chắn muốn xóa mềm món ăn \"{{name}}\" không?",
+        "restore": "Bạn có chắc chắn muốn khôi phục món ăn \"{{name}}\" không?"
+      },
+      "messages": {
+        "noResults": "Không tìm thấy món ăn nào."
+      }
+    },
+    "forms": {
+      "actions": {
+        "create": "tạo mới",
+        "update": "cập nhật"
+      },
+      "restaurantSuccess": "Nhà hàng \"{{name}}\" đã được {{action}} thành công.",
+      "dishSuccess": "Món ăn \"{{name}}\" đã được {{action}} thành công.",
+      "genericProcessError": "Lỗi xử lý dữ liệu.",
+      "systemValidationError": "Lỗi hệ thống/Validation: {{msg}}",
+      "restaurantDishAssign": {
+        "unassignTitle": "Bỏ gán",
+        "searchAndAssignLabel": "Tìm kiếm và gán món ăn (Khả dụng):",
+        "dishNamePlaceholder": "Nhập tên món ăn...",
+        "loadingList": "Đang tải danh sách món ăn...",
+        "noMatch": "Không tìm thấy món ăn nào phù hợp.",
+        "noneAvailable": "Không có món ăn nào khả dụng.",
+        "noName": "Không có tên",
+        "assign": "Gán"
+      }
+    }
+  },
+  "reviews": {
+    "confirmDelete": "Bạn có chắc chắn muốn xóa đánh giá của bạn không?",
+    "loadFailed": "Không thể tải đánh giá."
   },
   "favorites": {
     "title": "Món ăn yêu thích",

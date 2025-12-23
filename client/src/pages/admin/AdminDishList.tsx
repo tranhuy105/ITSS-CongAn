@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { DishDetailModal } from '@/components/admin/DishDetailModal';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 // Định nghĩa kiểu dữ liệu trả về từ service
 interface DishAdmin {
@@ -66,13 +67,13 @@ export const AdminDishList = () => {
   // --- Handlers ---
 
   const handleSoftDelete = (id: string, name: string) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa mềm món ăn "${name}" không?`)) {
+    if (window.confirm(t('adminPages.dishes.confirm.softDelete', { name }))) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleRestore = (id: string, name: string) => {
-    if (window.confirm(`Bạn có chắc chắn muốn khôi phục món ăn "${name}" không?`)) {
+    if (window.confirm(t('adminPages.dishes.confirm.restore', { name }))) {
       restoreMutation.mutate(id);
     }
   };
@@ -90,7 +91,7 @@ export const AdminDishList = () => {
         {/* Button Create New Dish (Tạm thời navigate đến /admin/dishes/new) */}
         <Button onClick={() => navigate('/admin/dishes/new')}>
           <Plus className="w-4 h-4 mr-2" />
-          Tạo Món Ăn Mới
+          {t('adminPages.dishes.createNew')}
         </Button>
       </div>
 
@@ -102,7 +103,7 @@ export const AdminDishList = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Tìm kiếm theo tên..."
+                placeholder={t('adminPages.dishes.searchPlaceholder')}
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -119,25 +120,25 @@ export const AdminDishList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[30%]">Tên Món Ăn</TableHead>
-                  <TableHead className="w-[15%]">Danh Mục</TableHead>
-                  <TableHead className="w-[10%]">Vùng Miền</TableHead>
-                  <TableHead className="w-[10%]">Đánh Giá</TableHead>
-                  <TableHead className="w-[15%]">Trạng Thái</TableHead>
-                  <TableHead className="text-right w-[20%]">Hành Động</TableHead>
+                  <TableHead className="w-[30%]">{t('adminPages.dishes.table.name')}</TableHead>
+                  <TableHead className="w-[15%]">{t('adminPages.dishes.table.category')}</TableHead>
+                  <TableHead className="w-[10%]">{t('adminPages.dishes.table.region')}</TableHead>
+                  <TableHead className="w-[10%]">{t('adminPages.dishes.table.rating')}</TableHead>
+                  <TableHead className="w-[15%]">{t('adminPages.dishes.table.status')}</TableHead>
+                  <TableHead className="text-right w-[20%]">{t('adminPages.dishes.table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading || isError ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      {isLoading ? 'Đang tải dữ liệu...' : 'Lỗi tải dữ liệu'}
+                      {isLoading ? t('common.loadingData') : t('common.loadError')}
                     </TableCell>
                   </TableRow>
                 ) : data?.dishes.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      Không tìm thấy món ăn nào.
+                      {t('adminPages.dishes.messages.noResults')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -156,9 +157,11 @@ export const AdminDishList = () => {
                       <TableCell>{dish.averageRating}</TableCell>
                       <TableCell>
                         {dish.deletedAt ? (
-                          <span className="text-red-600 font-medium">Đã Xóa</span>
+                          <span className="text-red-600 font-medium">
+                            {t('adminPages.restaurants.status.deleted')}
+                          </span>
                         ) : (
-                          <span className="text-green-600">Hoạt Động</span>
+                          <span className="text-green-600">{t('adminPages.restaurants.status.active')}</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right flex justify-end gap-2">
@@ -181,13 +184,16 @@ export const AdminDishList = () => {
                             onClick={() => handleRestore(dish._id, dish.name[language])}
                           >
                             <RotateCcw className="w-4 h-4 mr-1" />
-                            Khôi Phục
+                            {t('adminPages.dishes.actions.restore')}
                           </Button>
                         ) : (
                           <>
                             {/* Nút Sửa */}
                             <Button variant="outline" size="icon-sm" asChild>
-                              <NavLink to={`/admin/dishes/edit/${dish._id}`} title="Chỉnh sửa">
+                              <NavLink
+                                to={`/admin/dishes/edit/${dish._id}`}
+                                title={t('adminPages.dishes.actions.edit')}
+                              >
                                 <Edit className="w-4 h-4" />
                               </NavLink>
                             </Button>
@@ -236,6 +242,10 @@ export const AdminDishList = () => {
           )}
         </CardContent>
       </Card>
+
+      <div className="fixed bottom-6 right-6 z-50 shadow-sm">
+        <LanguageToggle />
+      </div>
 
       {/* MODAL VIEW */}
       {selectedDishId && (

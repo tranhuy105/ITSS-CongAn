@@ -55,7 +55,7 @@ export const RestaurantDetailPage = () => {
         <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-6xl">
           <Card className="border-destructive/50 bg-destructive/5">
             <CardContent className="p-4">
-              <p className="text-sm text-destructive">Failed to load restaurant details.</p>
+              <p className="text-sm text-destructive">{t('restaurants.error.loadDetailsFailed')}</p>
             </CardContent>
           </Card>
         </div>

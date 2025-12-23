@@ -91,7 +91,7 @@ export const ReviewSection = ({
     updateMutation.mutateAsync({ reviewId: editingReview._id, rating, comment });
 
   const handleDelete = (reviewId: string) => {
-    if (window.confirm('Are you sure you want to delete your review?')) {
+    if (window.confirm(t('reviews.confirmDelete'))) {
       deleteMutation.mutate(reviewId);
     }
   };
@@ -104,7 +104,7 @@ export const ReviewSection = ({
     return (
       <Card className="border-destructive/50 bg-destructive/5">
         <CardContent className="p-4">
-          <p className="text-sm text-destructive">Failed to load reviews.</p>
+          <p className="text-sm text-destructive">{t('reviews.loadFailed')}</p>
         </CardContent>
       </Card>
     );

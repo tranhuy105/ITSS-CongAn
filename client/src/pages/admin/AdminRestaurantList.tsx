@@ -20,6 +20,7 @@ import {
   restoreRestaurant,
 } from '@/services/restaurantService';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 // Định nghĩa kiểu dữ liệu trả về từ service
 interface RestaurantAdmin {
@@ -60,13 +61,13 @@ export const AdminRestaurantList = () => {
   });
 
   const handleSoftDelete = (id: string, name: string) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa mềm nhà hàng "${name}" không?`)) {
+    if (window.confirm(t('adminPages.restaurants.confirm.softDelete', { name }))) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleRestore = (id: string, name: string) => {
-    if (window.confirm(`Bạn có chắc chắn muốn khôi phục nhà hàng "${name}" không?`)) {
+    if (window.confirm(t('adminPages.restaurants.confirm.restore', { name }))) {
       restoreMutation.mutate(id);
     }
   };
@@ -83,7 +84,7 @@ export const AdminRestaurantList = () => {
 
         <Button onClick={() => navigate('/admin/restaurants/new')}>
           <Plus className="w-4 h-4 mr-2" />
-          Tạo Nhà Hàng Mới
+          {t('adminPages.restaurants.createNew')}
         </Button>
       </div>
 
@@ -95,7 +96,7 @@ export const AdminRestaurantList = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Tìm kiếm theo tên..."
+                placeholder={t('adminPages.restaurants.searchPlaceholder')}
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -112,24 +113,24 @@ export const AdminRestaurantList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[25%]">Tên Nhà Hàng</TableHead>
-                  <TableHead className="w-[30%]">Địa Chỉ</TableHead>
-                  <TableHead className="w-[10%]">Đánh Giá</TableHead>
-                  <TableHead className="w-[15%]">Trạng Thái</TableHead>
-                  <TableHead className="text-right w-[20%]">Hành Động</TableHead>
+                  <TableHead className="w-[25%]">{t('adminPages.restaurants.table.name')}</TableHead>
+                  <TableHead className="w-[30%]">{t('adminPages.restaurants.table.address')}</TableHead>
+                  <TableHead className="w-[10%]">{t('adminPages.restaurants.table.rating')}</TableHead>
+                  <TableHead className="w-[15%]">{t('adminPages.restaurants.table.status')}</TableHead>
+                  <TableHead className="text-right w-[20%]">{t('adminPages.restaurants.table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading || isError ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                      {isLoading ? 'Đang tải dữ liệu...' : 'Lỗi tải dữ liệu'}
+                      {isLoading ? t('common.loadingData') : t('common.loadError')}
                     </TableCell>
                   </TableRow>
                 ) : data?.restaurants.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                      Không tìm thấy nhà hàng nào.
+                      {t('adminPages.restaurants.messages.noResults')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -149,9 +150,11 @@ export const AdminRestaurantList = () => {
                       </TableCell>
                       <TableCell>
                         {restaurant.deletedAt ? (
-                          <span className="text-red-600 font-medium">Đã Xóa</span>
+                          <span className="text-red-600 font-medium">
+                            {t('adminPages.restaurants.status.deleted')}
+                          </span>
                         ) : (
-                          <span className="text-green-600">Hoạt Động</span>
+                          <span className="text-green-600">{t('adminPages.restaurants.status.active')}</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right flex justify-end gap-2">
@@ -159,7 +162,7 @@ export const AdminRestaurantList = () => {
                           <NavLink
                             to={`/restaurants/${restaurant._id}`}
                             target="_blank"
-                            title="Xem công khai"
+                            title={t('adminPages.restaurants.actions.viewPublic')}
                           >
                             <ExternalLink className="w-4 h-4" />
                           </NavLink>
@@ -172,14 +175,14 @@ export const AdminRestaurantList = () => {
                             disabled={isMutating}
                             onClick={() => handleRestore(restaurant._id, restaurant.name)}
                           >
-                            <RotateCcw className="w-4 h-4 mr-1" /> Khôi Phục
+                            <RotateCcw className="w-4 h-4 mr-1" /> {t('adminPages.restaurants.actions.restore')}
                           </Button>
                         ) : (
                           <>
                             <Button variant="outline" size="icon-sm" asChild>
                               <NavLink
                                 to={`/admin/restaurants/edit/${restaurant._id}`}
-                                title="Chỉnh sửa"
+                                title={t('adminPages.restaurants.actions.edit')}
                               >
                                 <Edit className="w-4 h-4" />
                               </NavLink>
@@ -228,6 +231,10 @@ export const AdminRestaurantList = () => {
           )}
         </CardContent>
       </Card>
+
+      <div className="fixed bottom-6 right-6 z-50 shadow-sm">
+        <LanguageToggle />
+      </div>
     </AdminLayout>
   );
 };

@@ -14,6 +14,7 @@ import { NavLink } from 'react-router-dom';
 import { IDish, Ingredient, MultilingualText } from '../../../../shared/types';
 import { createDishClientSchema, updateDishClientSchema } from '@/validators/dish.client';
 import { createDish, getDishByIdAdmin, updateDish, uploadDishImages } from '@/services/dishService';
+import { useTranslation } from 'react-i18next';
 
 type CreateDishPayload = z.infer<typeof createDishClientSchema>;
 type UpdateDishPayload = z.infer<typeof updateDishClientSchema>;
@@ -34,6 +35,7 @@ const CATEGORIES = ['Phở', 'Bánh', 'Cơm', 'Bún', 'Gỏi', 'Lẩu', 'Chè', 
 const REGIONS = ['Miền Bắc', 'Miền Trung', 'Miền Nam'];
 
 export const AdminDishForm: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -92,15 +94,22 @@ export const AdminDishForm: React.FC = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['adminDishes'] });
-      alert(`Món ăn "${data.name.vi}" đã được ${isEdit ? 'cập nhật' : 'tạo mới'} thành công.`);
+      const language = i18n.language as 'ja' | 'vi';
+      const dishName = (data.name as MultilingualText)[language] || data.name.vi || '';
+      alert(
+        t('adminPages.forms.dishSuccess', {
+          name: dishName,
+          action: t(`adminPages.forms.actions.${isEdit ? 'update' : 'create'}`),
+        })
+      );
       navigate('/admin/dishes');
     },
     onError: (err: any) => {
       const msg =
         err.response?.data?.error?.details
           ?.map((d: any) => `${d.field}: ${d.message}`)
-          .join('; ') || 'Lỗi xử lý dữ liệu.';
-      setFormError(`Lỗi hệ thống/Validation: ${msg}`);
+          .join('; ') || t('adminPages.forms.genericProcessError');
+      setFormError(t('adminPages.forms.systemValidationError', { msg }));
     },
   });
 

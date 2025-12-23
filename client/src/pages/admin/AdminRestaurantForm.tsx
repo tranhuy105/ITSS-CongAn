@@ -23,6 +23,7 @@ import {
 import { IDish, IRestaurant, Location } from '../../../../shared/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
 // Định nghĩa types từ Zod Client Validator (Sử dụng cho cả Request và Mutation)
 type CreateRestaurantPayload = z.infer<typeof createRestaurantClientSchema>;
@@ -41,6 +42,7 @@ interface RestaurantFormState {
 const INITIAL_LOCATION: Location = { type: 'Point', coordinates: [106.7008, 10.7769] }; // HCMC
 
 export const AdminRestaurantForm: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -183,15 +185,20 @@ export const AdminRestaurantForm: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['assignedDishes', id] });
       queryClient.invalidateQueries({ queryKey: ['unassignedDishes'] });
 
-      alert(`Nhà hàng "${data.name}" đã được ${isEdit ? 'cập nhật' : 'tạo mới'} thành công.`);
+      alert(
+        t('adminPages.forms.restaurantSuccess', {
+          name: data.name,
+          action: t(`adminPages.forms.actions.${isEdit ? 'update' : 'create'}`),
+        })
+      );
       navigate('/admin/restaurants');
     },
     onError: (err: any) => {
       const msg =
         err.response?.data?.error?.details
           ?.map((d: any) => `${d.field}: ${d.message}`)
-          .join('; ') || 'Lỗi xử lý dữ liệu.';
-      setFormError(`Lỗi hệ thống/Validation: ${msg}`);
+          .join('; ') || t('adminPages.forms.genericProcessError');
+      setFormError(t('adminPages.forms.systemValidationError', { msg }));
     },
   });
 
@@ -471,7 +478,7 @@ export const AdminRestaurantForm: React.FC = () => {
                           type="button"
                           variant="destructive"
                           size="icon-sm"
-                          title="Bỏ gán"
+                          title={t('adminPages.forms.restaurantDishAssign.unassignTitle')}
                           onClick={() => handleRemoveDish(dish._id)}
                         >
                           <Trash2 className="w-3 h-3" />
@@ -485,12 +492,12 @@ export const AdminRestaurantForm: React.FC = () => {
               {/* PANEL 2: TÌM KIẾM CÁC MÓN ĂN KHẢ DỤNG */}
               <div>
                 <Label className="font-semibold mb-2 block">
-                  Tìm kiếm và gán món ăn (Khả dụng):
+                  {t('adminPages.forms.restaurantDishAssign.searchAndAssignLabel')}
                 </Label>
                 <div className="relative mb-3">
                   <Input
                     type="text"
-                    placeholder="Nhập tên món ăn..."
+                    placeholder={t('adminPages.forms.restaurantDishAssign.dishNamePlaceholder')}
                     value={dishSearchQuery}
                     onChange={(e) => setDishSearchQuery(e.target.value)}
                     className="pl-9"
@@ -501,13 +508,13 @@ export const AdminRestaurantForm: React.FC = () => {
                 <div className="max-h-48 overflow-y-auto border rounded-md p-2 space-y-1">
                   {isAvailableDishesLoading ? (
                     <p className="text-sm text-muted-foreground text-center">
-                      Đang tải danh sách món ăn...
+                      {t('adminPages.forms.restaurantDishAssign.loadingList')}
                     </p>
                   ) : availableDishes.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
                       {dishSearchQuery
-                        ? 'Không tìm thấy món ăn nào phù hợp.'
-                        : 'Không có món ăn nào khả dụng.'}
+                        ? t('adminPages.forms.restaurantDishAssign.noMatch')
+                        : t('adminPages.forms.restaurantDishAssign.noneAvailable')}
                     </p>
                   ) : (
                     availableDishes.map((dish) => (
@@ -516,7 +523,7 @@ export const AdminRestaurantForm: React.FC = () => {
                         className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md"
                       >
                         <span className="text-sm">
-                          {dish.name?.vi || 'Không có tên'}{' '}
+                          {dish.name?.vi || t('adminPages.forms.restaurantDishAssign.noName')}{' '}
                           {dish.category && (
                             <Badge variant="secondary" className="ml-2">
                               {dish.category}
@@ -529,7 +536,7 @@ export const AdminRestaurantForm: React.FC = () => {
                           variant="success"
                           onClick={() => handleAddDish(dish._id)}
                         >
-                          <Plus className="w-4 h-4 mr-1" /> Gán
+                          <Plus className="w-4 h-4 mr-1" /> {t('adminPages.forms.restaurantDishAssign.assign')}
                         </Button>
                       </div>
                     ))

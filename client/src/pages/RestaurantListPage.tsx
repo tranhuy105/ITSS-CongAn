@@ -364,7 +364,7 @@ export const RestaurantListPage = () => {
               <Card className="border-destructive/50 bg-destructive/5 mb-6">
                 <CardContent className="p-4">
                   <p className="text-sm text-destructive">
-                    Failed to load restaurants. Please try again.
+                    {t('restaurants.error.loadFailed')}
                   </p>
                 </CardContent>
               </Card>

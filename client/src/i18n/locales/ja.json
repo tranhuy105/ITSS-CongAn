@@ -8,7 +8,9 @@
     "page": "ページ",
     "of": "/",
     "back": "戻る",
-    "welcome": "Xin chào"
+    "welcome": "こんにちは",
+    "loadingData": "データを読み込み中...",
+    "loadError": "データの読み込みエラー"
   },
   "restaurants": {
     "title": "レストラン",
@@ -17,7 +19,12 @@
     "viewMap": "地図",
     "noRestaurants": {
       "title": "レストランが見つかりません",
-      "subtitle": "フィルターや検索条件を調整してください"
+      "subtitle": "フィルターや検索条件を調整してください",
+      "searchNoResults": "「{{search}}」に一致するレストランが見つかりません。別のキーワードをお試しください。"
+    },
+    "error": {
+      "loadFailed": "レストランの読み込みに失敗しました。もう一度お試しください。",
+      "loadDetailsFailed": "レストラン詳細の読み込みに失敗しました。"
     },
     "nearby": "近くのレストラン",
     "viewAll": "すべて表示",
@@ -27,6 +34,11 @@
     "visitWebsite": "ウェブサイトを訪問",
     "location": "場所",
     "dishesServed": "提供料理"
+  },
+  "dishDetail": {
+    "error": {
+      "loadFailed": "料理詳細の読み込みに失敗しました。もう一度お試しください。"
+    }
   },
   "home": {
     "hero": {
@@ -62,7 +74,12 @@
     },
     "noDishes": {
       "title": "料理が見つかりません",
-      "subtitle": "別のカテゴリーを選択してください。"
+      "subtitle": "別のカテゴリーを選択してください。",
+      "searchNoResults": "「{{search}}」に一致する料理が見つかりません。別のキーワードをお試しください。"
+    },
+    "messages": {
+      "loadingMore": "さらに読み込み中...",
+      "showingAll": "{{count}}件の{{title}}をすべて表示しました"
     },
     "showing": "表示中",
     "of": "/",
@@ -103,7 +120,199 @@
     "restaurants": "レストラン管理",
     "users": "ユーザー管理",
     "welcomeMessage": "おかえりなさい、管理者様！",
-    "dashboardDescription": "ここはプラットフォームのデータ管理エリアです。左側のメニューを使用して機能間を移動してください。"
+    "dashboardDescription": "ここはプラットフォームのデータ管理エリアです。左側のメニューを使用して機能間を移動してください。",
+    "dashboardCharts": {
+      "loading": "ダッシュボードのデータを読み込み中…",
+      "loadError": "ダッシュボード（分析）の読み込みに失敗しました。",
+      "area": {
+        "usersRestaurants": {
+          "title": "新規ユーザー & 新規レストラン",
+          "description": "日別の新規作成数（直近90日）"
+        },
+        "dishesReviews": {
+          "title": "新規料理 & 新規レビュー",
+          "description": "日別の新規料理数と新規レビュー数（直近90日）"
+        }
+      },
+      "pie": {
+        "userRoles": {
+          "title": "権限別ユーザー",
+          "description": "システム内のロール分布"
+        },
+        "reviewRatings": {
+          "title": "星評価の分布",
+          "description": "評価（1〜5）別の分布"
+        },
+        "dishCategories": {
+          "title": "カテゴリー別料理",
+          "description": "上位5カテゴリー（料理数）"
+        }
+      },
+      "legend": {
+        "series": {
+          "usersNew": "新規ユーザー",
+          "restaurantsNew": "新規レストラン",
+          "dishesNew": "新規料理",
+          "reviewsNew": "新規レビュー"
+        },
+        "roles": {
+          "admin": "管理者",
+          "guest": "ゲスト",
+          "unknown": "その他"
+        },
+        "ratings": {
+          "1": "★1",
+          "2": "★2",
+          "3": "★3",
+          "4": "★4",
+          "5": "★5"
+        },
+        "categoryIndex": "カテゴリー #{{index}}"
+      }
+    }
+  },
+  "adminPages": {
+    "users": {
+      "createNew": "新しいユーザーを作成",
+      "searchPlaceholder": "名前またはメールで検索...",
+      "filters": {
+        "allRoles": "すべての権限",
+        "allStatuses": "すべての状態",
+        "roleGuest": "ユーザー",
+        "roleAdmin": "管理者",
+        "statusActive": "有効",
+        "statusLocked": "ロック中"
+      },
+      "form": {
+        "basicInfo": "基本情報",
+        "name": "名前",
+        "namePlaceholder": "名前を入力...",
+        "email": "メール",
+        "emailPlaceholder": "メールを入力...",
+        "password": "パスワード",
+        "passwordPlaceholder": "パスワードを入力（6文字以上）...",
+        "passwordPlaceholderEdit": "変更しない場合は空欄のまま",
+        "role": "権限",
+        "isLocked": "作成時にアカウントをロックする",
+        "create": "ユーザーを作成",
+        "creating": "作成中...",
+        "update": "ユーザーを更新",
+        "updating": "更新中...",
+        "editTitle": "ユーザーを更新",
+        "successCreated": "ユーザー「{{name}}」を作成しました。"
+        ,
+        "successUpdated": "ユーザー「{{name}}」を更新しました。"
+      },
+      "table": {
+        "name": "名前",
+        "email": "メール",
+        "role": "権限",
+        "status": "状態",
+        "createdAt": "作成日",
+        "actions": "操作"
+      },
+      "badges": {
+        "admin": "管理",
+        "guest": "ユーザー"
+      },
+      "verbs": {
+        "lock": "ロック",
+        "unlock": "ロック解除"
+      },
+      "roleNames": {
+        "admin": "管理者",
+        "guest": "ユーザー"
+      },
+      "confirm": {
+        "toggleLock": "ユーザー「{{name}}」のアカウントを{{action}}してもよろしいですか？",
+        "changeRole": "「{{name}}」の権限を{{role}}に変更してもよろしいですか？",
+        "delete": "ユーザー「{{name}}」を削除してもよろしいですか？"
+      },
+      "messages": {
+        "noResults": "ユーザーが見つかりません。"
+      },
+      "actions": {
+        "changeRole": "権限を変更",
+        "edit": "編集",
+        "delete": "削除",
+        "lockAccount": "アカウントをロック",
+        "unlockAccount": "ロック解除"
+      }
+    },
+    "restaurants": {
+      "createNew": "新しいレストランを作成",
+      "searchPlaceholder": "名前で検索...",
+      "table": {
+        "name": "レストラン名",
+        "address": "住所",
+        "rating": "評価",
+        "status": "状態",
+        "actions": "操作"
+      },
+      "status": {
+        "deleted": "削除済み",
+        "active": "有効"
+      },
+      "actions": {
+        "viewPublic": "公開ページを見る",
+        "edit": "編集",
+        "restore": "復元"
+      },
+      "confirm": {
+        "softDelete": "レストラン「{{name}}」をソフト削除してもよろしいですか？",
+        "restore": "レストラン「{{name}}」を復元してもよろしいですか？"
+      },
+      "messages": {
+        "noResults": "レストランが見つかりません。"
+      }
+    },
+    "dishes": {
+      "createNew": "新しい料理を作成",
+      "searchPlaceholder": "名前で検索...",
+      "table": {
+        "name": "料理名",
+        "category": "カテゴリー",
+        "region": "地域",
+        "rating": "評価",
+        "status": "状態",
+        "actions": "操作"
+      },
+      "actions": {
+        "edit": "編集",
+        "restore": "復元"
+      },
+      "confirm": {
+        "softDelete": "料理「{{name}}」をソフト削除してもよろしいですか？",
+        "restore": "料理「{{name}}」を復元してもよろしいですか？"
+      },
+      "messages": {
+        "noResults": "料理が見つかりません。"
+      }
+    },
+    "forms": {
+      "actions": {
+        "create": "作成",
+        "update": "更新"
+      },
+      "restaurantSuccess": "レストラン「{{name}}」を{{action}}しました。",
+      "dishSuccess": "料理「{{name}}」を{{action}}しました。",
+      "genericProcessError": "処理中にエラーが発生しました。",
+      "systemValidationError": "システム/Validation エラー: {{msg}}",
+      "restaurantDishAssign": {
+        "unassignTitle": "割り当て解除",
+        "searchAndAssignLabel": "料理を検索して割り当て（利用可能）:",
+        "dishNamePlaceholder": "料理名を入力...",
+        "loadingList": "料理リストを読み込み中...",
+        "noMatch": "一致する料理が見つかりません。",
+        "noneAvailable": "利用可能な料理はありません。",
+        "noName": "名称なし",
+        "assign": "割り当て"
+      }
+    }
+  },
+  "reviews": {
+    "confirmDelete": "レビューを削除してもよろしいですか？",
+    "loadFailed": "レビューの読み込みに失敗しました。"
   },
   "favorites": {
     "title": "お気に入り料理",

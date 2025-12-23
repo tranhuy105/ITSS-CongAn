@@ -55,7 +55,7 @@ export const DishDetailPage = () => {
           <Card className="border-destructive/50 bg-destructive/5">
             <CardContent className="p-4">
               <p className="text-sm text-destructive">
-                Failed to load dish details. Please try again.
+                {t('dishDetail.error.loadFailed')}
               </p>
             </CardContent>
           </Card>

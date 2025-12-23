@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import User from '../models/User';
+import User, { UserRole } from '../models/User';
 import Dish from '../models/Dish';
 
 interface GetFavoritesParams {
@@ -119,4 +119,205 @@ export const checkIsFavorite = async (userId: string, dishId: string): Promise<b
   }).lean();
 
   return !!user;
+};
+
+// Admin functions
+interface GetUsersAdminParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+  isLocked?: boolean;
+  sortBy?: string;
+}
+
+/**
+ * Get paginated list of users for admin
+ */
+export const getUsersAdmin = async (params: GetUsersAdminParams) => {
+  const {
+    page = 1,
+    limit = 12,
+    search,
+    role,
+    isLocked,
+    sortBy = '-createdAt',
+  } = params;
+
+  const query: any = {};
+
+  // Search by name or email
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  // Filter by role
+  if (role) {
+    query.role = role;
+  }
+
+  // Filter by lock status
+  if (isLocked !== undefined) {
+    query.isLocked = isLocked;
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [users, total] = await Promise.all([
+    User.find(query)
+      .select('-password')
+      .sort(sortBy)
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    User.countDocuments(query),
+  ]);
+
+  return {
+    users,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+/**
+ * Update user role
+ */
+export const updateUserRole = async (userId: string, role: UserRole) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Validate role
+  if (!Object.values(UserRole).includes(role)) {
+    throw new Error('Invalid role');
+  }
+
+  user.role = role;
+  await user.save();
+
+  return user;
+};
+
+/**
+ * Toggle user lock status
+ */
+export const toggleUserLock = async (userId: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  user.isLocked = !user.isLocked;
+  await user.save();
+
+  return user;
+};
+
+interface CreateUserAdminInput {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+  isLocked?: boolean;
+}
+
+/**
+ * Create a new user (Admin)
+ */
+export const createUserAdmin = async (input: CreateUserAdminInput) => {
+  const { name, email, password, role = UserRole.GUEST, isLocked = false } = input;
+
+  const existingUser = await User.findOne({ email }).lean();
+  if (existingUser) {
+    throw new Error('Email already registered');
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role,
+    isLocked,
+  });
+
+  return user;
+};
+
+/**
+ * Get a user by id (Admin)
+ */
+export const getUserByIdAdmin = async (userId: string) => {
+  const user = await User.findById(userId).select('-password').lean();
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user;
+};
+
+interface UpdateUserAdminInput {
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: UserRole;
+  isLocked?: boolean;
+}
+
+/**
+ * Update a user (Admin)
+ */
+export const updateUserAdmin = async (userId: string, input: UpdateUserAdminInput) => {
+  const user = await User.findById(userId).select('+password');
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  if (input.email && input.email !== user.email) {
+    const existing = await User.findOne({ email: input.email }).lean();
+    if (existing) {
+      throw new Error('Email already registered');
+    }
+    user.email = input.email;
+  }
+
+  if (input.name !== undefined) {
+    user.name = input.name;
+  }
+
+  if (input.role !== undefined) {
+    if (!Object.values(UserRole).includes(input.role)) {
+      throw new Error('Invalid role');
+    }
+    user.role = input.role;
+  }
+
+  if (input.isLocked !== undefined) {
+    user.isLocked = input.isLocked;
+  }
+
+  if (input.password) {
+    user.password = input.password; // will be hashed by pre-save hook
+  }
+
+  await user.save();
+  return user.toJSON();
+};
+
+/**
+ * Delete a user (Admin) - hard delete
+ */
+export const deleteUserAdmin = async (userId: string) => {
+  const result = await User.deleteOne({ _id: userId });
+  if (result.deletedCount === 0) {
+    throw new Error('User not found');
+  }
+  return { message: 'User deleted successfully' };
 };

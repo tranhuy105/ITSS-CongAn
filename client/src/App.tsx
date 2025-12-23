@@ -18,6 +18,7 @@ import { AdminRestaurantList } from './pages/admin/AdminRestaurantList';
 import { AdminUserList } from './pages/admin/AdminUserList';
 import { AdminDishForm } from './pages/admin/AdminDishForm';
 import { AdminRestaurantForm } from './pages/admin/AdminRestaurantForm';
+import { AdminUserForm } from './pages/admin/AdminUserForm';
 import { DishListPage } from './pages/DishListPage';
 
 const queryClient = new QueryClient({
@@ -71,6 +72,8 @@ function App() {
               <Route path="restaurants/edit/:id" element={<AdminRestaurantForm />} />
               {/* /admin/users */}
               <Route path="users" element={<AdminUserList />} />
+              <Route path="users/new" element={<AdminUserForm />} />
+              <Route path="users/edit/:id" element={<AdminUserForm />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

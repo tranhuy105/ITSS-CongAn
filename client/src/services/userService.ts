@@ -40,3 +40,80 @@ export const checkIsFavorite = async (dishId: string) => {
   const response = await api.get(`/users/favorites/${dishId}`);
   return response.data.data.isFavorite;
 };
+
+// Admin functions
+interface GetUsersAdminParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+  isLocked?: string;
+  sortBy?: string;
+}
+
+/**
+ * GET /api/admin/users
+ * Get paginated list of users for admin
+ */
+export const getUsersAdmin = async (params: GetUsersAdminParams = {}) => {
+  const response = await api.get('/admin/users', { params });
+  return response.data.data;
+};
+
+/**
+ * PUT /api/admin/users/:id/role
+ * Update user role
+ */
+export const updateUserRole = async (id: string, role: 'guest' | 'admin') => {
+  const response = await api.put(`/admin/users/${id}/role`, { role });
+  return response.data.data.user;
+};
+
+/**
+ * PUT /api/admin/users/:id/lock
+ * Toggle user lock status
+ */
+export const toggleUserLock = async (id: string) => {
+  const response = await api.put(`/admin/users/${id}/lock`);
+  return response.data.data.user;
+};
+
+interface CreateUserAdminPayload {
+  name: string;
+  email: string;
+  password: string;
+  role?: 'guest' | 'admin';
+  isLocked?: boolean;
+}
+
+/**
+ * POST /api/admin/users
+ * Create a new user (Admin)
+ */
+export const createUserAdmin = async (data: CreateUserAdminPayload) => {
+  const response = await api.post('/admin/users', data);
+  return response.data.data.user;
+};
+
+export const getUserByIdAdmin = async (id: string) => {
+  const response = await api.get(`/admin/users/${id}`);
+  return response.data.data.user;
+};
+
+interface UpdateUserAdminPayload {
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: 'guest' | 'admin';
+  isLocked?: boolean;
+}
+
+export const updateUserAdmin = async (id: string, data: UpdateUserAdminPayload) => {
+  const response = await api.put(`/admin/users/${id}`, data);
+  return response.data.data.user;
+};
+
+export const deleteUserAdmin = async (id: string) => {
+  const response = await api.delete(`/admin/users/${id}`);
+  return response.data.data;
+};

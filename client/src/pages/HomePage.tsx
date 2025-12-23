@@ -34,6 +34,7 @@ const FeedSection = ({
   isFetchingGlobalSearch: boolean;
   language: 'ja' | 'vi';
 }) => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const search = searchParams.get('search') || '';
   const [page, setPage] = useState(1);
@@ -274,7 +275,7 @@ const FeedSection = ({
               <div className="text-center mt-6">
                 <div className="inline-flex items-center gap-3">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                  <p className="text-muted-foreground">Đang tải thêm...</p>
+                  <p className="text-muted-foreground">{t('home.messages.loadingMore')}</p>
                 </div>
               </div>
             )}
@@ -283,7 +284,7 @@ const FeedSection = ({
             {isLastPage && items.length > 0 && (
               <div className="text-center mt-6">
                 <p className="text-muted-foreground text-sm">
-                  Đã hiển thị tất cả {items.length} {title.toLowerCase()}
+                  {t('home.messages.showingAll', { count: items.length, title: title.toLowerCase() })}
                 </p>
               </div>
             )}
@@ -303,7 +304,7 @@ const NoDishes = ({ search }: { search: string }) => {
       <h3 className="text-xl font-semibold mb-3">{t('home.noDishes.title')}</h3>
       <p className="text-muted-foreground max-w-md mx-auto">
         {search
-          ? `Không tìm thấy món ăn nào cho "${search}". Hãy thử từ khóa khác.`
+          ? t('home.noDishes.searchNoResults', { search })
           : t('home.noDishes.subtitle')}
       </p>
     </div>
@@ -319,7 +320,7 @@ const NoRestaurants = ({ search }: { search: string }) => {
       <h3 className="text-xl font-semibold mb-3">{t('restaurants.noRestaurants.title')}</h3>
       <p className="text-muted-foreground max-w-md mx-auto">
         {search
-          ? `Không tìm thấy nhà hàng nào cho "${search}". Hãy thử từ khóa khác.`
+          ? t('restaurants.noRestaurants.searchNoResults', { search })
           : t('restaurants.noRestaurants.subtitle')}
       </p>
     </div>

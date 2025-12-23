@@ -139,3 +139,265 @@ export const checkIsFavorite = async (req: Request, res: Response): Promise<void
     });
   }
 };
+
+// Admin functions
+/**
+ * GET /api/admin/users
+ * Get paginated list of users for admin
+ */
+export const getUsersAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { page, limit, search, role, isLocked, sortBy } = req.query;
+
+    // Parse isLocked from query string to boolean
+    let parsedIsLocked: boolean | undefined = undefined;
+    if (isLocked !== undefined) {
+      const isLockedStr = Array.isArray(isLocked) ? isLocked[0] : isLocked;
+      parsedIsLocked = String(isLockedStr) === 'true';
+    }
+
+    const result = await userService.getUsersAdmin({
+      page: page ? parseInt(page as string) : undefined,
+      limit: limit ? parseInt(limit as string) : undefined,
+      search: search as string,
+      role: role as string,
+      isLocked: parsedIsLocked,
+      sortBy: sortBy as string,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Get users admin error:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to fetch users (Admin)' },
+    });
+  }
+};
+
+/**
+ * PUT /api/admin/users/:id/role
+ * Update user role
+ */
+export const updateUserRole = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!role) {
+      res.status(400).json({
+        success: false,
+        error: { code: ErrorCode.VALIDATION_ERROR, message: 'Role is required' },
+      });
+      return;
+    }
+
+    const user = await userService.updateUserRole(id, role);
+
+    res.status(200).json({
+      success: true,
+      data: { user },
+    });
+  } catch (error: any) {
+    console.error('Update user role error:', error);
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        success: false,
+        error: { code: ErrorCode.NOT_FOUND, message: error.message },
+      });
+      return;
+    }
+    if (error.message === 'Invalid role') {
+      res.status(400).json({
+        success: false,
+        error: { code: ErrorCode.VALIDATION_ERROR, message: error.message },
+      });
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to update user role' },
+    });
+  }
+};
+
+/**
+ * PUT /api/admin/users/:id/lock
+ * Toggle user lock status
+ */
+export const toggleUserLock = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const user = await userService.toggleUserLock(id);
+
+    res.status(200).json({
+      success: true,
+      data: { user },
+    });
+  } catch (error: any) {
+    console.error('Toggle user lock error:', error);
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        success: false,
+        error: { code: ErrorCode.NOT_FOUND, message: error.message },
+      });
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to toggle user lock' },
+    });
+  }
+};
+
+/**
+ * POST /api/admin/users
+ * Create a new user (Admin)
+ */
+export const createUserAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, email, password, role, isLocked } = req.body;
+
+    const user = await userService.createUserAdmin({
+      name,
+      email,
+      password,
+      role,
+      isLocked,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isLocked: user.isLocked,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Create user admin error:', error);
+    if (error.message === 'Email already registered') {
+      res.status(409).json({
+        success: false,
+        error: { code: ErrorCode.CONFLICT, message: error.message },
+      });
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to create user (Admin)' },
+    });
+  }
+};
+
+/**
+ * GET /api/admin/users/:id
+ * Get user by id (Admin)
+ */
+export const getUserByIdAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const user = await userService.getUserByIdAdmin(id);
+
+    res.status(200).json({ success: true, data: { user } });
+  } catch (error: any) {
+    console.error('Get user admin by id error:', error);
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        success: false,
+        error: { code: ErrorCode.NOT_FOUND, message: error.message },
+      });
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to fetch user by id (Admin)' },
+    });
+  }
+};
+
+/**
+ * PUT /api/admin/users/:id
+ * Update user (Admin)
+ */
+export const updateUserAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { name, email, password, role, isLocked } = req.body;
+
+    const user = await userService.updateUserAdmin(id, { name, email, password, role, isLocked });
+
+    res.status(200).json({ success: true, data: { user } });
+  } catch (error: any) {
+    console.error('Update user admin error:', error);
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        success: false,
+        error: { code: ErrorCode.NOT_FOUND, message: error.message },
+      });
+      return;
+    }
+    if (error.message === 'Email already registered') {
+      res.status(409).json({
+        success: false,
+        error: { code: ErrorCode.CONFLICT, message: error.message },
+      });
+      return;
+    }
+    if (error.message === 'Invalid role') {
+      res.status(400).json({
+        success: false,
+        error: { code: ErrorCode.VALIDATION_ERROR, message: error.message },
+      });
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to update user (Admin)' },
+    });
+  }
+};
+
+/**
+ * DELETE /api/admin/users/:id
+ * Delete user (Admin)
+ */
+export const deleteUserAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (req.user?.userId === id) {
+      res.status(400).json({
+        success: false,
+        error: { code: ErrorCode.VALIDATION_ERROR, message: 'Cannot delete your own account' },
+      });
+      return;
+    }
+
+    await userService.deleteUserAdmin(id);
+
+    res.status(200).json({ success: true, data: { message: 'User deleted successfully' } });
+  } catch (error: any) {
+    console.error('Delete user admin error:', error);
+    if (error.message === 'User not found') {
+      res.status(404).json({
+        success: false,
+        error: { code: ErrorCode.NOT_FOUND, message: error.message },
+      });
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to delete user (Admin)' },
+    });
+  }
+};
