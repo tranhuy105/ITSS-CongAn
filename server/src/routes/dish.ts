@@ -9,7 +9,6 @@ import {
   getDishes,
   getDishesAdmin,
   getDishHistory,
-  restoreDish,
   revertDish,
   updateDish,
   uploadDishImages,
@@ -132,17 +131,5 @@ router.get(
  */
 router.post('/:id/revert', authenticate, authorize('admin'), validateObjectIdParam('id'), revertDish);
 
-/**
- * @route   POST /api/dishes/:id/restore
- * @desc    Restore a soft-deleted dish
- * @access  Private (Admin only)
- */
-router.post(
-  '/:id/restore',
-  authenticate,
-  authorize('admin'),
-  validateObjectIdParam('id'),
-  restoreDish
-);
 
 export default router;

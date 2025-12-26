@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { X, Clock, Star, DollarSign } from 'lucide-react'; // <<< BỔ SUNG DollarSign
+import { X, Clock, Star, DollarSign } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getDishByIdAdmin } from '@/services/dishService';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { RestaurantMap } from '@/components/RestaurantMap';
 import { ReviewSection } from '@/components/reviews/ReviewSection';
 import { IDish } from '../../../../shared/types';
 import { Alert } from '../Alert';
+import { getImageUrl } from '@/lib/utils';
 
 interface DishDetailModalProps {
   dishId: string;
@@ -53,10 +54,7 @@ export const DishDetailModal: React.FC<DishDetailModalProps> = ({ dishId, onClos
   const displayName = dish.name[language] || dish.name.ja;
   const displayDescription = dish.description[language] || dish.description.ja;
 
-  const baseUrl = import.meta.env.VITE_BACKEND_URL || '';
-  const imageUrl = dish.images?.[0]
-    ? `${baseUrl.replace(/\/$/, '')}${dish.images[0].startsWith('/') ? dish.images[0] : '/' + dish.images[0]}`
-    : '/placeholder.jpg';
+  const imageUrl = getImageUrl(dish.images?.[0]);
 
   const minPrice = dish.minPrice || 0;
   const maxPrice = dish.maxPrice || 0;

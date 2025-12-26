@@ -21,11 +21,8 @@ router.post('/', validate(z.object({})), restaurantController.createRestaurant);
 // UPDATE
 router.put('/:id', validate(z.object({})), restaurantController.updateRestaurant);
 
-// DELETE (Soft Delete)
+// DELETE (Hard Delete)
 router.delete('/:id', restaurantController.deleteRestaurant);
-
-// RESTORE
-router.post('/:id/restore', restaurantController.restoreRestaurant);
 
 // UPLOAD IMAGES
 router.post('/upload', uploadMultiple, restaurantController.uploadRestaurantImages);

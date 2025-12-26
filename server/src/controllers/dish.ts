@@ -183,26 +183,6 @@ export const getDishByIdAdmin = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const restoreDish = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    await dishService.restoreDish(id);
-
-    res.status(200).json({
-      success: true,
-      data: { message: 'Dish restored successfully' },
-    });
-  } catch (error: any) {
-    console.error('Restore dish admin error:', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: ErrorCode.INTERNAL_ERROR,
-        message: 'Failed to restore dish (Admin)',
-      },
-    });
-  }
-};
 
 export const createDish = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -269,7 +249,7 @@ export const deleteDish = async (req: Request, res: Response): Promise<void> => 
 
     res.status(200).json({
       success: true,
-      data: { message: 'Dish soft-deleted successfully' },
+      data: { message: 'Dish deleted successfully' },
     });
   } catch (error: any) {
     console.error('Delete dish error:', error);
@@ -279,7 +259,7 @@ export const deleteDish = async (req: Request, res: Response): Promise<void> => 
         success: false,
         error: {
           code: ErrorCode.NOT_FOUND,
-          message: 'Dish not found or already soft-deleted',
+          message: 'Dish not found',
         },
       });
       return;

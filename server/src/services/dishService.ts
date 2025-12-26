@@ -192,18 +192,6 @@ export const getDishByIdAdmin = async (id: string) => {
   return dish;
 };
 
-export const restoreDish = async (id: string) => {
-  const dish = await Dish.findOneAndUpdate(
-    { _id: id, deletedAt: { $ne: null } },
-    { deletedAt: null },
-    { new: true }
-  );
-
-  if (!dish) {
-    throw new Error('Dish not found or already active');
-  }
-  return dish;
-};
 
 export const createDish = async (dishData: any) => {
   const dish = await Dish.create(dishData);
@@ -233,11 +221,7 @@ export const updateDish = async (id: string, dishData: any, adminId: string) => 
 };
 
 export const deleteDish = async (id: string) => {
-  const dish = await Dish.findOneAndUpdate(
-    { _id: id, deletedAt: null },
-    { deletedAt: new Date() },
-    { new: true }
-  );
+  const dish = await Dish.findByIdAndDelete(id);
 
   if (!dish) {
     throw new Error('Dish not found');

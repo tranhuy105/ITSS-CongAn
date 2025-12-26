@@ -2,23 +2,15 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Alert } from '@/components/Alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
-  createUserAdmin,
   deleteUserAdmin,
   getUserByIdAdmin,
-  updateUserAdmin,
+  toggleUserLock,
 } from '@/services/userService';
-import {
-  createUserClientSchema,
-  updateUserClientSchema,
-  type CreateUserClientPayload,
-  type UpdateUserClientPayload,
-} from '@/validators/user.client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Save, Trash2 } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Loader2, Trash2, Lock, Unlock, Shield, User } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -27,96 +19,17 @@ export const AdminUserForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const isEdit = useMemo(() => !!id, [id]);
 
-  const [formData, setFormData] = useState<CreateUserClientPayload>({
-    name: '',
-    email: '',
-    password: '',
-    role: 'guest',
-    isLocked: false,
-  });
   const [formError, setFormError] = useState('');
 
   const pageTitle = useMemo(() => {
-    if (isEdit) return t('adminPages.users.form.editTitle');
-    return t('adminPages.users.createNew');
-  }, [t, isEdit]);
+    return t('adminPages.users.form.viewTitle') || 'Chi tiết người dùng';
+  }, [t]);
 
   const { data: userData, isLoading: isUserLoading } = useQuery({
     queryKey: ['adminUser', id],
     queryFn: () => getUserByIdAdmin(id!),
-    enabled: isEdit && !!id,
-  });
-
-  useEffect(() => {
-    if (!isEdit || !userData) return;
-    setFormData((prev) => ({
-      ...prev,
-      name: userData.name ?? '',
-      email: userData.email ?? '',
-      password: '', // keep blank unless admin wants to reset
-      role: userData.role ?? 'guest',
-      isLocked: !!userData.isLocked,
-    }));
-  }, [isEdit, userData]);
-
-  const submitMutation = useMutation({
-    mutationFn: (data: CreateUserClientPayload | UpdateUserClientPayload) => {
-      if (isEdit) {
-        const payload = data as UpdateUserClientPayload;
-        const updatePayload: {
-          name: string;
-          email: string;
-          role: 'guest' | 'admin';
-          isLocked: boolean;
-          password?: string;
-        } = {
-          name: payload.name,
-          email: payload.email,
-          role: payload.role,
-          isLocked: payload.isLocked,
-        };
-        if (payload.password && payload.password.trim().length > 0) {
-          updatePayload.password = payload.password;
-        }
-        return updateUserAdmin(id!, updatePayload);
-      }
-      return createUserAdmin(data as CreateUserClientPayload);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
-      alert(
-        isEdit
-          ? t('adminPages.users.form.successUpdated', { name: formData.name })
-          : t('adminPages.users.form.successCreated', { name: formData.name })
-      );
-      navigate('/admin/users');
-    },
-    onError: (err: unknown) => {
-      const e = err as {
-        response?: {
-          data?: {
-            error?: {
-              message?: string;
-              details?: Array<{ field?: string; message?: string }>;
-            };
-          };
-        };
-      };
-
-      const detailsMsg =
-        e.response?.data?.error?.details
-          ?.map((d) => `${d.field ?? ''}: ${d.message ?? ''}`.trim())
-          .filter(Boolean)
-          .join('; ') || '';
-
-      const msg =
-        detailsMsg ||
-        e.response?.data?.error?.message ||
-        t('adminPages.forms.genericProcessError');
-      setFormError(t('adminPages.forms.systemValidationError', { msg }));
-    },
+    enabled: !!id,
   });
 
   const deleteMutation = useMutation({
@@ -128,137 +41,218 @@ export const AdminUserForm: React.FC = () => {
     onError: (err: unknown) => {
       const e = err as { response?: { data?: { error?: { message?: string } } } };
       const msg = e.response?.data?.error?.message || t('adminPages.forms.genericProcessError');
-      setFormError(t('adminPages.forms.systemValidationError', { msg }));
+      setFormError(msg);
     },
   });
 
-  const isSubmitting = submitMutation.isPending;
+  const toggleLockMutation = useMutation({
+    mutationFn: toggleUserLock,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['adminUser', id] });
+    },
+    onError: (err: unknown) => {
+      const e = err as { response?: { data?: { error?: { message?: string } } } };
+      const msg = e.response?.data?.error?.message || t('adminPages.forms.genericProcessError');
+      setFormError(msg);
+    },
+  });
+
   const isDeleting = deleteMutation.isPending;
-  const isLoading = isSubmitting || isDeleting || (isEdit && isUserLoading);
+  const isTogglingLock = toggleLockMutation.isPending;
+  const isLoading = isDeleting || isTogglingLock || isUserLoading;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError('');
-
-    const parsed = (isEdit ? updateUserClientSchema : createUserClientSchema).safeParse(formData);
-    if (!parsed.success) {
-      const msg = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
-      setFormError(t('adminPages.forms.systemValidationError', { msg }));
-      return;
+  const handleDelete = () => {
+    if (!id || !userData) return;
+    if (window.confirm(t('adminPages.users.confirm.delete', { name: userData.name }))) {
+      deleteMutation.mutate(id);
     }
-
-    submitMutation.mutate(parsed.data);
   };
+
+  const handleToggleLock = () => {
+    if (!id || !userData) return;
+    const action = userData.isLocked 
+      ? t('adminPages.users.verbs.unlock') 
+      : t('adminPages.users.verbs.lock');
+    if (
+      window.confirm(
+        t('adminPages.users.confirm.toggleLock', { action, name: userData.name })
+      )
+    ) {
+      toggleLockMutation.mutate(id);
+    }
+  };
+
+  if (isUserLoading) {
+    return (
+      <AdminLayout title={pageTitle}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <AdminLayout title={pageTitle}>
+        <Card>
+          <CardContent className="p-6">
+            <Alert type="error" message={t('adminPages.users.messages.notFound') || 'Không tìm thấy người dùng'} />
+            <Button onClick={() => navigate('/admin/users')} className="mt-4">
+              {t('common.back')}
+            </Button>
+          </CardContent>
+        </Card>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout title={pageTitle}>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{pageTitle}</h1>
 
-        {isEdit && (
+        <div className="flex gap-3">
+          <Button
+            variant={userData.isLocked ? 'default' : 'destructive'}
+            disabled={isLoading}
+            onClick={handleToggleLock}
+            title={
+              userData.isLocked
+                ? t('adminPages.users.actions.unlockAccount')
+                : t('adminPages.users.actions.lockAccount')
+            }
+          >
+            {isTogglingLock ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {t('common.loading')}
+              </>
+            ) : userData.isLocked ? (
+              <>
+                <Unlock className="w-4 h-4 mr-2" />
+                {t('adminPages.users.actions.unlockAccount')}
+              </>
+            ) : (
+              <>
+                <Lock className="w-4 h-4 mr-2" />
+                {t('adminPages.users.actions.lockAccount')}
+              </>
+            )}
+          </Button>
+
           <Button
             variant="destructive"
             disabled={isLoading}
-            onClick={() => {
-              if (!id) return;
-              if (window.confirm(t('adminPages.users.confirm.delete', { name: formData.name }))) {
-                deleteMutation.mutate(id);
-              }
-            }}
+            onClick={handleDelete}
             title={t('adminPages.users.actions.delete')}
           >
             <Trash2 className="w-4 h-4 mr-2" />
             {t('adminPages.users.actions.delete')}
           </Button>
-        )}
+        </div>
       </div>
+
+      {formError && (
+        <div className="mb-6">
+          <Alert type="error" message={formError} />
+        </div>
+      )}
 
       <Card>
         <CardHeader>
           <CardTitle>{t('adminPages.users.form.basicInfo')}</CardTitle>
         </CardHeader>
         <CardContent>
-          {formError && <Alert type="error" message={formError} />}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label>{t('adminPages.users.form.name')}</Label>
-                <Input
-                  value={formData.name}
-                  onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                  placeholder={t('adminPages.users.form.namePlaceholder')}
-                />
+                <label className="text-sm font-medium text-muted-foreground">
+                  {t('adminPages.users.form.name')}
+                </label>
+                <div className="p-3 border rounded-md bg-muted/50 text-sm">
+                  {userData.name}
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label>{t('adminPages.users.form.email')}</Label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-                  placeholder={t('adminPages.users.form.emailPlaceholder')}
-                />
+                <label className="text-sm font-medium text-muted-foreground">
+                  {t('adminPages.users.form.email')}
+                </label>
+                <div className="p-3 border rounded-md bg-muted/50 text-sm">
+                  {userData.email}
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label>{t('adminPages.users.form.password')}</Label>
-                <Input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
-                  placeholder={
-                    isEdit
-                      ? t('adminPages.users.form.passwordPlaceholderEdit')
-                      : t('adminPages.users.form.passwordPlaceholder')
-                  }
-                />
+                <label className="text-sm font-medium text-muted-foreground">
+                  {t('adminPages.users.table.role')}
+                </label>
+                <div className="p-3">
+                  <Badge
+                    variant={userData.role === 'admin' ? 'default' : 'secondary'}
+                    className="flex items-center gap-1 w-fit"
+                  >
+                    {userData.role === 'admin' ? (
+                      <>
+                        <Shield className="w-3 h-3" /> {t('adminPages.users.badges.admin')}
+                      </>
+                    ) : (
+                      <>
+                        <User className="w-3 h-3" /> {t('adminPages.users.badges.guest')}
+                      </>
+                    )}
+                  </Badge>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label>{t('adminPages.users.form.role')}</Label>
-                <select
-                  value={formData.role}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, role: e.target.value as 'guest' | 'admin' }))
-                  }
-                  className="h-10 px-3 border rounded-md text-sm bg-background focus:ring-1 focus:ring-primary w-full"
-                >
-                  <option value="guest">{t('adminPages.users.filters.roleGuest')}</option>
-                  <option value="admin">{t('adminPages.users.filters.roleAdmin')}</option>
-                </select>
+                <label className="text-sm font-medium text-muted-foreground">
+                  {t('adminPages.users.table.status')}
+                </label>
+                <div className="p-3">
+                  {userData.isLocked ? (
+                    <span className="text-red-600 font-medium flex items-center gap-1">
+                      <Lock className="w-4 h-4" /> {t('adminPages.users.filters.statusLocked')}
+                    </span>
+                  ) : (
+                    <span className="text-green-600 flex items-center gap-1">
+                      <Unlock className="w-4 h-4" /> {t('adminPages.users.filters.statusActive')}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-1">
-              <input
-                id="isLocked"
-                type="checkbox"
-                checked={formData.isLocked}
-                onChange={(e) => setFormData((p) => ({ ...p, isLocked: e.target.checked }))}
-                className="h-4 w-4"
-              />
-              <Label htmlFor="isLocked">{t('adminPages.users.form.isLocked')}</Label>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  {t('adminPages.users.table.createdAt')}
+                </label>
+                <div className="p-3 border rounded-md bg-muted/50 text-sm">
+                  {new Date(userData.createdAt).toLocaleString('vi-VN')}
+                </div>
+              </div>
 
-            <div className="flex justify-end gap-3">
-              <Button type="submit" disabled={isLoading}>
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {isEdit ? t('adminPages.users.form.updating') : t('adminPages.users.form.creating')}
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isEdit ? t('adminPages.users.form.update') : t('adminPages.users.form.create')}
-                  </>
-                )}
-              </Button>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Cập nhật lần cuối
+                </label>
+                <div className="p-3 border rounded-md bg-muted/50 text-sm">
+                  {new Date(userData.updatedAt).toLocaleString('vi-VN')}
+                </div>
+              </div>
             </div>
-          </form>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t">
+            <Button variant="outline" onClick={() => navigate('/admin/users')}>
+              {t('common.back')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </AdminLayout>

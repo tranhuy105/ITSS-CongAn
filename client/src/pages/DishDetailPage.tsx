@@ -8,10 +8,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/hooks/useFavorites';
 import { getDishById } from '@/services/dishService';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Clock, Heart, MapPin, Star, Users, DollarSign } from 'lucide-react'; // <<< BỔ SUNG DollarSign
+import { ArrowLeft, Clock, Heart, MapPin, Star, Users, DollarSign } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { getImageUrl } from '@/lib/utils';
 
 const formatPrice = (p: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
@@ -69,9 +70,7 @@ export const DishDetailPage = () => {
   const displayName = dish.name[language] || dish.name.ja;
   const displayDescription = dish.description[language] || dish.description.ja;
 
-  const imageUrl = dish.images?.[currentImageIndex]
-    ? `${import.meta.env.VITE_BACKEND_URL}${dish.images[currentImageIndex]}`
-    : '/placeholder.jpg';
+  const imageUrl = getImageUrl(dish.images?.[currentImageIndex]);
 
   const minPrice = dish.minPrice || 0;
   const maxPrice = dish.maxPrice || 0;
@@ -145,7 +144,7 @@ export const DishDetailPage = () => {
                     }`}
                   >
                     <img
-                      src={`${import.meta.env.VITE_BACKEND_URL}${image}`}
+                      src={getImageUrl(image)}
                       alt={`${displayName} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />

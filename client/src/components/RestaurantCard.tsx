@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Phone, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getImageUrl } from '@/lib/utils';
 
 interface RestaurantCardProps {
   id: string;
@@ -26,9 +27,7 @@ export const RestaurantCard = ({
   dishes = [],
   distance,
 }: RestaurantCardProps) => {
-  const imageUrl = images?.[0]
-    ? `${import.meta.env.VITE_BACKEND_URL}${images[0]}`
-    : '/placeholder.jpg';
+  const imageUrl = getImageUrl(images?.[0]);
 
   return (
     <Link to={`/restaurants/${id}`} className="group block h-full">

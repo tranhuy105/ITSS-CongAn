@@ -87,11 +87,11 @@ export const LoginPage = () => {
           />
         </div>
 
-        <div className="flex items-center justify-end">
+        {/* <div className="flex items-center justify-end">
           <Link to="/forgot-password" className="text-sm font-medium text-gray-900 hover:underline">
             {t('auth.forgotPassword')}
           </Link>
-        </div>
+        </div> */}
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? t('common.loading') : t('auth.loginButton')}

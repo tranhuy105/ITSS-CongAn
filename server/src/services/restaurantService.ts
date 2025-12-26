@@ -192,36 +192,21 @@ export const updateRestaurant = async (id: string, data: any) => {
   if (data.dishes && data.dishes.length > 0) {
     data.dishes = await validateActiveDishes(data.dishes);
   }
-  const restaurant = await Restaurant.findOneAndUpdate({ _id: id, deletedAt: null }, data, {
+  const restaurant = await Restaurant.findByIdAndUpdate(id, data, {
     new: true,
     runValidators: true,
   });
   if (!restaurant) {
-    throw new Error('Restaurant not found or soft-deleted');
+    throw new Error('Restaurant not found');
   }
   return restaurant;
 };
 
 export const deleteRestaurant = async (id: string) => {
-  const restaurant = await Restaurant.findOneAndUpdate(
-    { _id: id, deletedAt: null },
-    { deletedAt: new Date() },
-    { new: true }
-  );
+  const restaurant = await Restaurant.findByIdAndDelete(id);
   if (!restaurant) {
-    throw new Error('Restaurant not found or already soft-deleted');
+    throw new Error('Restaurant not found');
   }
   return restaurant;
 };
 
-export const restoreRestaurant = async (id: string) => {
-  const restaurant = await Restaurant.findOneAndUpdate(
-    { _id: id, deletedAt: { $ne: null } },
-    { deletedAt: null },
-    { new: true }
-  );
-  if (!restaurant) {
-    throw new Error('Restaurant not found or already active');
-  }
-  return restaurant;
-};

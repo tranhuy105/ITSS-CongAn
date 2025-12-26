@@ -57,12 +57,7 @@ export const updateDish = async (id: string, data: unknown) => {
 
 export const deleteDish = async (id: string) => {
   await api.delete(`/dishes/${id}`);
-  return { message: 'Dish soft-deleted successfully' };
-};
-
-export const restoreDish = async (id: string) => {
-  await api.post(`/dishes/${id}/restore`);
-  return { message: 'Dish restored successfully' };
+  return { message: 'Dish deleted successfully' };
 };
 
 export const uploadDishImages = async (formData: FormData) => {

@@ -20,6 +20,7 @@ import { AdminDishForm } from './pages/admin/AdminDishForm';
 import { AdminRestaurantForm } from './pages/admin/AdminRestaurantForm';
 import { AdminUserForm } from './pages/admin/AdminUserForm';
 import { DishListPage } from './pages/DishListPage';
+import { ProfilePage } from './pages/ProfilePage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FavoritesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

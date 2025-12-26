@@ -12,6 +12,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { RestaurantCard } from '@/components/RestaurantCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Số lượng items hiển thị ban đầu và số items load thêm mỗi lần
 const HOME_LIMIT = 4;
 
 type FeedItem = { _id: string; [key: string]: unknown };
@@ -45,78 +46,58 @@ const FeedSection = ({
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const search = searchParams.get('search') || '';
-  const [page, setPage] = useState(1);
-  const [items, setItems] = useState<FeedItem[]>([]);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [allItems, setAllItems] = useState<FeedItem[]>([]); // Lưu TẤT CẢ items
+  const [displayLimit, setDisplayLimit] = useState(HOME_LIMIT); // Số items hiển thị
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch data
-  const { data, isLoading, isFetching } = useQuery<FeedResponse>({
-    queryKey: [queryKey, search, page],
+  // Fetch TẤT CẢ data một lần duy nhất (không phân trang)
+  const { data, isLoading } = useQuery<FeedResponse>({
+    queryKey: [queryKey, search],
     queryFn: () =>
       fetchFn({
-        page,
-        limit: HOME_LIMIT,
+        page: 1,
+        limit: 9999, // Load tất cả (hoặc số lớn đủ để lấy hết)
         search: search || undefined,
         sortBy: '-updatedAt',
       }),
     staleTime: 60 * 1000,
   });
 
-  // Cập nhật items khi data thay đổi
+  // Cập nhật allItems khi data thay đổi
   useEffect(() => {
-    console.log('Data received:', data); // Debug
     if (data) {
-      const newItems = data.dishes ?? data.restaurants ?? [];
-      console.log('New items:', newItems.length); // Debug
-
-      if (page === 1) {
-        setItems(newItems);
-      } else {
-        setItems((prev) => {
-          const existingIds = new Set(prev.map((item) => item._id));
-          const uniqueNewItems = newItems.filter((item) => !existingIds.has(item._id));
-          return [...prev, ...uniqueNewItems];
-        });
-      }
-    } else {
-      // QUAN TRỌNG: Reset items khi data là undefined
-      console.log('Data is undefined, resetting items');
-      setItems([]);
+      const items = data.dishes ?? data.restaurants ?? [];
+      setAllItems(items);
+      console.log(`[${queryKey}] Loaded ${items.length} total items`);
     }
-  }, [data, page]);
+  }, [data, queryKey]);
 
-  // Reset page và items khi search thay đổi
+  // Reset displayLimit khi search thay đổi
   useEffect(() => {
     console.log('Search changed:', search);
-    setPage(1);
-    setIsExpanded(false);
+    setDisplayLimit(HOME_LIMIT);
   }, [search]);
 
-  const total = data?.pagination?.total ?? 0;
-  const isLastPage = items.length >= total;
-  const showLoadMore = !isLastPage && total > HOME_LIMIT;
-  const showCollapse = items.length > HOME_LIMIT && isExpanded;
+  const total = allItems.length;
+  const displayedItems = allItems.slice(0, displayLimit);
+  const hasMore = displayLimit < total;
+  const showCollapse = displayLimit > HOME_LIMIT;
 
   const DisplayCard = CardComponent as React.ElementType;
 
-  // Items để hiển thị - SỬA: Sử dụng displayedItems thay vì items
-  const displayedItems = isExpanded ? items : items.slice(0, HOME_LIMIT);
-
-  // Xử lý khi bấm Xem thêm
+  // Xử lý khi bấm Xem thêm - Tăng displayLimit lên 4 items
   const handleLoadMore = () => {
-    if (page === 1 && !isExpanded) {
-      setIsExpanded(true);
-    }
+    const newLimit = displayLimit + HOME_LIMIT;
+    setDisplayLimit(newLimit);
+    console.log(`[${queryKey}] Showing ${Math.min(newLimit, total)} / ${total} items`);
 
-    const nextPage = page + 1;
-    setPage(nextPage);
-
+    // Scroll đến items mới sau khi render
     setTimeout(() => {
       if (containerRef.current) {
-        const lastChild = containerRef.current.lastElementChild;
-        if (lastChild) {
-          lastChild.scrollIntoView({
+        const children = containerRef.current.children;
+        const targetIndex = displayLimit; // Item đầu tiên của batch mới
+        if (children[targetIndex]) {
+          children[targetIndex].scrollIntoView({
             behavior: 'smooth',
             block: 'nearest',
           });
@@ -125,10 +106,10 @@ const FeedSection = ({
     }, 100);
   };
 
-  // Xử lý thu gọn
+  // Xử lý thu gọn - Reset về 4 items ban đầu
   const handleCollapse = () => {
-    setIsExpanded(false);
-    setPage(1);
+    setDisplayLimit(HOME_LIMIT);
+    console.log(`[${queryKey}] Collapsed to ${HOME_LIMIT} items`);
 
     setTimeout(() => {
       if (containerRef.current) {
@@ -140,9 +121,10 @@ const FeedSection = ({
     }, 100);
   };
 
-  // Xử lý mở rộng
-  const handleExpand = () => {
-    setIsExpanded(true);
+  // Xử lý hiển thị tất cả
+  const handleShowAll = () => {
+    setDisplayLimit(total);
+    console.log(`[${queryKey}] Showing all ${total} items`);
 
     setTimeout(() => {
       if (containerRef.current) {
@@ -155,14 +137,6 @@ const FeedSection = ({
         }
       }
     }, 100);
-  };
-
-  // Animation class cho items - SỬA: Dùng displayedItems.length thay vì items.length
-  const getItemAnimationClass = (index: number) => {
-    if (!isExpanded && index >= HOME_LIMIT) {
-      return 'opacity-0 max-h-0 overflow-hidden';
-    }
-    return 'opacity-100 max-h-[500px] transition-all duration-500 ease-in-out';
   };
 
   return (
@@ -185,11 +159,11 @@ const FeedSection = ({
               <Skeleton key={i} className="h-64 rounded-lg" />
             ))}
           </div>
-        ) : items.length === 0 ? (
+        ) : allItems.length === 0 ? (
           <NoItemsComponent search={search} />
         ) : (
           <>
-            {/* Grid container với ref - SỬA: Dùng displayedItems thay vì items */}
+            {/* Grid container - Hiển thị items theo displayLimit */}
             <div
               ref={containerRef}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
@@ -197,9 +171,11 @@ const FeedSection = ({
               {displayedItems.map((item, index) => (
                 <div
                   key={item._id}
-                  className={`${getItemAnimationClass(index)} transition-all duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg`}
+                  className="transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"
                   style={{
-                    transitionDelay: isExpanded ? `${Math.min(index * 50, 300)}ms` : '0ms',
+                    animation: 'fadeIn 0.5s ease-in-out',
+                    animationDelay: `${Math.min(index * 50, 300)}ms`,
+                    animationFillMode: 'backwards',
                   }}
                 >
                   <DisplayCard
@@ -221,25 +197,12 @@ const FeedSection = ({
                   />
                 </div>
               ))}
-
-              {/* Hiển thị skeleton khi đang tải thêm */}
-              {isFetching &&
-                page > 1 &&
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div
-                    key={`skeleton-${i}`}
-                    className="opacity-0 animate-fadeIn"
-                    style={{ animationDelay: `${i * 100}ms` }}
-                  >
-                    <Skeleton className="h-64 rounded-lg" />
-                  </div>
-                ))}
             </div>
 
             {/* Button group - Xem thêm và Thu gọn */}
             <div className="flex justify-center gap-4 mt-8">
-              {/* Button Xem thêm */}
-              {showLoadMore && !isFetching && (
+              {/* Button Xem thêm 4 items */}
+              {hasMore && displayLimit < total && (
                 <Button
                   onClick={handleLoadMore}
                   variant="outline"
@@ -247,12 +210,24 @@ const FeedSection = ({
                   className="px-8 py-6 text-base transition-all duration-300 hover:scale-105 hover:shadow-md group"
                 >
                   <ChevronDown className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform duration-300" />
-                  {t('common.loadMore', { target: title })}
+                  {t('common.loadMore', { target: title })} (+{Math.min(HOME_LIMIT, total - displayLimit)})
                 </Button>
               )}
 
+              {/* Button Hiển thị tất cả */}
+              {/* {hasMore && displayLimit + HOME_LIMIT < total && (
+                <Button
+                  onClick={handleShowAll}
+                  variant="ghost"
+                  size="sm"
+                  className="px-6 py-6 text-sm text-muted-foreground hover:text-foreground transition-all duration-300"
+                >
+                  {t('common.showAll', { count: total })}
+                </Button>
+              )} */}
+
               {/* Button Thu gọn */}
-              {showCollapse && !isFetching && (
+              {showCollapse && (
                 <Button
                   onClick={handleCollapse}
                   variant="ghost"
@@ -263,39 +238,18 @@ const FeedSection = ({
                   {t('common.collapse')}
                 </Button>
               )}
-
-              {/* Button Mở rộng */}
-              {!isExpanded && items.length > HOME_LIMIT && !isFetching && (
-                <Button
-                  onClick={handleExpand}
-                  variant="outline"
-                  size="lg"
-                  className="px-8 py-6 text-base transition-all duration-300 hover:scale-105 hover:shadow-md group"
-                >
-                  <ChevronDown className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform duration-300" />
-                  {t('common.showAll', { count: items.length })}
-                </Button>
-              )}
             </div>
 
-            {/* Loading indicator khi đang tải thêm */}
-            {isFetching && page > 1 && (
-              <div className="text-center mt-6">
-                <div className="inline-flex items-center gap-3">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                  <p className="text-muted-foreground">{t('home.messages.loadingMore')}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Thông báo đã tải hết */}
-            {isLastPage && items.length > 0 && (
+            {/* Thông báo đang hiển thị bao nhiêu items */}
+            {/* {displayedItems.length > 0 && (
               <div className="text-center mt-6">
                 <p className="text-muted-foreground text-sm">
-                  {t('home.messages.showingAll', { count: items.length, title })}
+                  {displayLimit >= total
+                    ? t('home.messages.showingAll', { count: total, title })
+                    : `Đang hiển thị ${displayedItems.length} / ${total} ${title.toLowerCase()}`}
                 </p>
               </div>
-            )}
+            )} */}
           </>
         )}
       </CardContent>

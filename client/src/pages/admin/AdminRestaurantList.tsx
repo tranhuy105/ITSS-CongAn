@@ -11,13 +11,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Edit, Plus, Trash2, RotateCcw, Search, ExternalLink } from 'lucide-react';
+import { Edit, Plus, Trash2, Search, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getRestaurantsAdmin,
   deleteRestaurant,
-  restoreRestaurant,
 } from '@/services/restaurantService';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LanguageToggle } from '@/components/LanguageToggle';
@@ -29,7 +28,6 @@ interface RestaurantAdmin {
   address: string;
   averageRating: number;
   reviewCount: number;
-  deletedAt: string | null;
 }
 
 export const AdminRestaurantList = () => {
@@ -53,27 +51,14 @@ export const AdminRestaurantList = () => {
     },
   });
 
-  const restoreMutation = useMutation({
-    mutationFn: restoreRestaurant,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminRestaurants'] });
-    },
-  });
-
-  const handleSoftDelete = (id: string, name: string) => {
-    if (window.confirm(t('adminPages.restaurants.confirm.softDelete', { name }))) {
+  const handleDelete = (id: string, name: string) => {
+    if (window.confirm(t('adminPages.restaurants.confirm.delete', { name }))) {
       deleteMutation.mutate(id);
     }
   };
 
-  const handleRestore = (id: string, name: string) => {
-    if (window.confirm(t('adminPages.restaurants.confirm.restore', { name }))) {
-      restoreMutation.mutate(id);
-    }
-  };
-
   const totalPages = data?.pagination?.totalPages || 1;
-  const isMutating = deleteMutation.isPending || restoreMutation.isPending;
+  const isMutating = deleteMutation.isPending;
 
   return (
     <AdminLayout title={t('admin.restaurants')}>
@@ -113,49 +98,32 @@ export const AdminRestaurantList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[25%]">{t('adminPages.restaurants.table.name')}</TableHead>
-                  <TableHead className="w-[30%]">{t('adminPages.restaurants.table.address')}</TableHead>
-                  <TableHead className="w-[10%]">{t('adminPages.restaurants.table.rating')}</TableHead>
-                  <TableHead className="w-[15%]">{t('adminPages.restaurants.table.status')}</TableHead>
+                  <TableHead className="w-[30%]">{t('adminPages.restaurants.table.name')}</TableHead>
+                  <TableHead className="w-[35%]">{t('adminPages.restaurants.table.address')}</TableHead>
+                  <TableHead className="w-[15%]">{t('adminPages.restaurants.table.rating')}</TableHead>
                   <TableHead className="text-right w-[20%]">{t('adminPages.restaurants.table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading || isError ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                       {isLoading ? t('common.loadingData') : t('common.loadError')}
                     </TableCell>
                   </TableRow>
                 ) : data?.restaurants.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                       {t('adminPages.restaurants.messages.noResults')}
                     </TableCell>
                   </TableRow>
                 ) : (
                   data?.restaurants.map((restaurant: RestaurantAdmin) => (
-                    <TableRow
-                      key={restaurant._id}
-                      className={
-                        restaurant.deletedAt
-                          ? 'bg-red-50/50 text-muted-foreground hover:bg-red-50/70'
-                          : ''
-                      }
-                    >
+                    <TableRow key={restaurant._id}>
                       <TableCell className="font-medium">{restaurant.name}</TableCell>
                       <TableCell className="text-xs">{restaurant.address}</TableCell>
                       <TableCell>
                         {restaurant.averageRating?.toFixed(1)} ({restaurant.reviewCount})
-                      </TableCell>
-                      <TableCell>
-                        {restaurant.deletedAt ? (
-                          <span className="text-red-600 font-medium">
-                            {t('adminPages.restaurants.status.deleted')}
-                          </span>
-                        ) : (
-                          <span className="text-green-600">{t('adminPages.restaurants.status.active')}</span>
-                        )}
                       </TableCell>
                       <TableCell className="text-right flex justify-end gap-2">
                         <Button variant="ghost" size="icon-sm" asChild>
@@ -168,35 +136,22 @@ export const AdminRestaurantList = () => {
                           </NavLink>
                         </Button>
 
-                        {restaurant.deletedAt ? (
-                          <Button
-                            variant="success"
-                            size="sm"
-                            disabled={isMutating}
-                            onClick={() => handleRestore(restaurant._id, restaurant.name)}
+                        <Button variant="outline" size="icon-sm" asChild>
+                          <NavLink
+                            to={`/admin/restaurants/edit/${restaurant._id}`}
+                            title={t('adminPages.restaurants.actions.edit')}
                           >
-                            <RotateCcw className="w-4 h-4 mr-1" /> {t('adminPages.restaurants.actions.restore')}
-                          </Button>
-                        ) : (
-                          <>
-                            <Button variant="outline" size="icon-sm" asChild>
-                              <NavLink
-                                to={`/admin/restaurants/edit/${restaurant._id}`}
-                                title={t('adminPages.restaurants.actions.edit')}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </NavLink>
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="icon-sm"
-                              disabled={isMutating}
-                              onClick={() => handleSoftDelete(restaurant._id, restaurant.name)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </>
-                        )}
+                            <Edit className="w-4 h-4" />
+                          </NavLink>
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon-sm"
+                          disabled={isMutating}
+                          onClick={() => handleDelete(restaurant._id, restaurant.name)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))

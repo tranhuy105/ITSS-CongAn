@@ -20,7 +20,8 @@
     "locating": "位置情報を取得中...",
     "useMyLocation": "現在地を使用",
     "priceFrom": "{{price}}から",
-    "priceContact": "価格は要問い合わせ"
+    "priceContact": "価格は要問い合わせ",
+    "saving": "保存中..."
   },
   "restaurantList": {
     "filters": {
@@ -190,6 +191,8 @@
     "emailRequired": "メールアドレスを入力してください",
     "passwordRequired": "パスワードを入力してください",
     "nameRequired": "名前を入力してください",
+    "nameMinLength": "名前は2文字以上である必要があります",
+    "nameMaxLength": "名前は100文字を超えることはできません",
     "invalidEmail": "メールアドレスの形式が正しくありません",
     "passwordWeak": "パスワードは文字、数字、記号のうち2種類以上を含む必要があります",
     "passwordMinLength": "パスワードは6文字以上である必要があります"
@@ -223,9 +226,9 @@
           "title": "権限別ユーザー",
           "description": "システム内のロール分布"
         },
-        "reviewRatings": {
-          "title": "星評価の分布",
-          "description": "評価（1〜5）別の分布"
+        "reviewTimePeriods": {
+          "title": "期間別レビュー",
+          "description": "期間別のレビュー数の分布"
         },
         "dishCategories": {
           "title": "カテゴリー別料理",
@@ -244,12 +247,11 @@
           "guest": "ゲスト",
           "unknown": "その他"
         },
-        "ratings": {
-          "1": "★1",
-          "2": "★2",
-          "3": "★3",
-          "4": "★4",
-          "5": "★5"
+        "timePeriods": {
+          "thisWeek": "今週",
+          "lastWeek": "先週",
+          "thisMonth": "今月",
+          "older": "それ以前"
         },
         "categoryIndex": "カテゴリー #{{index}}"
       }
@@ -283,8 +285,8 @@
         "update": "ユーザーを更新",
         "updating": "更新中...",
         "editTitle": "ユーザーを更新",
-        "successCreated": "ユーザー「{{name}}」を作成しました。"
-        ,
+        "viewTitle": "ユーザー詳細",
+        "successCreated": "ユーザー「{{name}}」を作成しました。",
         "successUpdated": "ユーザー「{{name}}」を更新しました。"
       },
       "table": {
@@ -313,7 +315,8 @@
         "delete": "ユーザー「{{name}}」を削除してもよろしいですか？"
       },
       "messages": {
-        "noResults": "ユーザーが見つかりません。"
+        "noResults": "ユーザーが見つかりません。",
+        "notFound": "ユーザーが見つかりません"
       },
       "actions": {
         "changeRole": "権限を変更",
@@ -501,6 +504,32 @@
       "title": "お気に入り料理はありません",
       "subtitle": "ハートアイコンをクリックして、このリストに料理を追加してください。"
     }
+  },
+  "profile": {
+    "title": "プロフィール",
+    "subtitle": "アカウント情報とパスワードを管理",
+    "profileInfo": "個人情報",
+    "profileInfoDesc": "名前とメールアドレスを更新",
+    "changePassword": "パスワード変更",
+    "changePasswordDesc": "アカウントのセキュリティのためにパスワードを変更",
+    "namePlaceholder": "お名前を入力",
+    "emailPlaceholder": "メールアドレスを入力",
+    "currentPassword": "現在のパスワード",
+    "currentPasswordPlaceholder": "現在のパスワードを入力",
+    "newPassword": "新しいパスワード",
+    "newPasswordPlaceholder": "新しいパスワードを入力（6文字以上）",
+    "confirmPassword": "パスワード確認",
+    "confirmPasswordPlaceholder": "新しいパスワードを再入力",
+    "saveChanges": "変更を保存",
+    "changePasswordButton": "パスワードを変更",
+    "updateSuccess": "情報を更新しました！",
+    "updateError": "情報を更新できませんでした。もう一度お試しください。",
+    "passwordChangeSuccess": "パスワードを変更しました！",
+    "passwordChangeError": "パスワードを変更できませんでした。もう一度お試しください。",
+    "currentPasswordRequired": "現在のパスワードを入力してください",
+    "passwordMismatch": "パスワードが一致しません",
+    "passwordSame": "新しいパスワードは現在のパスワードと異なる必要があります",
+    "noChanges": "保存する変更がありません"
   },
   "nav": {
     "home": "ホーム",

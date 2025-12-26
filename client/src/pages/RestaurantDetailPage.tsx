@@ -11,6 +11,7 @@ import { ArrowLeft, ExternalLink, Globe, MapPin, Phone, Star } from 'lucide-reac
 import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { getImageUrl } from '@/lib/utils';
 
 // Fix Leaflet default marker icon
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -72,9 +73,7 @@ export const RestaurantDetailPage = () => {
 
   const restaurant = data.restaurant;
   const language = i18n.language as 'ja' | 'vi';
-  const imageUrl = restaurant.images?.[0]
-    ? `${import.meta.env.VITE_BACKEND_URL}${restaurant.images[0]}`
-    : '/placeholder.jpg';
+  const imageUrl = getImageUrl(restaurant.images?.[0]);
 
   return (
     <AppLayout>
@@ -194,7 +193,7 @@ export const RestaurantDetailPage = () => {
                   <Link key={dish._id} to={`/dishes/${dish._id}`} className="group block">
                     <div className="relative aspect-square bg-muted rounded-lg overflow-hidden mb-2">
                       <img
-                        src={dish.images[0] || '/placeholder.jpg'}
+                        src={getImageUrl(dish.images[0])}
                         alt={dish.name[language] || dish.name.ja}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/placeholder.jpg';

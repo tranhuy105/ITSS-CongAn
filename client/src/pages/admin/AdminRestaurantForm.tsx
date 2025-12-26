@@ -24,6 +24,7 @@ import { IDish, IRestaurant, Location } from '../../../../shared/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
+import { getImageUrl } from '@/lib/utils';
 
 // Định nghĩa types từ Zod Client Validator (Sử dụng cho cả Request và Mutation)
 type CreateRestaurantPayload = z.infer<typeof createRestaurantClientSchema>;
@@ -591,7 +592,7 @@ export const AdminRestaurantForm: React.FC = () => {
                     className="relative w-24 h-24 border rounded-md overflow-hidden group"
                   >
                     <img
-                      src={url.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${url}` : url}
+                      src={getImageUrl(url)}
                       alt={t('adminPages.restaurantForm.images.oldImageAlt', { index })}
                       className="w-full h-full object-cover"
                       onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}

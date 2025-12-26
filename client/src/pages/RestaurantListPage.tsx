@@ -12,9 +12,10 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ArrowLeft, List, Map as MapIcon, Store, Search, Star, X, DollarSign } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next'; //
+import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getImageUrl } from '@/lib/utils';
 
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -82,6 +83,11 @@ const RestaurantFilterSidebar = ({
     value: string
   ) => {
     setter(value.replace(/[^0-9.]/g, ''));
+  };
+
+  // Format số không phụ thuộc vào locale
+  const formatCoordinate = (value: number): string => {
+    return value.toFixed(5);
   };
 
   return (
@@ -156,15 +162,39 @@ const RestaurantFilterSidebar = ({
           {t('restaurantList.filters.nearby.title')}
         </h3>
         <div className="space-y-2">
-          <Input
-            type="number"
-            min="0"
-            step="0.5"
-            placeholder={t('restaurantList.filters.nearby.radiusPlaceholder')}
-            value={radiusKm}
-            onChange={(e) => setRadiusKm(e.target.value.replace(/[^0-9.]/g, ''))}
-            className="h-9 text-sm"
-          />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                {t('restaurantList.filters.nearby.radiusPlaceholder')}
+              </span>
+              <span className="font-semibold">
+                {radiusKm ? `${radiusKm} km` : '5 km'}
+              </span>
+            </div>
+            <div className="relative py-2">
+              <div
+                className="absolute top-1/2 left-0 h-4 rounded-l-lg pointer-events-none -translate-y-1/2 z-0 opacity-80"
+                style={{
+                  width: `${((parseFloat(radiusKm || '5') - 1) / 14) * 100}%`,
+                  backgroundColor: 'hsl(var(--primary))',
+                  borderRadius: '8px 0 0 8px',
+                }}
+              />
+              <input
+                type="range"
+                min="1"
+                max="15"
+                step="1"
+                value={radiusKm || '5'}
+                onChange={(e) => setRadiusKm(e.target.value)}
+                className="w-full appearance-none cursor-pointer slider relative z-10"
+              />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground px-1">
+              <span>1 km</span>
+              <span>15 km</span>
+            </div>
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -181,8 +211,8 @@ const RestaurantFilterSidebar = ({
           {userLatitude !== null && userLongitude !== null && (
             <p className="text-xs text-muted-foreground">
               {t('restaurantList.location.coords', {
-                lat: userLatitude.toFixed(5),
-                lng: userLongitude.toFixed(5),
+                lat: formatCoordinate(userLatitude),
+                lng: formatCoordinate(userLongitude),
               })}
             </p>
           )}
@@ -237,9 +267,7 @@ const DishFilterBanner = ({ dishId, language }: { dishId: string; language: 'ja'
   if (!dishData) return null;
 
   const displayName = dishData.name[language] || dishData.name.ja;
-  const imageUrl = dishData.images?.[0]
-    ? `${import.meta.env.VITE_BACKEND_URL}${dishData.images[0]}`
-    : '/placeholder.jpg';
+  const imageUrl = getImageUrl(dishData.images?.[0]);
 
   // Format Price Logic (Copy từ DishCard hoặc DishDetailPage)
   const formatPrice = (p: number) => {

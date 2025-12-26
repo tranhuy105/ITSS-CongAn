@@ -126,10 +126,16 @@ export const Header = () => {
                 </Button>
 
                 {/* User Info (Keep it simple) */}
-                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80"
+                  onClick={() => navigate('/profile')}
+                  title={t('profile.title')}
+                >
                   <User className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm font-medium">{user?.name}</span>
-                </div>
+                </Button>
 
                 {/* Logout Button */}
                 <Button

@@ -68,22 +68,52 @@ export const AdminDashboard: React.FC = () => {
     Object.fromEntries(userRoles.map((x) => [x.key, roleLabelMap[x.key] ?? x.key]))
   );
 
-  const ratingLabelMap: Record<string, string> = {
-    '1': t('admin.dashboardCharts.legend.ratings.1'),
-    '2': t('admin.dashboardCharts.legend.ratings.2'),
-    '3': t('admin.dashboardCharts.legend.ratings.3'),
-    '4': t('admin.dashboardCharts.legend.ratings.4'),
-    '5': t('admin.dashboardCharts.legend.ratings.5'),
+  // Tính toán phân bố reviews theo khoảng thời gian từ timeseries
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekAgo = new Date(today);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const twoWeeksAgo = new Date(today);
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  const monthAgo = new Date(today);
+  monthAgo.setDate(monthAgo.getDate() - 30);
+
+  let reviewsThisWeek = 0;
+  let reviewsLastWeek = 0;
+  let reviewsThisMonth = 0;
+  let reviewsOlder = 0;
+
+  timeseries.forEach((d) => {
+    const date = new Date(d.date + 'T00:00:00');
+    const reviews = d.reviews || 0;
+
+    if (date >= weekAgo) {
+      reviewsThisWeek += reviews;
+    } else if (date >= twoWeeksAgo) {
+      reviewsLastWeek += reviews;
+    } else if (date >= monthAgo) {
+      reviewsThisMonth += reviews;
+    } else {
+      reviewsOlder += reviews;
+    }
+  });
+
+  const reviewTimePeriods = [
+    { key: 'thisWeek', value: reviewsThisWeek },
+    { key: 'lastWeek', value: reviewsLastWeek },
+    { key: 'thisMonth', value: reviewsThisMonth },
+    { key: 'older', value: reviewsOlder },
+  ].filter((x) => x.value > 0); // Chỉ hiển thị các khoảng có dữ liệu
+
+  const reviewTimePeriodLabelMap: Record<string, string> = {
+    thisWeek: t('admin.dashboardCharts.legend.timePeriods.thisWeek'),
+    lastWeek: t('admin.dashboardCharts.legend.timePeriods.lastWeek'),
+    thisMonth: t('admin.dashboardCharts.legend.timePeriods.thisMonth'),
+    older: t('admin.dashboardCharts.legend.timePeriods.older'),
   };
-  const reviewRatings = (data?.reviewRatings ?? [])
-    .filter((x) => ['1', '2', '3', '4', '5'].includes(String(x.key)))
-    .map((x) => ({
-      key: String(x.key), // giữ nguyên "1".."5"
-      value: x.value,
-    }));
-  const reviewRatingsConfig = makeChartConfig(
-    reviewRatings.map((x) => x.key),
-    Object.fromEntries(reviewRatings.map((x) => [x.key, ratingLabelMap[x.key] ?? x.key]))
+  const reviewTimePeriodsConfig = makeChartConfig(
+    reviewTimePeriods.map((x) => x.key),
+    Object.fromEntries(reviewTimePeriods.map((x) => [x.key, reviewTimePeriodLabelMap[x.key] ?? x.key]))
   );
 
   const dishCategoriesRaw = data?.dishCategories ?? [];
@@ -151,10 +181,10 @@ export const AdminDashboard: React.FC = () => {
           />
 
           <ChartPie
-            title={t('admin.dashboardCharts.pie.reviewRatings.title')}
-            description={t('admin.dashboardCharts.pie.reviewRatings.description')}
-            data={reviewRatings}
-            config={reviewRatingsConfig}
+            title={t('admin.dashboardCharts.pie.reviewTimePeriods.title')}
+            description={t('admin.dashboardCharts.pie.reviewTimePeriods.description')}
+            data={reviewTimePeriods}
+            config={reviewTimePeriodsConfig}
           />
 
           <ChartPie

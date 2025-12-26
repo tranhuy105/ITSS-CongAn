@@ -170,7 +170,7 @@ export const updateRestaurant = async (req: Request, res: Response): Promise<voi
     res.status(200).json({ success: true, data: { restaurant } });
   } catch (error: any) {
     console.error('Update restaurant error:', error);
-    if (error.message.includes('not found') || error.message.includes('soft-deleted')) {
+    if (error.message.includes('not found')) {
       res
         .status(404)
         .json({ success: false, error: { code: ErrorCode.NOT_FOUND, message: error.message } });
@@ -190,7 +190,7 @@ export const deleteRestaurant = async (req: Request, res: Response): Promise<voi
 
     res
       .status(200)
-      .json({ success: true, data: { message: 'Restaurant soft-deleted successfully' } });
+      .json({ success: true, data: { message: 'Restaurant deleted successfully' } });
   } catch (error: any) {
     console.error('Delete restaurant error:', error);
     if (error.message.includes('not found')) {
@@ -198,7 +198,7 @@ export const deleteRestaurant = async (req: Request, res: Response): Promise<voi
         success: false,
         error: {
           code: ErrorCode.NOT_FOUND,
-          message: 'Restaurant not found or already soft-deleted',
+          message: 'Restaurant not found',
         },
       });
       return;
@@ -210,23 +210,6 @@ export const deleteRestaurant = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const restoreRestaurant = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    await restaurantService.restoreRestaurant(id);
-
-    res.status(200).json({ success: true, data: { message: 'Restaurant restored successfully' } });
-  } catch (error: any) {
-    console.error('Restore restaurant admin by id error:', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: ErrorCode.INTERNAL_ERROR,
-        message: 'Failed to restore restaurant by id (Admin)',
-      },
-    });
-  }
-};
 
 export const uploadRestaurantImages = async (req: Request, res: Response): Promise<void> => {
   try {

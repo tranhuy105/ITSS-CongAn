@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Clock, DollarSign, Heart, MapPin, Star, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getImageUrl } from '@/lib/utils';
 
 interface DishCardProps {
   id: string;
@@ -43,9 +44,7 @@ export const DishCard = ({
 
   const displayName = name[language] || name.ja;
   const displayDescription = description?.[language] || description?.ja || '';
-  const imageUrl = images?.[0]
-    ? `${import.meta.env.VITE_BACKEND_URL}${images[0]}`
-    : '/placeholder.jpg';
+  const imageUrl = getImageUrl(images?.[0]);
 
   // Format price (VND)
   const formatPrice = (p: number) => {

@@ -44,3 +44,19 @@ export const refreshToken = async (refreshToken: string) => {
     const response = await api.post('/auth/refresh', { refreshToken });
     return response.data.data.tokens;
 };
+
+/**
+ * Update user profile
+ */
+export const updateProfile = async (data: { name?: string; email?: string }) => {
+    const response = await api.put('/auth/profile', data);
+    return response.data.data.user;
+};
+
+/**
+ * Change password
+ */
+export const changePassword = async (data: { currentPassword: string; newPassword: string }) => {
+    const response = await api.put('/auth/change-password', data);
+    return response.data.data;
+};

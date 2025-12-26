@@ -20,7 +20,8 @@
     "locating": "Đang lấy vị trí...",
     "useMyLocation": "Dùng vị trí của tôi",
     "priceFrom": "Từ {{price}}",
-    "priceContact": "Giá liên hệ"
+    "priceContact": "Giá liên hệ",
+    "saving": "Đang lưu..."
   },
   "restaurantList": {
     "filters": {
@@ -190,6 +191,8 @@
     "emailRequired": "Vui lòng nhập email",
     "passwordRequired": "Vui lòng nhập mật khẩu",
     "nameRequired": "Vui lòng nhập tên",
+    "nameMinLength": "Tên phải có ít nhất 2 ký tự",
+    "nameMaxLength": "Tên không được vượt quá 100 ký tự",
     "invalidEmail": "Email không hợp lệ",
     "passwordWeak": "Mật khẩu phải chứa ít nhất 2 trong số: chữ cái, số, ký tự đặc biệt",
     "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự"
@@ -223,9 +226,9 @@
           "title": "Người dùng theo vai trò",
           "description": "Phân bố role trong hệ thống"
         },
-        "reviewRatings": {
-          "title": "Đánh giá theo số sao",
-          "description": "Phân bố rating (1–5 sao)"
+        "reviewTimePeriods": {
+          "title": "Đánh giá theo khoảng thời gian",
+          "description": "Phân bố số lượng đánh giá theo các khoảng thời gian"
         },
         "dishCategories": {
           "title": "Món ăn theo danh mục",
@@ -244,12 +247,11 @@
           "guest": "Khách",
           "unknown": "Khác"
         },
-        "ratings": {
-          "1": "1 sao",
-          "2": "2 sao",
-          "3": "3 sao",
-          "4": "4 sao",
-          "5": "5 sao"
+        "timePeriods": {
+          "thisWeek": "Tuần này",
+          "lastWeek": "Tuần trước",
+          "thisMonth": "Tháng này",
+          "older": "Cũ hơn"
         },
         "categoryIndex": "Danh mục #{{index}}"
       }
@@ -283,8 +285,8 @@
         "update": "Cập nhật người dùng",
         "updating": "Đang cập nhật...",
         "editTitle": "Cập nhật người dùng",
-        "successCreated": "Đã tạo người dùng \"{{name}}\" thành công."
-        ,
+        "viewTitle": "Chi tiết người dùng",
+        "successCreated": "Đã tạo người dùng \"{{name}}\" thành công.",
         "successUpdated": "Đã cập nhật người dùng \"{{name}}\" thành công."
       },
       "table": {
@@ -313,7 +315,8 @@
         "delete": "Bạn có chắc chắn muốn xóa người dùng \"{{name}}\" không?"
       },
       "messages": {
-        "noResults": "Không tìm thấy người dùng nào."
+        "noResults": "Không tìm thấy người dùng nào.",
+        "notFound": "Không tìm thấy người dùng"
       },
       "actions": {
         "changeRole": "Thay đổi vai trò",
@@ -501,6 +504,32 @@
       "title": "Không có món ăn yêu thích",
       "subtitle": "Bấm vào biểu tượng trái tim để thêm món ăn vào danh sách này."
     }
+  },
+  "profile": {
+    "title": "Hồ sơ cá nhân",
+    "subtitle": "Quản lý thông tin tài khoản và mật khẩu của bạn",
+    "profileInfo": "Thông tin cá nhân",
+    "profileInfoDesc": "Cập nhật tên và email của bạn",
+    "changePassword": "Đổi mật khẩu",
+    "changePasswordDesc": "Thay đổi mật khẩu để bảo mật tài khoản",
+    "namePlaceholder": "Nhập tên của bạn",
+    "emailPlaceholder": "Nhập email của bạn",
+    "currentPassword": "Mật khẩu hiện tại",
+    "currentPasswordPlaceholder": "Nhập mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "newPasswordPlaceholder": "Nhập mật khẩu mới (tối thiểu 6 ký tự)",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
+    "saveChanges": "Lưu thay đổi",
+    "changePasswordButton": "Đổi mật khẩu",
+    "updateSuccess": "Cập nhật thông tin thành công!",
+    "updateError": "Không thể cập nhật thông tin. Vui lòng thử lại.",
+    "passwordChangeSuccess": "Đổi mật khẩu thành công!",
+    "passwordChangeError": "Không thể đổi mật khẩu. Vui lòng thử lại.",
+    "currentPasswordRequired": "Vui lòng nhập mật khẩu hiện tại",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp",
+    "passwordSame": "Mật khẩu mới phải khác mật khẩu hiện tại",
+    "noChanges": "Không có thay đổi nào để lưu"
   },
   "nav": {
     "home": "Trang chủ",

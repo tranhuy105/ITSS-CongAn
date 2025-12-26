@@ -15,6 +15,7 @@ import { IDish, Ingredient, MultilingualText } from '../../../../shared/types';
 import { createDishClientSchema, updateDishClientSchema } from '@/validators/dish.client';
 import { createDish, getDishByIdAdmin, updateDish, uploadDishImages } from '@/services/dishService';
 import { useTranslation } from 'react-i18next';
+import { getImageUrl } from '@/lib/utils';
 
 type CreateDishPayload = z.infer<typeof createDishClientSchema>;
 type UpdateDishPayload = z.infer<typeof updateDishClientSchema>;
@@ -436,7 +437,7 @@ export const AdminDishForm: React.FC = () => {
                     className="relative w-24 h-24 border rounded-md overflow-hidden group"
                   >
                     <img
-                      src={`${import.meta.env.VITE_BACKEND_URL}${url}`}
+                      src={getImageUrl(url)}
                       alt={t('adminPages.dishForm.images.oldImageAlt', { index })}
                       className="w-full h-full object-cover"
                       onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
