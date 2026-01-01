@@ -1,11 +1,7 @@
-import express from 'express';
+import { Router } from 'express';
 import * as restaurantController from '../controllers/restaurant';
-import { authenticate } from '../middleware/auth';
 
-const router = express.Router();
-
-// All restaurant routes require authentication
-router.use(authenticate);
+const router = Router();
 
 // Get all restaurants with optional filters
 router.get('/', restaurantController.getRestaurants);

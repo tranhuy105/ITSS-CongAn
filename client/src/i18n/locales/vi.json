@@ -7,7 +7,79 @@
     "next": "Tiếp",
     "page": "Trang",
     "of": "/",
-    "back": "Quay lại"
+    "back": "Quay lại",
+    "welcome": "Xin chào",
+    "loadingData": "Đang tải dữ liệu...",
+    "loadError": "Lỗi tải dữ liệu",
+    "viewAll": "Xem tất cả",
+    "loadMore": "Xem thêm {{target}}",
+    "loadMoreSimple": "Xem thêm",
+    "loading": "Đang tải...",
+    "collapse": "Thu gọn",
+    "showAll": "Hiển thị tất cả ({{count}})",
+    "locating": "Đang lấy vị trí...",
+    "useMyLocation": "Dùng vị trí của tôi",
+    "priceFrom": "Từ {{price}}",
+    "priceContact": "Giá liên hệ",
+    "saving": "Đang lưu..."
+  },
+  "restaurantList": {
+    "filters": {
+      "searchPlaceholder": "Tìm theo tên nhà hàng...",
+      "sort": {
+        "title": "Sắp xếp",
+        "newestDefault": "Mới nhất (Mặc định)",
+        "ratingDesc": "Đánh giá (Cao nhất)",
+        "ratingAsc": "Đánh giá (Thấp nhất)",
+        "reviewCountDesc": "Lượt đánh giá (Nhiều nhất)",
+        "reviewCountAsc": "Lượt đánh giá (Ít nhất)"
+      },
+      "rating": {
+        "title": "Đánh giá",
+        "fromPlaceholder": "Từ 0",
+        "toPlaceholder": "Đến 5"
+      },
+      "nearby": {
+        "title": "Gần bạn",
+        "radiusPlaceholder": "Bán kính (km) — ví dụ: 3",
+        "radiusHint": "Nhập bán kính xong hãy bấm “{{action}}” để lọc."
+      }
+    },
+    "location": {
+      "coords": "Vị trí: {{lat}}, {{lng}}",
+      "errors": {
+        "notSupported": "Trình duyệt không hỗ trợ định vị (geolocation).",
+        "permissionDenied": "Bạn đã từ chối quyền vị trí. Hãy bật lại quyền và thử lại.",
+        "positionUnavailable": "Không lấy được vị trí hiện tại. Vui lòng thử lại.",
+        "timeout": "Lấy vị trí bị timeout. Vui lòng thử lại."
+      }
+    }
+  },
+  "dishList": {
+    "title": "Danh sách Món Ăn",
+    "filters": {
+      "searchPlaceholder": "Tìm theo tên món ăn...",
+      "sort": {
+        "title": "Sắp xếp",
+        "newestDefault": "Mới nhất (Mặc định)",
+        "ratingDesc": "Đánh giá (Cao nhất)",
+        "ratingAsc": "Đánh giá (Thấp nhất)",
+        "cookingTimeAsc": "Thời gian nấu (Tăng dần)",
+        "cookingTimeDesc": "Thời gian nấu (Giảm dần)",
+        "priceAsc": "Giá (Tăng dần)",
+        "priceDesc": "Giá (Giảm dần)"
+      },
+      "price": {
+        "title": "Giá (VNĐ)",
+        "fromPlaceholder": "Từ",
+        "toPlaceholder": "Đến"
+      },
+      "rating": {
+        "title": "Đánh giá",
+        "fromPlaceholder": "Từ 0",
+        "toPlaceholder": "Đến 5"
+      }
+    }
   },
   "restaurants": {
     "title": "Nhà hàng",
@@ -16,7 +88,12 @@
     "viewMap": "Bản đồ",
     "noRestaurants": {
       "title": "Không tìm thấy nhà hàng",
-      "subtitle": "Thử điều chỉnh bộ lọc hoặc tiêu chí tìm kiếm"
+      "subtitle": "Thử điều chỉnh bộ lọc hoặc tiêu chí tìm kiếm",
+      "searchNoResults": "Không tìm thấy nhà hàng nào cho \"{{search}}\". Hãy thử từ khóa khác."
+    },
+    "error": {
+      "loadFailed": "Không thể tải danh sách nhà hàng. Vui lòng thử lại.",
+      "loadDetailsFailed": "Không thể tải chi tiết nhà hàng."
     },
     "nearby": "Nhà hàng gần đây",
     "viewAll": "Xem tất cả",
@@ -27,13 +104,29 @@
     "location": "Vị trí",
     "dishesServed": "Món ăn phục vụ"
   },
+  "dishDetail": {
+    "error": {
+      "loadFailed": "Không thể tải chi tiết món ăn. Vui lòng thử lại."
+    },
+    "descriptionTitle": "Mô tả",
+    "findRestaurants": "Tìm nhà hàng",
+    "ingredientsTitle": "Nguyên liệu",
+    "cookingTimeMinutes": "{{minutes}} phút",
+    "servingsDefault": "2-4 khẩu phần"
+  },
   "home": {
+    "latestHeading": "Món Ăn & Nhà Hàng Mới Nhất",
+    "searchingFor": "Đang tìm kiếm cho:",
+    "sections": {
+      "newDishes": "Món Ăn Mới",
+      "newRestaurants": "Nhà Hàng Mới"
+    },
     "hero": {
       "title": "Khám phá ẩm thực Việt Nam chính gốc",
       "subtitle": "Khám phá các món ăn truyền thống từ Bắc đến Nam Việt Nam, với công thức chi tiết và gợi ý nhà hàng"
     },
     "search": {
-      "placeholder": "Tìm kiếm món ăn..."
+      "placeholder": "Tìm kiếm..."
     },
     "filters": {
       "title": "Bộ lọc",
@@ -61,7 +154,12 @@
     },
     "noDishes": {
       "title": "Không tìm thấy món ăn",
-      "subtitle": "Hãy thử chọn danh mục khác."
+      "subtitle": "Hãy thử chọn danh mục khác.",
+      "searchNoResults": "Không tìm thấy món ăn nào cho \"{{search}}\". Hãy thử từ khóa khác."
+    },
+    "messages": {
+      "loadingMore": "Đang tải thêm...",
+      "showingAll": "Đã hiển thị tất cả {{count}} {{title}}"
     },
     "showing": "Hiển thị",
     "of": "trên",
@@ -82,12 +180,19 @@
     "sendResetLink": "Gửi liên kết đặt lại",
     "backToLogin": "Quay lại đăng nhập",
     "resetPassword": "Đặt lại mật khẩu",
-    "resetDescription": "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến email của bạn"
+    "resetDescription": "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến email của bạn",
+    "errors": {
+      "loginFailed": "Đăng nhập thất bại",
+      "registerFailed": "Đăng ký thất bại",
+      "resetLinkFailed": "Không thể gửi liên kết đặt lại. Vui lòng thử lại."
+    }
   },
   "validation": {
     "emailRequired": "Vui lòng nhập email",
     "passwordRequired": "Vui lòng nhập mật khẩu",
     "nameRequired": "Vui lòng nhập tên",
+    "nameMinLength": "Tên phải có ít nhất 2 ký tự",
+    "nameMaxLength": "Tên không được vượt quá 100 ký tự",
     "invalidEmail": "Email không hợp lệ",
     "passwordWeak": "Mật khẩu phải chứa ít nhất 2 trong số: chữ cái, số, ký tự đặc biệt",
     "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự"
@@ -96,7 +201,344 @@
     "resetLinkSent": "Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi",
     "welcome": "Chào mừng"
   },
+  "admin": {
+    "dashboard": "Bảng điều khiển",
+    "dishes": "Quản lý Món ăn",
+    "restaurants": "Quản lý Nhà hàng",
+    "users": "Quản lý Người dùng",
+    "welcomeMessage": "Chào mừng trở lại, Admin!",
+    "dashboardDescription": "Đây là khu vực quản lý dữ liệu của nền tảng. Sử dụng menu bên trái để điều hướng giữa các chức năng.",
+    "dashboardCharts": {
+      "loading": "Đang tải dữ liệu dashboard…",
+      "loadError": "Không thể tải dữ liệu dashboard (analytics).",
+      "area": {
+        "usersRestaurants": {
+          "title": "Người dùng & Nhà hàng mới",
+          "description": "Số lượng bản ghi tạo mới theo ngày (90 ngày gần nhất)"
+        },
+        "dishesReviews": {
+          "title": "Món ăn & Đánh giá mới",
+          "description": "Số lượng món mới và review mới theo ngày (90 ngày gần nhất)"
+        }
+      },
+      "pie": {
+        "userRoles": {
+          "title": "Người dùng theo vai trò",
+          "description": "Phân bố role trong hệ thống"
+        },
+        "reviewTimePeriods": {
+          "title": "Đánh giá theo khoảng thời gian",
+          "description": "Phân bố số lượng đánh giá theo các khoảng thời gian"
+        },
+        "dishCategories": {
+          "title": "Món ăn theo danh mục",
+          "description": "Top 5 danh mục (theo số lượng món)"
+        }
+      },
+      "legend": {
+        "series": {
+          "usersNew": "Người dùng mới",
+          "restaurantsNew": "Nhà hàng mới",
+          "dishesNew": "Món ăn mới",
+          "reviewsNew": "Đánh giá mới"
+        },
+        "roles": {
+          "admin": "Admin",
+          "guest": "Khách",
+          "unknown": "Khác"
+        },
+        "timePeriods": {
+          "thisWeek": "Tuần này",
+          "lastWeek": "Tuần trước",
+          "thisMonth": "Tháng này",
+          "older": "Cũ hơn"
+        },
+        "categoryIndex": "Danh mục #{{index}}"
+      }
+    }
+  },
+  "adminPages": {
+    "users": {
+      "createNew": "Tạo Người Dùng Mới",
+      "searchPlaceholder": "Tìm kiếm theo tên hoặc email...",
+      "filters": {
+        "allRoles": "Tất cả vai trò",
+        "allStatuses": "Tất cả trạng thái",
+        "roleGuest": "Người dùng",
+        "roleAdmin": "Quản trị viên",
+        "statusActive": "Đang hoạt động",
+        "statusLocked": "Đã khóa"
+      },
+      "form": {
+        "basicInfo": "Thông tin cơ bản",
+        "name": "Tên",
+        "namePlaceholder": "Nhập tên...",
+        "email": "Email",
+        "emailPlaceholder": "Nhập email...",
+        "password": "Mật khẩu",
+        "passwordPlaceholder": "Nhập mật khẩu (tối thiểu 6 ký tự)...",
+        "passwordPlaceholderEdit": "Để trống nếu không đổi mật khẩu",
+        "role": "Vai trò",
+        "isLocked": "Khóa tài khoản ngay khi tạo",
+        "create": "Tạo người dùng",
+        "creating": "Đang tạo...",
+        "update": "Cập nhật người dùng",
+        "updating": "Đang cập nhật...",
+        "editTitle": "Cập nhật người dùng",
+        "viewTitle": "Chi tiết người dùng",
+        "successCreated": "Đã tạo người dùng \"{{name}}\" thành công.",
+        "successUpdated": "Đã cập nhật người dùng \"{{name}}\" thành công."
+      },
+      "table": {
+        "name": "Tên",
+        "email": "Email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "badges": {
+        "admin": "Quản trị",
+        "guest": "Người dùng"
+      },
+      "verbs": {
+        "lock": "khóa",
+        "unlock": "mở khóa"
+      },
+      "roleNames": {
+        "admin": "quản trị viên",
+        "guest": "người dùng"
+      },
+      "confirm": {
+        "toggleLock": "Bạn có chắc chắn muốn {{action}} tài khoản của người dùng \"{{name}}\" không?",
+        "changeRole": "Bạn có chắc chắn muốn thay đổi vai trò của \"{{name}}\" thành {{role}} không?",
+        "delete": "Bạn có chắc chắn muốn xóa người dùng \"{{name}}\" không?"
+      },
+      "messages": {
+        "noResults": "Không tìm thấy người dùng nào.",
+        "notFound": "Không tìm thấy người dùng"
+      },
+      "actions": {
+        "changeRole": "Thay đổi vai trò",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa người dùng",
+        "lockAccount": "Khóa tài khoản",
+        "unlockAccount": "Mở khóa tài khoản"
+      }
+    },
+    "restaurants": {
+      "createNew": "Tạo Nhà Hàng Mới",
+      "searchPlaceholder": "Tìm kiếm theo tên...",
+      "table": {
+        "name": "Tên Nhà Hàng",
+        "address": "Địa Chỉ",
+        "rating": "Đánh Giá",
+        "status": "Trạng Thái",
+        "actions": "Hành Động"
+      },
+      "status": {
+        "deleted": "Đã Xóa",
+        "active": "Hoạt Động"
+      },
+      "actions": {
+        "viewPublic": "Xem công khai",
+        "edit": "Chỉnh sửa",
+        "restore": "Khôi Phục"
+      },
+      "confirm": {
+        "softDelete": "Bạn có chắc chắn muốn xóa mềm nhà hàng \"{{name}}\" không?",
+        "restore": "Bạn có chắc chắn muốn khôi phục nhà hàng \"{{name}}\" không?"
+      },
+      "messages": {
+        "noResults": "Không tìm thấy nhà hàng nào."
+      }
+    },
+    "dishes": {
+      "createNew": "Tạo Món Ăn Mới",
+      "searchPlaceholder": "Tìm kiếm theo tên...",
+      "table": {
+        "name": "Tên Món Ăn",
+        "category": "Danh Mục",
+        "region": "Vùng Miền",
+        "rating": "Đánh Giá",
+        "status": "Trạng Thái",
+        "actions": "Hành Động"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa",
+        "restore": "Khôi Phục",
+        "viewDetailsAdmin": "Xem chi tiết (Admin)"
+      },
+      "confirm": {
+        "softDelete": "Bạn có chắc chắn muốn xóa mềm món ăn \"{{name}}\" không?",
+        "restore": "Bạn có chắc chắn muốn khôi phục món ăn \"{{name}}\" không?"
+      },
+      "messages": {
+        "noResults": "Không tìm thấy món ăn nào."
+      }
+    },
+    "restaurantForm": {
+      "loading": {
+        "editTitle": "Đang tải nhà hàng...",
+        "createTitle": "Tạo mới nhà hàng"
+      },
+      "pageTitle": {
+        "edit": "Sửa Nhà Hàng: {{name}}",
+        "create": "Tạo Nhà Hàng Mới"
+      },
+      "actions": {
+        "cancel": "Hủy",
+        "create": "Tạo Nhà Hàng",
+        "update": "Cập Nhật"
+      },
+      "sections": {
+        "basicInfo": "Thông tin cơ bản",
+        "location": "Vị trí (Tọa độ)",
+        "dishesServed": "Món ăn phục vụ ({{count}})",
+        "images": "Hình ảnh"
+      },
+      "fields": {
+        "nameLabel": "Tên Nhà Hàng",
+        "namePlaceholder": "Nhập tên nhà hàng",
+        "addressLabel": "Địa Chỉ",
+        "addressPlaceholder": "Nhập địa chỉ",
+        "phoneLabel": "Số Điện Thoại",
+        "phonePlaceholder": "Nhập số điện thoại",
+        "websiteLabel": "Website",
+        "websitePlaceholder": "https://example.com",
+        "longitudeLabel": "Kinh Độ (Longitude)",
+        "longitudePlaceholder": "106.7008",
+        "latitudeLabel": "Vĩ Độ (Latitude)",
+        "latitudePlaceholder": "10.7769"
+      },
+      "dishes": {
+        "assignedLabel": "Món ăn đang gán:",
+        "noneAssigned": "Chưa có món ăn nào được gán."
+      },
+      "images": {
+        "uploadLabel": "Chọn tệp ảnh (Max 5MB)",
+        "oldImageAlt": "Ảnh cũ {{index}}",
+        "removeOldImageTitle": "Xóa ảnh cũ",
+        "newPreviewAlt": "Preview {{index}}",
+        "newBadge": "Mới"
+      },
+      "errors": {
+        "saveFailed": "Không thể lưu nhà hàng."
+      }
+    },
+    "dishForm": {
+      "loading": {
+        "editTitle": "Đang tải món ăn...",
+        "createTitle": "Tạo mới món ăn"
+      },
+      "pageTitle": {
+        "edit": "Sửa Món Ăn: {{name}}",
+        "create": "Tạo Món Ăn Mới"
+      },
+      "actions": {
+        "cancel": "Hủy",
+        "create": "Tạo Món Ăn",
+        "update": "Cập Nhật"
+      },
+      "sections": {
+        "basicInfo": "Thông tin cơ bản",
+        "ingredients": "Nguyên liệu",
+        "images": "Hình ảnh"
+      },
+      "fields": {
+        "nameVi": "Tên (Tiếng Việt)",
+        "nameJa": "Tên (Tiếng Nhật)",
+        "descriptionVi": "Mô tả (Tiếng Việt)",
+        "descriptionJa": "Mô tả (Tiếng Nhật)",
+        "category": "Danh Mục",
+        "region": "Vùng Miền",
+        "cookingTimeMinutes": "Thời gian nấu (phút)",
+        "minPrice": "Giá Min (VND)",
+        "maxPrice": "Giá Max (VND)",
+        "ingredientName": "Tên Nguyên liệu",
+        "ingredientQuantity": "Số lượng/Đơn vị"
+      },
+      "ingredients": {
+        "add": "Thêm"
+      },
+      "images": {
+        "uploadLabel": "Chọn tệp ảnh (Max 5MB)",
+        "oldImageAlt": "Ảnh cũ {{index}}",
+        "removeOldImageTitle": "Xóa ảnh cũ",
+        "newPreviewAlt": "Preview {{index}}",
+        "newBadge": "Mới"
+      },
+      "errors": {
+        "saveFailed": "Không thể lưu món ăn."
+      }
+    },
+    "forms": {
+      "actions": {
+        "create": "tạo mới",
+        "update": "cập nhật"
+      },
+      "restaurantSuccess": "Nhà hàng \"{{name}}\" đã được {{action}} thành công.",
+      "dishSuccess": "Món ăn \"{{name}}\" đã được {{action}} thành công.",
+      "genericProcessError": "Lỗi xử lý dữ liệu.",
+      "systemValidationError": "Lỗi hệ thống/Validation: {{msg}}",
+      "restaurantDishAssign": {
+        "unassignTitle": "Bỏ gán",
+        "searchAndAssignLabel": "Tìm kiếm và gán món ăn (Khả dụng):",
+        "dishNamePlaceholder": "Nhập tên món ăn...",
+        "loadingList": "Đang tải danh sách món ăn...",
+        "noMatch": "Không tìm thấy món ăn nào phù hợp.",
+        "noneAvailable": "Không có món ăn nào khả dụng.",
+        "noName": "Không có tên",
+        "assign": "Gán"
+      }
+    }
+  },
+  "reviews": {
+    "confirmDelete": "Bạn có chắc chắn muốn xóa đánh giá của bạn không?",
+    "loadFailed": "Không thể tải đánh giá."
+  },
+  "favorites": {
+    "title": "Món ăn yêu thích",
+    "errorLoad": "Không thể tải danh sách yêu thích. Vui lòng thử lại.",
+    "noDishes": {
+      "title": "Không có món ăn yêu thích",
+      "subtitle": "Bấm vào biểu tượng trái tim để thêm món ăn vào danh sách này."
+    }
+  },
+  "profile": {
+    "title": "Hồ sơ cá nhân",
+    "subtitle": "Quản lý thông tin tài khoản và mật khẩu của bạn",
+    "profileInfo": "Thông tin cá nhân",
+    "profileInfoDesc": "Cập nhật tên và email của bạn",
+    "changePassword": "Đổi mật khẩu",
+    "changePasswordDesc": "Thay đổi mật khẩu để bảo mật tài khoản",
+    "namePlaceholder": "Nhập tên của bạn",
+    "emailPlaceholder": "Nhập email của bạn",
+    "currentPassword": "Mật khẩu hiện tại",
+    "currentPasswordPlaceholder": "Nhập mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "newPasswordPlaceholder": "Nhập mật khẩu mới (tối thiểu 6 ký tự)",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
+    "saveChanges": "Lưu thay đổi",
+    "changePasswordButton": "Đổi mật khẩu",
+    "updateSuccess": "Cập nhật thông tin thành công!",
+    "updateError": "Không thể cập nhật thông tin. Vui lòng thử lại.",
+    "passwordChangeSuccess": "Đổi mật khẩu thành công!",
+    "passwordChangeError": "Không thể đổi mật khẩu. Vui lòng thử lại.",
+    "currentPasswordRequired": "Vui lòng nhập mật khẩu hiện tại",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp",
+    "passwordSame": "Mật khẩu mới phải khác mật khẩu hiện tại",
+    "noChanges": "Không có thay đổi nào để lưu"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "dishes": "Món ăn",
+    "restaurants": "Nhà hàng",
+    "platform": "Nền tảng"
+  },
   "footer": {
+    "brand": "Công an Hà Nội",
     "rights": "Bản quyền thuộc về",
     "about": "Giới thiệu",
     "contact": "Liên hệ",

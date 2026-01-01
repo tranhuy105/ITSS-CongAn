@@ -67,6 +67,8 @@ export interface IDish {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  minPrice: number;
+  maxPrice: number;
 }
 
 // Restaurant Types

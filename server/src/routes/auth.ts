@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+    changePassword,
     forgotPassword,
     getCurrentUser,
     login,
@@ -7,15 +8,18 @@ import {
     refreshToken,
     register,
     resetPassword,
+    updateProfile,
 } from '../controllers/auth';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import {
+    changePasswordSchema,
     loginSchema,
     passwordResetRequestSchema,
     passwordResetSchema,
     refreshTokenSchema,
     registerSchema,
+    updateProfileSchema,
 } from '../validators/auth';
 
 const router = Router();
@@ -68,5 +72,19 @@ router.post('/reset-password', validate(passwordResetSchema), resetPassword);
  * @access  Private
  */
 router.get('/me', authenticate, getCurrentUser);
+
+/**
+ * @route   PUT /api/auth/profile
+ * @desc    Update user profile
+ * @access  Private
+ */
+router.put('/profile', authenticate, validate(updateProfileSchema), updateProfile);
+
+/**
+ * @route   PUT /api/auth/change-password
+ * @desc    Change user password
+ * @access  Private
+ */
+router.put('/change-password', authenticate, validate(changePasswordSchema), changePassword);
 
 export default router;

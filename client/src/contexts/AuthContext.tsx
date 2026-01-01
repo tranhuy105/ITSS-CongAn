@@ -1,14 +1,16 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
-import type { IUser, LoginCredentials, RegisterData } from '../../../shared/types';
+import type { AuthResponse, IUser, LoginCredentials, RegisterData } from '../../../shared/types';
 import * as authService from '../services/authService';
 
 interface AuthContextType {
   user: IUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<AuthResponse>;
+  register: (data: RegisterData) => Promise<AuthResponse>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,13 +32,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (storedUser && accessToken) {
           setUser(JSON.parse(storedUser));
-          
+
           // Verify token is still valid by fetching current user
           try {
             const currentUser = await authService.getCurrentUser();
             setUser(currentUser);
             localStorage.setItem('user', JSON.stringify(currentUser));
           } catch (error) {
+            console.error('Failed: ', error);
             // Token invalid, clear storage
             localStorage.removeItem('user');
             localStorage.removeItem('accessToken');
@@ -54,46 +57,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadUser();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
-    try {
-      const response = await authService.login(credentials);
-      
-      // Add favorites array if not present
-      const userWithFavorites: IUser = {
-        ...response.user,
-        favorites: [],
-      };
-      
-      // Store tokens
-      localStorage.setItem('accessToken', response.tokens.accessToken);
-      localStorage.setItem('refreshToken', response.tokens.refreshToken);
-      localStorage.setItem('user', JSON.stringify(userWithFavorites));
-      
-      setUser(userWithFavorites);
-    } catch (error) {
-      throw error;
-    }
+  const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    const response = await authService.login(credentials);
+
+    // Add favorites array if not present
+    const userWithFavorites: IUser = {
+      ...response.user,
+      favorites: [],
+    };
+
+    // Store tokens
+    localStorage.setItem('accessToken', response.tokens.accessToken);
+    localStorage.setItem('refreshToken', response.tokens.refreshToken);
+    localStorage.setItem('user', JSON.stringify(userWithFavorites));
+
+    setUser(userWithFavorites);
+
+    return response;
   };
 
-  const register = async (data: RegisterData) => {
-    try {
-      const response = await authService.register(data);
-      
-      // Add favorites array if not present
-      const userWithFavorites: IUser = {
-        ...response.user,
-        favorites: [],
-      };
-      
-      // Store tokens
-      localStorage.setItem('accessToken', response.tokens.accessToken);
-      localStorage.setItem('refreshToken', response.tokens.refreshToken);
-      localStorage.setItem('user', JSON.stringify(userWithFavorites));
-      
-      setUser(userWithFavorites);
-    } catch (error) {
-      throw error;
-    }
+  const register = async (data: RegisterData): Promise<AuthResponse> => {
+    const response = await authService.register(data);
+
+    // Add favorites array if not present
+    const userWithFavorites: IUser = {
+      ...response.user,
+      favorites: [],
+    };
+
+    // Store tokens
+    localStorage.setItem('accessToken', response.tokens.accessToken);
+    localStorage.setItem('refreshToken', response.tokens.refreshToken);
+    localStorage.setItem('user', JSON.stringify(userWithFavorites));
+
+    setUser(userWithFavorites);
+
+    return response;
   };
 
   const logout = async () => {
@@ -110,6 +109,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+      localStorage.setItem('user', JSON.stringify(currentUser));
+    } catch (error) {
+      console.error('Refresh user error:', error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -117,6 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

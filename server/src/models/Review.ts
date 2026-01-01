@@ -9,6 +9,7 @@ export interface IReview extends Document {
   comment: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date | null;
 }
 
 // Review schema
@@ -43,6 +44,12 @@ const reviewSchema = new Schema<IReview>(
       maxlength: [1000, 'Comment cannot exceed 1000 characters'],
       default: '',
     },
+    // Soft delete field
+    deletedAt: {
+      type: Date,
+      default: null,
+      select: false, // Don't expose this field by default
+    },
   },
   {
     timestamps: true,
@@ -50,20 +57,23 @@ const reviewSchema = new Schema<IReview>(
 );
 
 // Indexes
-reviewSchema.index({ dish: 1 });
-reviewSchema.index({ user: 1 });
+reviewSchema.index({ dish: 1, deletedAt: 1 });
+reviewSchema.index({ user: 1, deletedAt: 1 });
 reviewSchema.index({ createdAt: -1 });
 // Compound unique index to prevent duplicate reviews from same user for same dish
-reviewSchema.index({ dish: 1, user: 1 }, { unique: true });
+reviewSchema.index(
+  { dish: 1, user: 1 },
+  { unique: true, partialFilterExpression: { deletedAt: { $eq: null } } }
+);
 
 // Helper function to calculate and update dish rating
 async function updateDishRating(dishId: mongoose.Types.ObjectId) {
   try {
     const Review = mongoose.model<IReview>('Review');
 
-    // Calculate average rating and count
+    // Calculate average rating and count: Only count reviews where deletedAt is null
     const result = await Review.aggregate([
-      { $match: { dish: dishId } },
+      { $match: { dish: dishId, deletedAt: null } },
       {
         $group: {
           _id: '$dish',
@@ -110,21 +120,6 @@ reviewSchema.post('findOneAndUpdate', async function (doc) {
   }
 });
 
-// Pre-save validation to check for duplicate reviews
-reviewSchema.pre('save', async function () {
-  if (this.isNew) {
-    const Review = mongoose.model<IReview>('Review');
-    const existingReview = await Review.findOne({
-      user: this.user,
-      dish: this.dish,
-    });
-
-    if (existingReview) {
-      throw new Error('You have already reviewed this dish');
-    }
-  }
-});
-
 // Static method to get reviews for a dish with pagination
 reviewSchema.statics.getReviewsByDish = function (
   dishId: mongoose.Types.ObjectId,
@@ -133,7 +128,7 @@ reviewSchema.statics.getReviewsByDish = function (
 ) {
   const skip = (page - 1) * limit;
 
-  return this.find({ dish: dishId })
+  return this.find({ dish: dishId, deletedAt: null })
     .populate('user', 'name email')
     .sort({ createdAt: -1 })
     .skip(skip)
@@ -142,7 +137,7 @@ reviewSchema.statics.getReviewsByDish = function (
 
 // Static method to get review count for a dish
 reviewSchema.statics.getReviewCount = function (dishId: mongoose.Types.ObjectId) {
-  return this.countDocuments({ dish: dishId });
+  return this.countDocuments({ dish: dishId, deletedAt: null });
 };
 
 // Static method to check if user has reviewed a dish
@@ -150,7 +145,7 @@ reviewSchema.statics.hasUserReviewed = function (
   userId: mongoose.Types.ObjectId,
   dishId: mongoose.Types.ObjectId
 ) {
-  return this.exists({ user: userId, dish: dishId });
+  return this.exists({ user: userId, dish: dishId, deletedAt: null });
 };
 
 // Create and export Review model

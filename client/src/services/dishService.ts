@@ -1,19 +1,70 @@
 import api from './api';
 
 interface GetDishesParams {
-    page?: number;
-    limit?: number;
-    category?: string;
-    region?: string;
-    search?: string;
+  page?: number;
+  limit?: number;
+  category?: string;
+  region?: string;
+  search?: string;
+  sortBy?: string;
+  minRating?: number;
+  maxRating?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
+// feature for end user
 export const getDishes = async (params: GetDishesParams = {}) => {
-    const response = await api.get('/dishes', { params });
-    return response.data.data;
+  const response = await api.get('/dishes', { params });
+  return response.data.data;
 };
 
 export const getDishById = async (id: string) => {
-    const response = await api.get(`/dishes/${id}`);
-    return response.data.data;
+  const response = await api.get(`/dishes/${id}`);
+  return response.data.data;
+};
+
+// feature for admin
+export const getDishesAdmin = async (params: GetDishesParams = {}) => {
+  const response = await api.get('/dishes/admin', { params });
+  return response.data.data;
+};
+
+export const getActiveDishesList = async (searchQuery?: string) => {
+  const response = await api.get('/dishes/active-list', { params: { search: searchQuery } });
+  return response.data.data;
+};
+
+export const getAssignedDishesList = async (restaurantId: string) => {
+  const response = await api.get(`/dishes/assigned-list/${restaurantId}`);
+  return response.data.data;
+};
+
+export const getDishByIdAdmin = async (id: string) => {
+  const response = await api.get(`/dishes/${id}/admin`);
+  return response.data.data;
+};
+
+export const createDish = async (data: unknown) => {
+  const response = await api.post('/dishes', data);
+  return response.data.data.dish;
+};
+
+export const updateDish = async (id: string, data: unknown) => {
+  const response = await api.put(`/dishes/${id}`, data);
+  return response.data.data.dish;
+};
+
+export const deleteDish = async (id: string) => {
+  await api.delete(`/dishes/${id}`);
+  return { message: 'Dish deleted successfully' };
+};
+
+export const uploadDishImages = async (formData: FormData) => {
+  const response = await api.post('/dishes/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data.data.images;
 };

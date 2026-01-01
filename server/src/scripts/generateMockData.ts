@@ -15,10 +15,48 @@ const mockUsers = [
         role: 'admin' as const,
     },
     {
+        name: 'Admin Support',
+        email: 'admin.support@example.com',
+        password: 'admin123',
+        role: 'admin' as const,
+    },
+    {
         name: 'Guest User',
         email: 'tranhuy105@example.com',
         password: 'tranhuy105',
         role: 'guest' as const,
+    },
+    {
+        name: 'Nguyễn Văn A',
+        email: 'nguyenvana@example.com',
+        password: 'user12345',
+        role: 'guest' as const,
+    },
+    {
+        name: 'Trần Thị B',
+        email: 'tranthib@example.com',
+        password: 'user12345',
+        role: 'guest' as const,
+    },
+    {
+        name: 'Lê Văn C',
+        email: 'levanc@example.com',
+        password: 'user12345',
+        role: 'guest' as const,
+    },
+    {
+        name: 'Phạm Thị D (Locked)',
+        email: 'phamthid@example.com',
+        password: 'user12345',
+        role: 'guest' as const,
+        isLocked: true,
+    },
+    {
+        name: 'Hoàng Văn E (Locked)',
+        email: 'hoangvane@example.com',
+        password: 'user12345',
+        role: 'guest' as const,
+        isLocked: true,
     },
 ];
 
@@ -550,6 +588,36 @@ async function generateMockData() {
 
             for (let i = 0; i < variations; i++) {
                 const suffix = i > 0 ? ` (Phiên bản ${i + 1})` : '';
+                // Generate price range based on category
+                // Prices in VND (Vietnamese Dong)
+                let baseMinPrice = 30000; // 30k VND
+                let baseMaxPrice = 150000; // 150k VND
+                
+                // Adjust prices based on category
+                if (template.category === 'Phở' || template.category === 'Bún') {
+                    baseMinPrice = 40000;
+                    baseMaxPrice = 120000;
+                } else if (template.category === 'Bánh') {
+                    baseMinPrice = 20000;
+                    baseMaxPrice = 80000;
+                } else if (template.category === 'Cơm') {
+                    baseMinPrice = 50000;
+                    baseMaxPrice = 150000;
+                } else if (template.category === 'Lẩu') {
+                    baseMinPrice = 200000;
+                    baseMaxPrice = 500000;
+                } else if (template.category === 'Chè') {
+                    baseMinPrice = 15000;
+                    baseMaxPrice = 50000;
+                } else if (template.category === 'Gỏi') {
+                    baseMinPrice = 60000;
+                    baseMaxPrice = 200000;
+                }
+                
+                // Add some variation
+                const minPrice = Math.floor(baseMinPrice + Math.random() * (baseMaxPrice - baseMinPrice) * 0.3);
+                const maxPrice = Math.floor(minPrice + (baseMaxPrice - minPrice) * (0.5 + Math.random() * 0.5));
+                
                 dishes.push({
                     ...template,
                     name: {
@@ -558,6 +626,8 @@ async function generateMockData() {
                     },
                     averageRating: parseFloat((Math.random() * 1.5 + 3.5).toFixed(1)),
                     reviewCount: Math.floor(Math.random() * 500) + 50,
+                    minPrice: minPrice,
+                    maxPrice: maxPrice,
                     createdBy: users[0]._id,
                 });
             }

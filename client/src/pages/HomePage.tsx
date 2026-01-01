@@ -1,262 +1,360 @@
-import { DishCard, DishCardSkeleton } from '@/components/DishCard';
-import { FilterSidebar } from '@/components/FilterSidebar';
+import { DishCard } from '@/components/DishCard';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getDishes } from '@/services/dishService';
+import { getRestaurants } from '@/services/restaurantService';
 import { useQuery } from '@tanstack/react-query';
-import { ChefHat, SlidersHorizontal, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChefHat, Store, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { RestaurantCard } from '@/components/RestaurantCard';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Số lượng items hiển thị ban đầu và số items load thêm mỗi lần
+const HOME_LIMIT = 4;
+
+type FeedItem = { _id: string; [key: string]: unknown };
+type FeedResponse = {
+  dishes?: FeedItem[];
+  restaurants?: FeedItem[];
+  pagination?: { total?: number };
+};
+type FetchFn = (params: Record<string, unknown>) => Promise<FeedResponse>;
+
+// Component cho một khối Feed (Dishes hoặc Restaurants)
+const FeedSection = ({
+  title,
+  linkTo,
+  queryKey,
+  fetchFn,
+  CardComponent,
+  NoItemsComponent,
+  isFetchingGlobalSearch,
+  language,
+}: {
+  title: string;
+  linkTo: string;
+  queryKey: string;
+  fetchFn: FetchFn;
+  CardComponent: React.ElementType;
+  NoItemsComponent: React.ElementType;
+  isFetchingGlobalSearch: boolean;
+  language: 'ja' | 'vi';
+}) => {
+  const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get('search') || '';
+  const [allItems, setAllItems] = useState<FeedItem[]>([]); // Lưu TẤT CẢ items
+  const [displayLimit, setDisplayLimit] = useState(HOME_LIMIT); // Số items hiển thị
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch TẤT CẢ data một lần duy nhất (không phân trang)
+  const { data, isLoading } = useQuery<FeedResponse>({
+    queryKey: [queryKey, search],
+    queryFn: () =>
+      fetchFn({
+        page: 1,
+        limit: 9999, // Load tất cả (hoặc số lớn đủ để lấy hết)
+        search: search || undefined,
+        sortBy: '-updatedAt',
+      }),
+    staleTime: 60 * 1000,
+  });
+
+  // Cập nhật allItems khi data thay đổi
+  useEffect(() => {
+    if (data) {
+      const items = data.dishes ?? data.restaurants ?? [];
+      setAllItems(items);
+      console.log(`[${queryKey}] Loaded ${items.length} total items`);
+    }
+  }, [data, queryKey]);
+
+  // Reset displayLimit khi search thay đổi
+  useEffect(() => {
+    console.log('Search changed:', search);
+    setDisplayLimit(HOME_LIMIT);
+  }, [search]);
+
+  const total = allItems.length;
+  const displayedItems = allItems.slice(0, displayLimit);
+  const hasMore = displayLimit < total;
+  const showCollapse = displayLimit > HOME_LIMIT;
+
+  const DisplayCard = CardComponent as React.ElementType;
+
+  // Xử lý khi bấm Xem thêm - Tăng displayLimit lên 4 items
+  const handleLoadMore = () => {
+    const newLimit = displayLimit + HOME_LIMIT;
+    setDisplayLimit(newLimit);
+    console.log(`[${queryKey}] Showing ${Math.min(newLimit, total)} / ${total} items`);
+
+    // Scroll đến items mới sau khi render
+    setTimeout(() => {
+      if (containerRef.current) {
+        const children = containerRef.current.children;
+        const targetIndex = displayLimit; // Item đầu tiên của batch mới
+        if (children[targetIndex]) {
+          children[targetIndex].scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        }
+      }
+    }, 100);
+  };
+
+  // Xử lý thu gọn - Reset về 4 items ban đầu
+  const handleCollapse = () => {
+    setDisplayLimit(HOME_LIMIT);
+    console.log(`[${queryKey}] Collapsed to ${HOME_LIMIT} items`);
+
+    setTimeout(() => {
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    }, 100);
+  };
+
+  // Xử lý hiển thị tất cả
+  const handleShowAll = () => {
+    setDisplayLimit(total);
+    console.log(`[${queryKey}] Showing all ${total} items`);
+
+    setTimeout(() => {
+      if (containerRef.current) {
+        const lastChild = containerRef.current.lastElementChild;
+        if (lastChild) {
+          lastChild.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        }
+      }
+    }, 100);
+  };
+
+  return (
+    <Card className="mb-8">
+      <CardHeader className="flex flex-row items-center justify-between border-b pb-3">
+        <CardTitle className="text-xl font-bold">
+          {title} ({total})
+        </CardTitle>
+        <Link
+          to={linkTo}
+          className="text-sm font-medium text-primary flex items-center gap-1 hover:underline"
+        >
+          {t('common.viewAll')} <ArrowRight className="w-4 h-4" />
+        </Link>
+      </CardHeader>
+      <CardContent className="p-6">
+        {isLoading || isFetchingGlobalSearch ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: HOME_LIMIT }).map((_, i) => (
+              <Skeleton key={i} className="h-64 rounded-lg" />
+            ))}
+          </div>
+        ) : allItems.length === 0 ? (
+          <NoItemsComponent search={search} />
+        ) : (
+          <>
+            {/* Grid container - Hiển thị items theo displayLimit */}
+            <div
+              ref={containerRef}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
+              {displayedItems.map((item, index) => (
+                <div
+                  key={item._id}
+                  className="transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"
+                  style={{
+                    animation: 'fadeIn 0.5s ease-in-out',
+                    animationDelay: `${Math.min(index * 50, 300)}ms`,
+                    animationFillMode: 'backwards',
+                  }}
+                >
+                  <DisplayCard
+                    id={item._id}
+                    language={language}
+                    name={item.name}
+                    description={item.description}
+                    images={item.images}
+                    averageRating={item.averageRating}
+                    reviewCount={item.reviewCount}
+                    cookingTime={item.cookingTime}
+                    category={item.category}
+                    region={item.region}
+                    address={item.address}
+                    phone={item.phone}
+                    dishes={item.dishes}
+                    minPrice={item.minPrice}
+                    maxPrice={item.maxPrice}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Button group - Xem thêm và Thu gọn */}
+            <div className="flex justify-center gap-4 mt-8">
+              {/* Button Xem thêm 4 items */}
+              {hasMore && displayLimit < total && (
+                <Button
+                  onClick={handleLoadMore}
+                  variant="outline"
+                  size="lg"
+                  className="px-8 py-6 text-base transition-all duration-300 hover:scale-105 hover:shadow-md group"
+                >
+                  <ChevronDown className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform duration-300" />
+                  {t('common.loadMore', { target: title })} (+{Math.min(HOME_LIMIT, total - displayLimit)})
+                </Button>
+              )}
+
+              {/* Button Hiển thị tất cả */}
+              {/* {hasMore && displayLimit + HOME_LIMIT < total && (
+                <Button
+                  onClick={handleShowAll}
+                  variant="ghost"
+                  size="sm"
+                  className="px-6 py-6 text-sm text-muted-foreground hover:text-foreground transition-all duration-300"
+                >
+                  {t('common.showAll', { count: total })}
+                </Button>
+              )} */}
+
+              {/* Button Thu gọn */}
+              {showCollapse && (
+                <Button
+                  onClick={handleCollapse}
+                  variant="ghost"
+                  size="lg"
+                  className="px-8 py-6 text-base text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:shadow-md group"
+                >
+                  <ChevronUp className="w-5 h-5 mr-2 group-hover:-translate-y-1 transition-transform duration-300" />
+                  {t('common.collapse')}
+                </Button>
+              )}
+            </div>
+
+            {/* Thông báo đang hiển thị bao nhiêu items */}
+            {/* {displayedItems.length > 0 && (
+              <div className="text-center mt-6">
+                <p className="text-muted-foreground text-sm">
+                  {displayLimit >= total
+                    ? t('home.messages.showingAll', { count: total, title })
+                    : `Đang hiển thị ${displayedItems.length} / ${total} ${title.toLowerCase()}`}
+                </p>
+              </div>
+            )} */}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+// No Items component for Dish
+const NoDishes = ({ search }: { search: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="p-12 text-center text-muted-foreground">
+      <ChefHat className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+      <h3 className="text-xl font-semibold mb-3">{t('home.noDishes.title')}</h3>
+      <p className="text-muted-foreground max-w-md mx-auto">
+        {search
+          ? t('home.noDishes.searchNoResults', { search })
+          : t('home.noDishes.subtitle')}
+      </p>
+    </div>
+  );
+};
+
+// No Items component for Restaurant
+const NoRestaurants = ({ search }: { search: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="p-12 text-center text-muted-foreground">
+      <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+      <h3 className="text-xl font-semibold mb-3">{t('restaurants.noRestaurants.title')}</h3>
+      <p className="text-muted-foreground max-w-md mx-auto">
+        {search
+          ? t('restaurants.noRestaurants.searchNoResults', { search })
+          : t('restaurants.noRestaurants.subtitle')}
+      </p>
+    </div>
+  );
+};
 
 export const HomePage = () => {
-    const { isAuthenticated } = useAuth();
-    const navigate = useNavigate();
-    const { t, i18n } = useTranslation();
-    const [searchParams] = useSearchParams();
-    const [selectedCategory, setSelectedCategory] = useState('All');
-    const [selectedRegion, setSelectedRegion] = useState('All');
-    const [page, setPage] = useState(1);
-    const [showMobileFilters, setShowMobileFilters] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+  const { t, i18n } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get('search') || '';
 
-    // Get search query from URL
-    useEffect(() => {
-        const search = searchParams.get('search');
-        if (search) {
-            setSearchQuery(search);
-        } else {
-            setSearchQuery('');
-        }
-    }, [searchParams]);
-
-    const { data, isLoading, error } = useQuery({
-        queryKey: ['dishes', selectedCategory, selectedRegion, searchQuery, page],
-        queryFn: () =>
-            getDishes({
-                page,
-                limit: 12,
-                category: selectedCategory === 'All' ? undefined : selectedCategory,
-                region: selectedRegion === 'All' ? undefined : selectedRegion,
-                search: searchQuery || undefined,
-            }),
-    });
-
-    if (!isAuthenticated) {
-        navigate('/login');
-        return null;
+  const [isFetchingGlobalSearch, setIsFetchingGlobalSearch] = useState(false);
+  useEffect(() => {
+    if (search) {
+      setIsFetchingGlobalSearch(true);
+      const timer = setTimeout(() => setIsFetchingGlobalSearch(false), 500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsFetchingGlobalSearch(false);
     }
+  }, [search]);
 
-    const language = i18n.language as 'ja' | 'vi';
+  const language = i18n.language as 'ja' | 'vi';
 
-    const handleClearFilters = () => {
-        setSelectedCategory('All');
-        setSelectedRegion('All');
-        setPage(1);
-    };
+  return (
+    <AppLayout>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <section className="text-center py-16 mb-8 border-b">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-primary">
+            {t('home.hero.title')}
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+            {t('home.hero.subtitle')}
+          </p>
+        </section>
 
-    return (
-        <AppLayout>
-            {/* Hero Section with Background */}
-            <section className="relative h-[400px] overflow-hidden">
-                <div className="absolute inset-0">
-                    <img
-                        src="/placeholder.jpg"
-                        alt="Vietnamese Food"
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
-                </div>
-                <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-                    <div className="max-w-2xl text-white">
-                        <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4">
-                            {t('home.hero.title')}
-                        </h1>
-                        <p className="text-lg md:text-xl text-white/90 mb-6">
-                            {t('home.hero.subtitle')}
-                        </p>
-                        <div className="flex items-center gap-6 text-sm">
-                            <div className="flex items-center gap-2">
-                                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                                    <span className="text-2xl font-bold">{data?.pagination.total || 0}</span>
-                                </div>
-                                <span className="text-white/90">Dishes</span>
-                            </div>
-                            <div className="h-8 w-px bg-white/20" />
-                            <div className="flex items-center gap-2">
-                                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                                    <span className="text-2xl">⭐</span>
-                                </div>
-                                <span className="text-white/90">Authentic</span>
-                            </div>
-                            <div className="h-8 w-px bg-white/20" />
-                            <div className="flex items-center gap-2">
-                                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                                    <span className="text-2xl">📍</span>
-                                </div>
-                                <span className="text-white/90">Locations</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <h2 className="text-2xl font-bold mb-6">{t('home.latestHeading')}</h2>
 
-            {/* Mobile Filter Button */}
-            <div className="lg:hidden sticky top-16 z-40 bg-background border-b">
-                <div className="container mx-auto px-4 py-3">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setShowMobileFilters(!showMobileFilters)}
-                    >
-                        <SlidersHorizontal className="w-4 h-4 mr-2" />
-                        {t('home.filters.title')}
-                    </Button>
-                </div>
-            </div>
+        {search && (
+          <div className="mb-6 p-4 border rounded-lg bg-primary/5">
+            <p className="text-sm font-medium">
+              {t('home.searchingFor')}{' '}
+              <span className="font-bold text-primary">"{search}"</span>
+            </p>
+          </div>
+        )}
 
-            {/* Main Content */}
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex gap-6">
-                    {/* Desktop Sidebar */}
-                    <aside className="hidden lg:block w-56 flex-shrink-0">
-                        <div className="sticky top-24 bg-card border rounded-lg p-4">
-                            <FilterSidebar
-                                selectedCategory={selectedCategory}
-                                selectedRegion={selectedRegion}
-                                onCategoryChange={(cat) => {
-                                    setSelectedCategory(cat);
-                                    setPage(1);
-                                }}
-                                onRegionChange={(reg) => {
-                                    setSelectedRegion(reg);
-                                    setPage(1);
-                                }}
-                                onClearFilters={handleClearFilters}
-                            />
-                        </div>
-                    </aside>
+        {/* Dishes Section */}
+        <FeedSection
+          title={t('home.sections.newDishes')}
+          linkTo="/dishes"
+          queryKey="homepageDishes"
+          fetchFn={getDishes}
+          CardComponent={DishCard}
+          NoItemsComponent={NoDishes}
+          isFetchingGlobalSearch={isFetchingGlobalSearch}
+          language={language}
+        />
 
-                    {/* Mobile Sidebar */}
-                    {showMobileFilters && (
-                        <div className="lg:hidden fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-                            <div className="fixed inset-y-0 left-0 w-full max-w-xs bg-background border-r shadow-xl overflow-y-auto">
-                                <div className="p-4">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <h2 className="text-lg font-semibold">{t('home.filters.title')}</h2>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => setShowMobileFilters(false)}
-                                        >
-                                            <X className="w-5 h-5" />
-                                        </Button>
-                                    </div>
-                                    <FilterSidebar
-                                        selectedCategory={selectedCategory}
-                                        selectedRegion={selectedRegion}
-                                        onCategoryChange={(cat) => {
-                                            setSelectedCategory(cat);
-                                            setPage(1);
-                                        }}
-                                        onRegionChange={(reg) => {
-                                            setSelectedRegion(reg);
-                                            setPage(1);
-                                        }}
-                                        onClearFilters={handleClearFilters}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Dishes Grid */}
-                    <main className="flex-1 min-w-0">
-                        {error && (
-                            <Card className="border-destructive/50 bg-destructive/5 mb-6">
-                                <CardContent className="p-6">
-                                    <p className="text-destructive">{t('home.error.loadFailed')}</p>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {isLoading ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {Array.from({ length: 9 }).map((_, i) => (
-                                    <DishCardSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : data?.dishes.length === 0 ? (
-                            <Card>
-                                <CardContent className="p-16 text-center">
-                                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-                                        <ChefHat className="w-8 h-8 text-muted-foreground" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold mb-2">{t('home.noDishes.title')}</h3>
-                                    <p className="text-muted-foreground">{t('home.noDishes.subtitle')}</p>
-                                </CardContent>
-                            </Card>
-                        ) : (
-                            <>
-                                <div className="mb-6 flex items-center justify-between">
-                                    <p className="text-sm text-muted-foreground">
-                                        {t('home.showing')} <span className="font-semibold text-foreground">{data?.dishes.length}</span> {t('home.of')}{' '}
-                                        <span className="font-semibold text-foreground">{data?.pagination.total}</span> {t('home.dishes')}
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {data?.dishes.map((dish: any) => (
-                                        <DishCard
-                                            key={dish._id}
-                                            id={dish._id}
-                                            name={dish.name}
-                                            description={dish.description}
-                                            images={dish.images}
-                                            averageRating={dish.averageRating}
-                                            reviewCount={dish.reviewCount}
-                                            cookingTime={dish.cookingTime}
-                                            category={dish.category}
-                                            region={dish.region}
-                                            language={language}
-                                        />
-                                    ))}
-                                </div>
-
-                                {data && data.pagination.totalPages > 1 && (
-                                    <div className="flex items-center justify-center gap-2 mt-12">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                            disabled={page === 1}
-                                        >
-                                            {t('common.previous')}
-                                        </Button>
-                                        <div className="flex items-center gap-2 px-4">
-                                            <span className="text-sm font-medium">
-                                                {t('common.page')} {page}
-                                            </span>
-                                            <span className="text-sm text-muted-foreground">
-                                                {t('common.of')} {data.pagination.totalPages}
-                                            </span>
-                                        </div>
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => setPage((p) => p + 1)}
-                                            disabled={page === data.pagination.totalPages}
-                                        >
-                                            {t('common.next')}
-                                        </Button>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </main>
-                </div>
-            </div>
-        </AppLayout>
-    );
+        {/* Restaurants Section */}
+        <FeedSection
+          title={t('home.sections.newRestaurants')}
+          linkTo="/restaurants"
+          queryKey="homepageRestaurants"
+          fetchFn={getRestaurants}
+          CardComponent={RestaurantCard}
+          NoItemsComponent={NoRestaurants}
+          isFetchingGlobalSearch={isFetchingGlobalSearch}
+          language={language}
+        />
+      </div>
+    </AppLayout>
+  );
 };

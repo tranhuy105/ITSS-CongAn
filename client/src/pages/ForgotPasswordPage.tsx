@@ -38,8 +38,10 @@ export const ForgotPasswordPage = () => {
             await api.post('/auth/forgot-password', { email });
             setSuccess(true);
             setEmail('');
-        } catch (err: any) {
-            setError(err.response?.data?.error?.message || 'Failed to send reset link');
+        } catch (err: unknown) {
+            type ApiError = { response?: { data?: { error?: { message?: string } } } };
+            const apiErr = err as ApiError;
+            setError(apiErr.response?.data?.error?.message || t('auth.errors.resetLinkFailed'));
         } finally {
             setLoading(false);
         }
@@ -68,7 +70,7 @@ export const ForgotPasswordPage = () => {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Loading...' : t('auth.sendResetLink')}
+                    {loading ? t('common.loading') : t('auth.sendResetLink')}
                 </Button>
             </form>
 

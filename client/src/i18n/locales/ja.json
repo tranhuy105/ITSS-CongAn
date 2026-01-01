@@ -7,7 +7,79 @@
     "next": "次へ",
     "page": "ページ",
     "of": "/",
-    "back": "戻る"
+    "back": "戻る",
+    "welcome": "こんにちは",
+    "loadingData": "データを読み込み中...",
+    "loadError": "データの読み込みエラー",
+    "viewAll": "すべて表示",
+    "loadMore": "{{target}}をもっと見る",
+    "loadMoreSimple": "さらに表示",
+    "loading": "読み込み中...",
+    "collapse": "折りたたむ",
+    "showAll": "すべて表示（{{count}}）",
+    "locating": "位置情報を取得中...",
+    "useMyLocation": "現在地を使用",
+    "priceFrom": "{{price}}から",
+    "priceContact": "価格は要問い合わせ",
+    "saving": "保存中..."
+  },
+  "restaurantList": {
+    "filters": {
+      "searchPlaceholder": "レストラン名で検索...",
+      "sort": {
+        "title": "並び替え",
+        "newestDefault": "新しい順（デフォルト）",
+        "ratingDesc": "評価（高い順）",
+        "ratingAsc": "評価（低い順）",
+        "reviewCountDesc": "レビュー数（多い順）",
+        "reviewCountAsc": "レビュー数（少ない順）"
+      },
+      "rating": {
+        "title": "評価",
+        "fromPlaceholder": "0から",
+        "toPlaceholder": "5まで"
+      },
+      "nearby": {
+        "title": "近く",
+        "radiusPlaceholder": "半径（km）例: 3",
+        "radiusHint": "半径を入力後、「{{action}}」を押して絞り込みます。"
+      }
+    },
+    "location": {
+      "coords": "位置: {{lat}}, {{lng}}",
+      "errors": {
+        "notSupported": "このブラウザは位置情報（geolocation）に対応していません。",
+        "permissionDenied": "位置情報の権限が拒否されました。権限を有効にして再試行してください。",
+        "positionUnavailable": "現在地を取得できませんでした。もう一度お試しください。",
+        "timeout": "位置情報の取得がタイムアウトしました。もう一度お試しください。"
+      }
+    }
+  },
+  "dishList": {
+    "title": "料理一覧",
+    "filters": {
+      "searchPlaceholder": "料理名で検索...",
+      "sort": {
+        "title": "並び替え",
+        "newestDefault": "新しい順（デフォルト）",
+        "ratingDesc": "評価（高い順）",
+        "ratingAsc": "評価（低い順）",
+        "cookingTimeAsc": "調理時間（短い順）",
+        "cookingTimeDesc": "調理時間（長い順）",
+        "priceAsc": "価格（安い順）",
+        "priceDesc": "価格（高い順）"
+      },
+      "price": {
+        "title": "価格（VND）",
+        "fromPlaceholder": "最小",
+        "toPlaceholder": "最大"
+      },
+      "rating": {
+        "title": "評価",
+        "fromPlaceholder": "0から",
+        "toPlaceholder": "5まで"
+      }
+    }
   },
   "restaurants": {
     "title": "レストラン",
@@ -16,7 +88,12 @@
     "viewMap": "地図",
     "noRestaurants": {
       "title": "レストランが見つかりません",
-      "subtitle": "フィルターや検索条件を調整してください"
+      "subtitle": "フィルターや検索条件を調整してください",
+      "searchNoResults": "「{{search}}」に一致するレストランが見つかりません。別のキーワードをお試しください。"
+    },
+    "error": {
+      "loadFailed": "レストランの読み込みに失敗しました。もう一度お試しください。",
+      "loadDetailsFailed": "レストラン詳細の読み込みに失敗しました。"
     },
     "nearby": "近くのレストラン",
     "viewAll": "すべて表示",
@@ -27,7 +104,23 @@
     "location": "場所",
     "dishesServed": "提供料理"
   },
+  "dishDetail": {
+    "error": {
+      "loadFailed": "料理詳細の読み込みに失敗しました。もう一度お試しください。"
+    },
+    "descriptionTitle": "説明",
+    "findRestaurants": "提供レストランを探す",
+    "ingredientsTitle": "材料",
+    "cookingTimeMinutes": "{{minutes}} 分",
+    "servingsDefault": "2〜4人前"
+  },
   "home": {
+    "latestHeading": "最新の料理 & レストラン",
+    "searchingFor": "検索中:",
+    "sections": {
+      "newDishes": "新しい料理",
+      "newRestaurants": "新しいレストラン"
+    },
     "hero": {
       "title": "本格的なベトナム料理を発見",
       "subtitle": "北から南まで、ベトナムの伝統料理を詳しいレシピとレストラン情報とともに探索しましょう"
@@ -61,7 +154,12 @@
     },
     "noDishes": {
       "title": "料理が見つかりません",
-      "subtitle": "別のカテゴリーを選択してください。"
+      "subtitle": "別のカテゴリーを選択してください。",
+      "searchNoResults": "「{{search}}」に一致する料理が見つかりません。別のキーワードをお試しください。"
+    },
+    "messages": {
+      "loadingMore": "さらに読み込み中...",
+      "showingAll": "{{count}}件の{{title}}をすべて表示しました"
     },
     "showing": "表示中",
     "of": "/",
@@ -82,12 +180,19 @@
     "sendResetLink": "リセットリンクを送信",
     "backToLogin": "ログインに戻る",
     "resetPassword": "パスワードをリセット",
-    "resetDescription": "パスワードをリセットするためのリンクをメールでお送りします"
+    "resetDescription": "パスワードをリセットするためのリンクをメールでお送りします",
+    "errors": {
+      "loginFailed": "ログインに失敗しました",
+      "registerFailed": "登録に失敗しました",
+      "resetLinkFailed": "リセットリンクの送信に失敗しました。もう一度お試しください。"
+    }
   },
   "validation": {
     "emailRequired": "メールアドレスを入力してください",
     "passwordRequired": "パスワードを入力してください",
     "nameRequired": "名前を入力してください",
+    "nameMinLength": "名前は2文字以上である必要があります",
+    "nameMaxLength": "名前は100文字を超えることはできません",
     "invalidEmail": "メールアドレスの形式が正しくありません",
     "passwordWeak": "パスワードは文字、数字、記号のうち2種類以上を含む必要があります",
     "passwordMinLength": "パスワードは6文字以上である必要があります"
@@ -96,7 +201,344 @@
     "resetLinkSent": "メールアドレスが登録されている場合、パスワードリセットリンクが送信されました",
     "welcome": "ようこそ"
   },
+  "admin": {
+    "dashboard": "ダッシュボード",
+    "dishes": "料理管理",
+    "restaurants": "レストラン管理",
+    "users": "ユーザー管理",
+    "welcomeMessage": "おかえりなさい、管理者様！",
+    "dashboardDescription": "ここはプラットフォームのデータ管理エリアです。左側のメニューを使用して機能間を移動してください。",
+    "dashboardCharts": {
+      "loading": "ダッシュボードのデータを読み込み中…",
+      "loadError": "ダッシュボード（分析）の読み込みに失敗しました。",
+      "area": {
+        "usersRestaurants": {
+          "title": "新規ユーザー & 新規レストラン",
+          "description": "日別の新規作成数（直近90日）"
+        },
+        "dishesReviews": {
+          "title": "新規料理 & 新規レビュー",
+          "description": "日別の新規料理数と新規レビュー数（直近90日）"
+        }
+      },
+      "pie": {
+        "userRoles": {
+          "title": "権限別ユーザー",
+          "description": "システム内のロール分布"
+        },
+        "reviewTimePeriods": {
+          "title": "期間別レビュー",
+          "description": "期間別のレビュー数の分布"
+        },
+        "dishCategories": {
+          "title": "カテゴリー別料理",
+          "description": "上位5カテゴリー（料理数）"
+        }
+      },
+      "legend": {
+        "series": {
+          "usersNew": "新規ユーザー",
+          "restaurantsNew": "新規レストラン",
+          "dishesNew": "新規料理",
+          "reviewsNew": "新規レビュー"
+        },
+        "roles": {
+          "admin": "管理者",
+          "guest": "ゲスト",
+          "unknown": "その他"
+        },
+        "timePeriods": {
+          "thisWeek": "今週",
+          "lastWeek": "先週",
+          "thisMonth": "今月",
+          "older": "それ以前"
+        },
+        "categoryIndex": "カテゴリー #{{index}}"
+      }
+    }
+  },
+  "adminPages": {
+    "users": {
+      "createNew": "新しいユーザーを作成",
+      "searchPlaceholder": "名前またはメールで検索...",
+      "filters": {
+        "allRoles": "すべての権限",
+        "allStatuses": "すべての状態",
+        "roleGuest": "ユーザー",
+        "roleAdmin": "管理者",
+        "statusActive": "有効",
+        "statusLocked": "ロック中"
+      },
+      "form": {
+        "basicInfo": "基本情報",
+        "name": "名前",
+        "namePlaceholder": "名前を入力...",
+        "email": "メール",
+        "emailPlaceholder": "メールを入力...",
+        "password": "パスワード",
+        "passwordPlaceholder": "パスワードを入力（6文字以上）...",
+        "passwordPlaceholderEdit": "変更しない場合は空欄のまま",
+        "role": "権限",
+        "isLocked": "作成時にアカウントをロックする",
+        "create": "ユーザーを作成",
+        "creating": "作成中...",
+        "update": "ユーザーを更新",
+        "updating": "更新中...",
+        "editTitle": "ユーザーを更新",
+        "viewTitle": "ユーザー詳細",
+        "successCreated": "ユーザー「{{name}}」を作成しました。",
+        "successUpdated": "ユーザー「{{name}}」を更新しました。"
+      },
+      "table": {
+        "name": "名前",
+        "email": "メール",
+        "role": "権限",
+        "status": "状態",
+        "createdAt": "作成日",
+        "actions": "操作"
+      },
+      "badges": {
+        "admin": "管理",
+        "guest": "ユーザー"
+      },
+      "verbs": {
+        "lock": "ロック",
+        "unlock": "ロック解除"
+      },
+      "roleNames": {
+        "admin": "管理者",
+        "guest": "ユーザー"
+      },
+      "confirm": {
+        "toggleLock": "ユーザー「{{name}}」のアカウントを{{action}}してもよろしいですか？",
+        "changeRole": "「{{name}}」の権限を{{role}}に変更してもよろしいですか？",
+        "delete": "ユーザー「{{name}}」を削除してもよろしいですか？"
+      },
+      "messages": {
+        "noResults": "ユーザーが見つかりません。",
+        "notFound": "ユーザーが見つかりません"
+      },
+      "actions": {
+        "changeRole": "権限を変更",
+        "edit": "編集",
+        "delete": "削除",
+        "lockAccount": "アカウントをロック",
+        "unlockAccount": "ロック解除"
+      }
+    },
+    "restaurants": {
+      "createNew": "新しいレストランを作成",
+      "searchPlaceholder": "名前で検索...",
+      "table": {
+        "name": "レストラン名",
+        "address": "住所",
+        "rating": "評価",
+        "status": "状態",
+        "actions": "操作"
+      },
+      "status": {
+        "deleted": "削除済み",
+        "active": "有効"
+      },
+      "actions": {
+        "viewPublic": "公開ページを見る",
+        "edit": "編集",
+        "restore": "復元"
+      },
+      "confirm": {
+        "softDelete": "レストラン「{{name}}」をソフト削除してもよろしいですか？",
+        "restore": "レストラン「{{name}}」を復元してもよろしいですか？"
+      },
+      "messages": {
+        "noResults": "レストランが見つかりません。"
+      }
+    },
+    "dishes": {
+      "createNew": "新しい料理を作成",
+      "searchPlaceholder": "名前で検索...",
+      "table": {
+        "name": "料理名",
+        "category": "カテゴリー",
+        "region": "地域",
+        "rating": "評価",
+        "status": "状態",
+        "actions": "操作"
+      },
+      "actions": {
+        "edit": "編集",
+        "restore": "復元",
+        "viewDetailsAdmin": "管理画面で詳細を見る"
+      },
+      "confirm": {
+        "softDelete": "料理「{{name}}」をソフト削除してもよろしいですか？",
+        "restore": "料理「{{name}}」を復元してもよろしいですか？"
+      },
+      "messages": {
+        "noResults": "料理が見つかりません。"
+      }
+    },
+    "restaurantForm": {
+      "loading": {
+        "editTitle": "レストランを読み込み中...",
+        "createTitle": "レストランを新規作成"
+      },
+      "pageTitle": {
+        "edit": "レストラン編集: {{name}}",
+        "create": "レストランを新規作成"
+      },
+      "actions": {
+        "cancel": "キャンセル",
+        "create": "レストランを作成",
+        "update": "更新"
+      },
+      "sections": {
+        "basicInfo": "基本情報",
+        "location": "位置（座標）",
+        "dishesServed": "提供料理（{{count}}）",
+        "images": "画像"
+      },
+      "fields": {
+        "nameLabel": "レストラン名",
+        "namePlaceholder": "レストラン名を入力",
+        "addressLabel": "住所",
+        "addressPlaceholder": "住所を入力",
+        "phoneLabel": "電話番号",
+        "phonePlaceholder": "電話番号を入力",
+        "websiteLabel": "ウェブサイト",
+        "websitePlaceholder": "https://example.com",
+        "longitudeLabel": "経度（Longitude）",
+        "longitudePlaceholder": "106.7008",
+        "latitudeLabel": "緯度（Latitude）",
+        "latitudePlaceholder": "10.7769"
+      },
+      "dishes": {
+        "assignedLabel": "割り当て済み料理:",
+        "noneAssigned": "割り当て済みの料理はありません。"
+      },
+      "images": {
+        "uploadLabel": "画像ファイルを選択（最大5MB）",
+        "oldImageAlt": "既存画像 {{index}}",
+        "removeOldImageTitle": "既存画像を削除",
+        "newPreviewAlt": "プレビュー {{index}}",
+        "newBadge": "新規"
+      },
+      "errors": {
+        "saveFailed": "レストランを保存できませんでした。"
+      }
+    },
+    "dishForm": {
+      "loading": {
+        "editTitle": "料理を読み込み中...",
+        "createTitle": "料理を新規作成"
+      },
+      "pageTitle": {
+        "edit": "料理編集: {{name}}",
+        "create": "料理を新規作成"
+      },
+      "actions": {
+        "cancel": "キャンセル",
+        "create": "料理を作成",
+        "update": "更新"
+      },
+      "sections": {
+        "basicInfo": "基本情報",
+        "ingredients": "材料",
+        "images": "画像"
+      },
+      "fields": {
+        "nameVi": "名前（ベトナム語）",
+        "nameJa": "名前（日本語）",
+        "descriptionVi": "説明（ベトナム語）",
+        "descriptionJa": "説明（日本語）",
+        "category": "カテゴリー",
+        "region": "地域",
+        "cookingTimeMinutes": "調理時間（分）",
+        "minPrice": "最小価格（VND）",
+        "maxPrice": "最大価格（VND）",
+        "ingredientName": "材料名",
+        "ingredientQuantity": "数量/単位"
+      },
+      "ingredients": {
+        "add": "追加"
+      },
+      "images": {
+        "uploadLabel": "画像ファイルを選択（最大5MB）",
+        "oldImageAlt": "既存画像 {{index}}",
+        "removeOldImageTitle": "既存画像を削除",
+        "newPreviewAlt": "プレビュー {{index}}",
+        "newBadge": "新規"
+      },
+      "errors": {
+        "saveFailed": "料理を保存できませんでした。"
+      }
+    },
+    "forms": {
+      "actions": {
+        "create": "作成",
+        "update": "更新"
+      },
+      "restaurantSuccess": "レストラン「{{name}}」を{{action}}しました。",
+      "dishSuccess": "料理「{{name}}」を{{action}}しました。",
+      "genericProcessError": "処理中にエラーが発生しました。",
+      "systemValidationError": "システム/Validation エラー: {{msg}}",
+      "restaurantDishAssign": {
+        "unassignTitle": "割り当て解除",
+        "searchAndAssignLabel": "料理を検索して割り当て（利用可能）:",
+        "dishNamePlaceholder": "料理名を入力...",
+        "loadingList": "料理リストを読み込み中...",
+        "noMatch": "一致する料理が見つかりません。",
+        "noneAvailable": "利用可能な料理はありません。",
+        "noName": "名称なし",
+        "assign": "割り当て"
+      }
+    }
+  },
+  "reviews": {
+    "confirmDelete": "レビューを削除してもよろしいですか？",
+    "loadFailed": "レビューの読み込みに失敗しました。"
+  },
+  "favorites": {
+    "title": "お気に入り料理",
+    "errorLoad": "お気に入りリストの読み込みに失敗しました。もう一度お試しください。",
+    "noDishes": {
+      "title": "お気に入り料理はありません",
+      "subtitle": "ハートアイコンをクリックして、このリストに料理を追加してください。"
+    }
+  },
+  "profile": {
+    "title": "プロフィール",
+    "subtitle": "アカウント情報とパスワードを管理",
+    "profileInfo": "個人情報",
+    "profileInfoDesc": "名前とメールアドレスを更新",
+    "changePassword": "パスワード変更",
+    "changePasswordDesc": "アカウントのセキュリティのためにパスワードを変更",
+    "namePlaceholder": "お名前を入力",
+    "emailPlaceholder": "メールアドレスを入力",
+    "currentPassword": "現在のパスワード",
+    "currentPasswordPlaceholder": "現在のパスワードを入力",
+    "newPassword": "新しいパスワード",
+    "newPasswordPlaceholder": "新しいパスワードを入力（6文字以上）",
+    "confirmPassword": "パスワード確認",
+    "confirmPasswordPlaceholder": "新しいパスワードを再入力",
+    "saveChanges": "変更を保存",
+    "changePasswordButton": "パスワードを変更",
+    "updateSuccess": "情報を更新しました！",
+    "updateError": "情報を更新できませんでした。もう一度お試しください。",
+    "passwordChangeSuccess": "パスワードを変更しました！",
+    "passwordChangeError": "パスワードを変更できませんでした。もう一度お試しください。",
+    "currentPasswordRequired": "現在のパスワードを入力してください",
+    "passwordMismatch": "パスワードが一致しません",
+    "passwordSame": "新しいパスワードは現在のパスワードと異なる必要があります",
+    "noChanges": "保存する変更がありません"
+  },
+  "nav": {
+    "home": "ホーム",
+    "dishes": "料理",
+    "restaurants": "レストラン",
+    "platform": "プラットフォーム"
+  },
   "footer": {
+    "brand": "コン・アン",
     "rights": "All rights reserved",
     "about": "About",
     "contact": "Contact",

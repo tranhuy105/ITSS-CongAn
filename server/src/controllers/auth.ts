@@ -81,7 +81,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
                 success: false,
                 error: {
                     code: ErrorCode.UNAUTHORIZED,
-                    message: 'メールアドレスまたはパスワードが正しくありません',
+                    message: 'Invalid email or password',
                 },
             });
             return;
@@ -93,7 +93,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
                 success: false,
                 error: {
                     code: ErrorCode.FORBIDDEN,
-                    message: 'アカウントがロックされています',
+                    message: 'Account is locked',
                 },
             });
             return;
@@ -106,7 +106,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
                 success: false,
                 error: {
                     code: ErrorCode.UNAUTHORIZED,
-                    message: 'メールアドレスまたはパスワードが正しくありません',
+                    message: 'Invalid email or password',
                 },
             });
             return;
@@ -202,7 +202,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
                 success: false,
                 error: {
                     code: ErrorCode.FORBIDDEN,
-                    message: 'アカウントがロックされています',
+                    message: 'Account is locked',
                 },
             });
             return;
@@ -348,6 +348,152 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
             error: {
                 code: ErrorCode.INTERNAL_ERROR,
                 message: 'An error occurred fetching user data',
+            },
+        });
+    }
+};
+
+/**
+ * Update user profile
+ * PUT /api/auth/profile
+ */
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                error: {
+                    code: ErrorCode.UNAUTHORIZED,
+                    message: 'Not authenticated',
+                },
+            });
+            return;
+        }
+
+        const { name, email } = req.body;
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            res.status(404).json({
+                success: false,
+                error: {
+                    code: ErrorCode.NOT_FOUND,
+                    message: 'User not found',
+                },
+            });
+            return;
+        }
+
+        // Check if email is being changed and if it's already taken
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                res.status(409).json({
+                    success: false,
+                    error: {
+                        code: ErrorCode.CONFLICT,
+                        message: 'Email already registered',
+                    },
+                });
+                return;
+            }
+            user.email = email;
+        }
+
+        if (name !== undefined) {
+            user.name = name;
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            data: {
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    isLocked: user.isLocked,
+                    favorites: user.favorites,
+                    createdAt: user.createdAt,
+                    updatedAt: user.updatedAt,
+                },
+            },
+        });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({
+            success: false,
+            error: {
+                code: ErrorCode.INTERNAL_ERROR,
+                message: 'An error occurred updating profile',
+            },
+        });
+    }
+};
+
+/**
+ * Change password
+ * PUT /api/auth/change-password
+ */
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                error: {
+                    code: ErrorCode.UNAUTHORIZED,
+                    message: 'Not authenticated',
+                },
+            });
+            return;
+        }
+
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user.userId).select('+password');
+
+        if (!user) {
+            res.status(404).json({
+                success: false,
+                error: {
+                    code: ErrorCode.NOT_FOUND,
+                    message: 'User not found',
+                },
+            });
+            return;
+        }
+
+        // Verify current password
+        const isPasswordValid = await user.comparePassword(currentPassword);
+        if (!isPasswordValid) {
+            res.status(401).json({
+                success: false,
+                error: {
+                    code: ErrorCode.UNAUTHORIZED,
+                    message: 'Current password is incorrect',
+                },
+            });
+            return;
+        }
+
+        // Update password
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            data: {
+                message: 'Password changed successfully',
+            },
+        });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({
+            success: false,
+            error: {
+                code: ErrorCode.INTERNAL_ERROR,
+                message: 'An error occurred changing password',
             },
         });
     }
