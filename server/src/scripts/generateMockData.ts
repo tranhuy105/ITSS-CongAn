@@ -81,6 +81,7 @@ const dishTemplates = [
         category: 'Phở',
         region: 'Miền Bắc',
         cookingTime: 180,
+        image: 'pho-bo.jpg',
     },
     {
         name: { ja: 'フォー・ガー', vi: 'Phở Gà' },
@@ -98,6 +99,7 @@ const dishTemplates = [
         category: 'Phở',
         region: 'Miền Bắc',
         cookingTime: 120,
+        image: 'pho-ga.jpg',
     },
     // MIỀN BẮC - Bún
     {
@@ -117,6 +119,7 @@ const dishTemplates = [
         category: 'Bún',
         region: 'Miền Bắc',
         cookingTime: 60,
+        image: 'bun-cha.jpg',
     },
     {
         name: { ja: 'ブンリュウ', vi: 'Bún Riêu' },
@@ -134,6 +137,7 @@ const dishTemplates = [
         category: 'Bún',
         region: 'Miền Bắc',
         cookingTime: 90,
+        image: 'bun-rieu.jpg',
     },
     // MIỀN BẮC - Bánh
     {
@@ -152,6 +156,7 @@ const dishTemplates = [
         category: 'Bánh',
         region: 'Miền Bắc',
         cookingTime: 45,
+        image: 'banh-cuon.jpg',
     },
     {
         name: { ja: 'バインゴイ', vi: 'Bánh Gối' },
@@ -169,6 +174,7 @@ const dishTemplates = [
         category: 'Bánh',
         region: 'Miền Bắc',
         cookingTime: 60,
+        image: 'banh-goi.jpg',
     },
     // MIỀN TRUNG (Central Vietnam) - Bún
     {
@@ -188,6 +194,7 @@ const dishTemplates = [
         category: 'Bún',
         region: 'Miền Trung',
         cookingTime: 150,
+        image: 'bun-bo-hue.jpg',
     },
     {
         name: { ja: 'ミークアン', vi: 'Mì Quảng' },
@@ -206,6 +213,7 @@ const dishTemplates = [
         category: 'Bún',
         region: 'Miền Trung',
         cookingTime: 90,
+        image: 'mi-quang.jpg',
     },
     // MIỀN TRUNG - Bánh
     {
@@ -223,6 +231,7 @@ const dishTemplates = [
         category: 'Bánh',
         region: 'Miền Trung',
         cookingTime: 40,
+        image: 'banh-beo.jpg',
     },
     {
         name: { ja: 'バインコアイ', vi: 'Bánh Khoái' },
@@ -240,6 +249,7 @@ const dishTemplates = [
         category: 'Bánh',
         region: 'Miền Trung',
         cookingTime: 30,
+        image: 'banh-khoai.jpg',
     },
     // MIỀN TRUNG - Cơm
     {
@@ -258,6 +268,7 @@ const dishTemplates = [
         category: 'Cơm',
         region: 'Miền Trung',
         cookingTime: 45,
+        image: 'com-hen.jpg',
     },
     // MIỀN NAM (Southern Vietnam) - Cơm
     {
@@ -276,6 +287,7 @@ const dishTemplates = [
         category: 'Cơm',
         region: 'Miền Nam',
         cookingTime: 45,
+        image: 'com-tam.jpg',
     },
     // MIỀN NAM - Bánh
     {
@@ -294,6 +306,7 @@ const dishTemplates = [
         category: 'Bánh',
         region: 'Miền Nam',
         cookingTime: 15,
+        image: 'banh-mi.jpg',
     },
     {
         name: { ja: 'バインセオ', vi: 'Bánh Xèo' },
@@ -311,6 +324,7 @@ const dishTemplates = [
         category: 'Bánh',
         region: 'Miền Nam',
         cookingTime: 40,
+        image: 'banh-xeo.jpg',
     },
     // MIỀN NAM - Gỏi
     {
@@ -329,6 +343,7 @@ const dishTemplates = [
         category: 'Gỏi',
         region: 'Miền Nam',
         cookingTime: 30,
+        image: 'goi-cuon.jpg',
     },
     {
         name: { ja: 'ゴイガー', vi: 'Gỏi Gà' },
@@ -346,6 +361,7 @@ const dishTemplates = [
         category: 'Gỏi',
         region: 'Miền Nam',
         cookingTime: 25,
+        image: 'goi-ga.jpg',
     },
     // MIỀN NAM - Lẩu
     {
@@ -364,6 +380,7 @@ const dishTemplates = [
         category: 'Lẩu',
         region: 'Miền Nam',
         cookingTime: 60,
+        image: 'lau-mam.jpg',
     },
     {
         name: { ja: 'ラウタイ', vi: 'Lẩu Thái' },
@@ -381,6 +398,7 @@ const dishTemplates = [
         category: 'Lẩu',
         region: 'Miền Nam',
         cookingTime: 45,
+        image: 'lau-thai.jpg',
     },
     // Chè (Desserts) - All regions
     {
@@ -399,6 +417,7 @@ const dishTemplates = [
         category: 'Chè',
         region: 'Miền Nam',
         cookingTime: 60,
+        image: 'che-ba-mau.jpg',
     },
     {
         name: { ja: 'チェーブオイ', vi: 'Chè Bưởi' },
@@ -415,6 +434,7 @@ const dishTemplates = [
         category: 'Chè',
         region: 'Miền Nam',
         cookingTime: 45,
+        image: 'che-buoi.jpg',
     },
     {
         name: { ja: 'チェースオイ', vi: 'Chè Sương Sáo' },
@@ -430,6 +450,7 @@ const dishTemplates = [
         category: 'Chè',
         region: 'Miền Bắc',
         cookingTime: 30,
+        image: 'che-suong-sao.jpg',
     },
     // Additional popular dishes
     {
@@ -448,6 +469,7 @@ const dishTemplates = [
         category: 'Bún',
         region: 'Miền Nam',
         cookingTime: 90,
+        image: 'hu-tieu.jpg',
     },
     {
         name: { ja: 'カオラウ', vi: 'Cao Lầu' },
@@ -465,6 +487,7 @@ const dishTemplates = [
         category: 'Bún',
         region: 'Miền Trung',
         cookingTime: 60,
+        image: 'cao-lau.jpg',
     },
     {
         name: { ja: 'バインボットロック', vi: 'Bánh Bột Lọc' },
@@ -481,6 +504,7 @@ const dishTemplates = [
         category: 'Bánh',
         region: 'Miền Trung',
         cookingTime: 50,
+        image: 'banh-bot-loc.jpg',
     },
 ];
 
@@ -592,7 +616,7 @@ async function generateMockData() {
                 // Prices in VND (Vietnamese Dong)
                 let baseMinPrice = 30000; // 30k VND
                 let baseMaxPrice = 150000; // 150k VND
-                
+
                 // Adjust prices based on category
                 if (template.category === 'Phở' || template.category === 'Bún') {
                     baseMinPrice = 40000;
@@ -613,17 +637,28 @@ async function generateMockData() {
                     baseMinPrice = 60000;
                     baseMaxPrice = 200000;
                 }
-                
+
                 // Add some variation
                 const minPrice = Math.floor(baseMinPrice + Math.random() * (baseMaxPrice - baseMinPrice) * 0.3);
                 const maxPrice = Math.floor(minPrice + (baseMaxPrice - minPrice) * (0.5 + Math.random() * 0.5));
-                
+
+                // Tạo tên file ảnh riêng cho mỗi phiên bản
+                // Ví dụ: pho-bo.jpg -> pho-bo-1.jpg, pho-bo-2.jpg, pho-bo-3.jpg
+                let imageFileName = '';
+                if (template.image) {
+                    const baseName = template.image.replace('.jpg', '').replace('.png', '').replace('.webp', '');
+                    const extension = template.image.split('.').pop() || 'jpg';
+                    imageFileName = `${baseName}-${i + 1}.${extension}`;
+                }
+
                 dishes.push({
                     ...template,
                     name: {
                         ja: `${template.name.ja}${suffix}`,
                         vi: `${template.name.vi}${suffix}`,
                     },
+                    // Mỗi phiên bản có ảnh riêng: pho-bo-1.jpg, pho-bo-2.jpg, etc.
+                    images: imageFileName ? [`/uploads/dishes/${imageFileName}`] : [],
                     averageRating: parseFloat((Math.random() * 1.5 + 3.5).toFixed(1)),
                     reviewCount: Math.floor(Math.random() * 500) + 50,
                     minPrice: minPrice,
@@ -663,13 +698,29 @@ async function generateMockData() {
                 const dishCount = Math.floor(Math.random() * 6) + 3;
                 const selectedDishes = getRandomItems(regionDishes, Math.min(dishCount, regionDishes.length));
 
+                // Tạo tên file ảnh dựa trên tên nhà hàng
+                // Ví dụ: "Phở Hà Nội" -> "nha_hang_pho_ha_noi"
+                const imageBaseName = restaurantName
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '') // Bỏ dấu
+                    .replace(/đ/g, 'd')
+                    .replace(/Đ/g, 'D')
+                    .replace(/\s+/g, '_'); // Thay space bằng underscore
+
+                // Thêm số thứ tự để phân biệt các chi nhánh
+                const branchNumber = Math.floor(i / restaurantNames.length) + 1;
+                const imageFileName = branchNumber > 1
+                    ? `nha_hang_${imageBaseName}_${branchNumber}.jpg`
+                    : `nha_hang_${imageBaseName}.jpg`;
+
                 restaurants.push({
                     name: `${restaurantName}${suffix}`,
                     address: `${number} ${street}, ${city.name}`,
                     location: generateLocationNearCity(city),
                     phone: `+84 ${Math.floor(Math.random() * 90) + 10} ${Math.floor(Math.random() * 9000) + 1000} ${Math.floor(Math.random() * 9000) + 1000}`,
                     website: `https://${restaurantName.toLowerCase().replace(/\s+/g, '')}.vn`,
-                    images: ['/uploads/restaurants/restaurant.jpg'],
+                    images: [`/uploads/restaurants/${imageFileName}`],
                     dishes: selectedDishes.map((d: IDish) => d._id),
                     averageRating: parseFloat((Math.random() * 1.5 + 3.5).toFixed(1)),
                     reviewCount: Math.floor(Math.random() * 600) + 100,
