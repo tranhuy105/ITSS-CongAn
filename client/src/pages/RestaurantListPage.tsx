@@ -167,31 +167,25 @@ const RestaurantFilterSidebar = ({
               <span className="text-muted-foreground">
                 {t('restaurantList.filters.nearby.radiusPlaceholder')}
               </span>
-              <span className="font-semibold">
+              <span className="font-semibold text-primary">
                 {radiusKm ? `${radiusKm} km` : '5 km'}
               </span>
             </div>
-            <div className="relative py-2">
-              <div
-                className="absolute top-1/2 left-0 h-4 rounded-l-lg pointer-events-none -translate-y-1/2 z-0 opacity-80"
-                style={{
-                  width: `${((parseFloat(radiusKm || '5') - 1) / 14) * 100}%`,
-                  backgroundColor: 'hsl(var(--primary))',
-                  borderRadius: '8px 0 0 8px',
-                }}
-              />
+            <div className="py-4">
               <input
                 type="range"
-                min="1"
+                min="0.5"
                 max="15"
-                step="1"
+                step="0.5"
                 value={radiusKm || '5'}
                 onChange={(e) => setRadiusKm(e.target.value)}
-                className="w-full appearance-none cursor-pointer slider relative z-10"
+                className="w-full slider cursor-pointer"
               />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground px-1">
-              <span>1 km</span>
+              <span>0.5 km</span>
+              <span>5 km</span>
+              <span>10 km</span>
               <span>15 km</span>
             </div>
           </div>
@@ -459,11 +453,11 @@ export const RestaurantListPage = () => {
       ? [userLatitude, userLongitude]
       : allRestaurants.length > 0
         ? [
-            allRestaurants.reduce((sum, r) => sum + r.location.coordinates[1], 0) /
-              allRestaurants.length,
-            allRestaurants.reduce((sum, r) => sum + r.location.coordinates[0], 0) /
-              allRestaurants.length,
-          ]
+          allRestaurants.reduce((sum, r) => sum + r.location.coordinates[1], 0) /
+          allRestaurants.length,
+          allRestaurants.reduce((sum, r) => sum + r.location.coordinates[0], 0) /
+          allRestaurants.length,
+        ]
         : [10.7769, 106.7008];
 
   return (
